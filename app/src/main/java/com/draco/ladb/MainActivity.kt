@@ -6,18 +6,29 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
+import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textview.MaterialTextView
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        const val MAX_OUTPUT_BUFFER_SIZE = 1024 * 4
+        const val OUTPUT_BUFFER_DELAY_MS = 100L
+    }
+
     private lateinit var command: TextInputEditText
-    private lateinit var output: TextInputEditText
+    private lateinit var output: MaterialTextView
+    private lateinit var outputScrollView: ScrollView
     private lateinit var progress: ProgressBar
 
     private var currentProcess: Process? = null
 
     private lateinit var adbPath: String
+
+    private lateinit var outputBuffer: File
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,9 +36,15 @@ class MainActivity : AppCompatActivity() {
 
         command = findViewById(R.id.command)
         output = findViewById(R.id.output)
+        outputScrollView = findViewById(R.id.output_scrollview)
         progress = findViewById(R.id.progress)
 
         adbPath = "${applicationInfo.nativeLibraryDir}/libadb.so"
+
+        /* Store the buffer locally to avoid an OOM error */
+        outputBuffer = File.createTempFile("buffer", "txt").apply {
+            deleteOnExit()
+        }
 
         /* Kill any existing servers */
         reset()
@@ -35,15 +52,17 @@ class MainActivity : AppCompatActivity() {
         command.setOnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
                 val thisCommand = command.text.toString()
-                command.hint = thisCommand
-                command.text = null
+                output.text = null
+                command.isEnabled = false
 
                 val processBuilder = ProcessBuilder(
                     adbPath,
                     "-s", "localhost",
                     "shell",
                     thisCommand
-                ).redirectErrorStream(true)
+                )
+                    .redirectErrorStream(true)
+                    .redirectOutput(outputBuffer)
 
                 processBuilder.environment().apply {
                     put("HOME", filesDir.path)
@@ -55,18 +74,30 @@ class MainActivity : AppCompatActivity() {
                 progress.visibility = View.VISIBLE
                 currentProcess = processBuilder.start()
 
-                output.text = null
                 Thread {
-                    currentProcess!!.waitFor()
-
-                    try {
-                        val out = currentProcess!!.inputStream.bufferedReader().readText()
-                        if (out.isNotBlank()) runOnUiThread {
-                            output.setText(out)
-                            progress.visibility = View.INVISIBLE
+                    /* Until finished, update the output */
+                    while (currentProcess!!.isAlive) {
+                        val out = readEndOfFile(outputBuffer)
+                        runOnUiThread {
+                            output.text = out
                         }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
+                        outputScrollView.post {
+                            outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
+                        }
+                        Thread.sleep(OUTPUT_BUFFER_DELAY_MS)
+                    }
+
+                    /* Hide the progress and update the final output */
+                    val out = readEndOfFile(outputBuffer)
+                    runOnUiThread {
+                        progress.visibility = View.INVISIBLE
+                        runOnUiThread {
+                            output.text = out
+                        }
+                        outputScrollView.post {
+                            outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
+                        }
+                        command.isEnabled = true
                     }
                 }.start()
 
@@ -77,11 +108,26 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun readEndOfFile(file: File): String {
+        val out = ByteArray(MAX_OUTPUT_BUFFER_SIZE)
+        file.inputStream().use {
+            val size = it.channel.size()
+
+            if (size <= out.size)
+                return String(it.readBytes())
+
+            val newPos = (it.channel.size() - out.size)
+            it.channel.position(newPos)
+            it.read(out)
+        }
+
+        return String(out)
+    }
+
     private fun reset() {
         progress.visibility = View.VISIBLE
         command.isEnabled = false
         command.text = null
-        command.hint = null
         output.text = null
 
         Thread {

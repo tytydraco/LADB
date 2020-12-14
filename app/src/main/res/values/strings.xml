@@ -2,7 +2,6 @@
     <string name="app_name">LADB</string>
 
     <string name="command_hint">Shell command</string>
-    <string name="output_hint">Output</string>
 
     <string name="reset">Reset</string>
     <string name="help">Help</string>

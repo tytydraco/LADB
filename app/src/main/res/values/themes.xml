@@ -4,5 +4,6 @@
         <item name="colorSecondary">@color/blue</item>
         <item name="android:statusBarColor">?colorPrimary</item>
         <item name="android:navigationBarColor">?colorSurface</item>
+        <item name="fontFamily">monospace</item>
     </style>
 </resources>
