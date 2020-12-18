@@ -10,9 +10,10 @@ LADB bundles an ADB server within the app libraries. Normally, this server canno
 3. Developer Settings -> ADB Debugging -> On
 
 # Troubleshooting:
-If you encounter "device unauthorized" or "localhost not found", try this:
+If you encounter "device unauthorized" or "multiple devices connected", try this:
 1. Enable Airplane Mode
-2. Press the refresh menu option
+2. Disconnect any USB devices
+3. Kill and restart LADB
 
 Still not working? Try this:
 1. Close LADB completely
@@ -22,5 +23,7 @@ Still not working? Try this:
 5. Reboot
 6. Developer Settings -> Wireless ADB Debugging -> On
 7. Developer Settings -> ADB Debugging -> On
+8. Enable Airplane Mode
+9. Open LADB
 
 Still confused? Email me at tylernij@gmail.com.

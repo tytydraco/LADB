@@ -12,6 +12,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 import java.io.File
+import java.io.PrintStream
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -24,11 +25,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var outputScrollView: ScrollView
     private lateinit var progress: ProgressBar
 
-    private var currentProcess: Process? = null
+    private lateinit var currentProcess: Process
 
     private lateinit var adbPath: String
 
     private lateinit var outputBuffer: File
+    private lateinit var printStream: PrintStream
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,58 +49,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         /* Kill any existing servers */
-        reset()
+        initializeClient()
 
         command.setOnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-                val thisCommand = command.text.toString()
-                output.text = null
-                command.isEnabled = false
-
-                val processBuilder = ProcessBuilder(
-                    adbPath,
-                    "-s", "localhost",
-                    "shell",
-                    thisCommand
-                )
-                    .redirectErrorStream(true)
-                    .redirectOutput(outputBuffer)
-
-                processBuilder.environment().apply {
-                    put("HOME", filesDir.path)
-                    put("TMPDIR", cacheDir.path)
-                }
-
-                if (currentProcess != null) currentProcess!!.destroy()
-
-                progress.visibility = View.VISIBLE
-                currentProcess = processBuilder.start()
-
                 Thread {
-                    /* Until finished, update the output */
-                    while (currentProcess!!.isAlive) {
-                        val out = readEndOfFile(outputBuffer)
-                        runOnUiThread {
-                            output.text = out
-                        }
-                        outputScrollView.post {
-                            outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
-                        }
-                        Thread.sleep(OUTPUT_BUFFER_DELAY_MS)
-                    }
-
-                    /* Hide the progress and update the final output */
-                    val out = readEndOfFile(outputBuffer)
-                    runOnUiThread {
-                        progress.visibility = View.INVISIBLE
-                        runOnUiThread {
-                            output.text = out
-                        }
-                        outputScrollView.post {
-                            outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
-                        }
-                        command.isEnabled = true
-                    }
+                    printStream.println(command.text.toString())
+                    printStream.flush()
                 }.start()
 
                 return@setOnKeyListener true
@@ -124,35 +81,82 @@ class MainActivity : AppCompatActivity() {
         return String(out)
     }
 
-    private fun reset() {
+    private fun updateOutputFeed() {
+        val out = readEndOfFile(outputBuffer)
+        val currentText = output.text.toString()
+        if (out != currentText) {
+            runOnUiThread {
+                output.text = out
+                outputScrollView.post {
+                    outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
+                }
+            }
+        }
+    }
+
+    private fun startOutputFeed() {
+        Thread {
+            while (currentProcess.isAlive) {
+                updateOutputFeed()
+                Thread.sleep(OUTPUT_BUFFER_DELAY_MS)
+            }
+            updateOutputFeed()
+        }.start()
+    }
+
+    private fun initializeClient() {
         progress.visibility = View.VISIBLE
         command.isEnabled = false
         command.text = null
         output.text = null
 
         Thread {
+            /* Disconnect other connections */
             ProcessBuilder(
-                adbPath,
-                "disconnect"
-            ).apply {
-                environment().apply {
-                    put("HOME", filesDir.path)
-                    put("TMPDIR", cacheDir.path)
+                adbPath, "disconnect"
+            )
+                .redirectErrorStream(true)
+                .redirectOutput(outputBuffer)
+                .apply {
+                    environment().apply {
+                        put("HOME", filesDir.path)
+                        put("TMPDIR", cacheDir.path)
+                    }
                 }
-                start().waitFor()
-            }
+                .start()
+                .waitFor()
 
+            /* Wait patiently for user to accept connection */
             ProcessBuilder(
-                adbPath,
-                "connect",
-                "localhost"
-            ).apply {
-                environment().apply {
-                    put("HOME", filesDir.path)
-                    put("TMPDIR", cacheDir.path)
+                adbPath, "wait-for-device"
+            )
+                .redirectErrorStream(true)
+                .redirectOutput(outputBuffer)
+                .apply {
+                    environment().apply {
+                        put("HOME", filesDir.path)
+                        put("TMPDIR", cacheDir.path)
+                    }
                 }
-                start().waitFor()
-            }
+                .start()
+                .waitFor()
+
+            /* Boot up a shell instance */
+            currentProcess = ProcessBuilder(
+                adbPath, "shell"
+            )
+                .redirectErrorStream(true)
+                .redirectOutput(outputBuffer)
+                .apply {
+                    environment().apply {
+                        put("HOME", filesDir.path)
+                        put("TMPDIR", cacheDir.path)
+                    }
+                }
+                .start()
+            printStream = PrintStream(currentProcess.outputStream)
+
+            startOutputFeed()
 
             runOnUiThread {
                 command.isEnabled = true
@@ -163,10 +167,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.reset -> {
-                reset()
-                true
-            }
             R.id.help -> {
                 MaterialAlertDialogBuilder(this).apply {
                     setTitle(R.string.help_title)
