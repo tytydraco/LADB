@@ -204,7 +204,7 @@ class MainActivity : AppCompatActivity() {
                     with (intent) {
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         putExtra(Intent.EXTRA_STREAM, uri)
-                        type = "*/*"
+                        type = "file/*"
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     }
                     startActivity(intent)
