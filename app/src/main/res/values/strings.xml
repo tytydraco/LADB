@@ -4,6 +4,10 @@
     <string name="command_hint">Shell command</string>
 
     <string name="help">Help</string>
+    <string name="share">Share</string>
+
+    <string name="snackbar_intent_failed">Failed to share log</string>
+    <string name="snackbar_dismiss">Dismiss</string>
 
     <string name="help_title">Help</string>
     <string name="help_message">

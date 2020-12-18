@@ -1,5 +1,6 @@
 package com.draco.ladb
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
@@ -8,7 +9,9 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 import java.io.File
@@ -52,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         adbPath = "${applicationInfo.nativeLibraryDir}/libadb.so"
 
         /* Store the buffer locally to avoid an OOM error */
-        outputBuffer = File.createTempFile("buffer", "txt").apply {
+        outputBuffer = File.createTempFile("buffer", ".txt").apply {
             deleteOnExit()
         }
 
@@ -192,6 +195,25 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.help -> {
                 help()
+                true
+            }
+            R.id.share -> {
+                try {
+                    val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", outputBuffer)
+                    val intent = Intent(Intent.ACTION_SEND)
+                    with (intent) {
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        type = "*/*"
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Snackbar.make(output, getString(R.string.snackbar_intent_failed), Snackbar.LENGTH_SHORT)
+                        .setAction(getString(R.string.snackbar_dismiss)) {}
+                        .show()
+                }
                 true
             }
             else -> super.onOptionsItemSelected(item)
