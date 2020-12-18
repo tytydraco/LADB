@@ -25,6 +25,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var outputScrollView: ScrollView
     private lateinit var progress: ProgressBar
 
+    private lateinit var helpDialog: MaterialAlertDialogBuilder
+
     private lateinit var currentProcess: Process
 
     private lateinit var adbPath: String
@@ -40,6 +42,12 @@ class MainActivity : AppCompatActivity() {
         output = findViewById(R.id.output)
         outputScrollView = findViewById(R.id.output_scrollview)
         progress = findViewById(R.id.progress)
+
+        helpDialog = MaterialAlertDialogBuilder(this).apply {
+            setTitle(R.string.help_title)
+            setMessage(R.string.help_message)
+            setPositiveButton(R.string.dismiss, null)
+        }
 
         adbPath = "${applicationInfo.nativeLibraryDir}/libadb.so"
 
@@ -62,6 +70,17 @@ class MainActivity : AppCompatActivity() {
             }
 
             return@setOnKeyListener false
+        }
+
+        with (getPreferences(MODE_PRIVATE)) {
+            if (getBoolean("firstLaunch", true)) {
+                with (edit()) {
+                    putBoolean("firstLaunch", false)
+                    apply()
+                }
+
+                help()
+            }
         }
     }
 
@@ -165,15 +184,14 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
 
+    private fun help() {
+        helpDialog.show()
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.help -> {
-                MaterialAlertDialogBuilder(this).apply {
-                    setTitle(R.string.help_title)
-                    setMessage(R.string.help_message)
-                    setPositiveButton(R.string.dismiss, null)
-                    show()
-                }
+                help()
                 true
             }
             else -> super.onOptionsItemSelected(item)
