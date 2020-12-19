@@ -7,6 +7,7 @@
     <string name="share">Share</string>
 
     <string name="snackbar_intent_failed">Failed to share log</string>
+    <string name="snackbar_file_opened">Executing script from file</string>
     <string name="snackbar_dismiss">Dismiss</string>
 
     <string name="help_title">Help</string>

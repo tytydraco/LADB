@@ -1,7 +1,9 @@
 package com.draco.ladb
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
@@ -59,9 +61,6 @@ class MainActivity : AppCompatActivity() {
             deleteOnExit()
         }
 
-        /* Kill any existing servers */
-        initializeClient()
-
         command.setOnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
                 Thread {
@@ -85,6 +84,39 @@ class MainActivity : AppCompatActivity() {
                 help()
             }
         }
+
+        initializeClient {
+            if (intent.type != null)
+                executeFromScript()
+        }
+    }
+
+    private fun executeFromScript() {
+        val script = when (intent.type) {
+            "text/x-sh" -> {
+                val uri = Uri.parse(intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM).toString())
+                contentResolver.openInputStream(uri)?.bufferedReader().use {
+                    it?.readText()
+                }
+            }
+            "text/plain" -> intent.getStringExtra(Intent.EXTRA_TEXT)
+            else -> null
+        } ?: return
+
+        val scriptPath = "${getExternalFilesDir(null)}/script.sh"
+        val internalScript = File(scriptPath).apply {
+            bufferedWriter().use {
+                it.write(script)
+            }
+            deleteOnExit()
+        }
+
+        Snackbar.make(output, getString(R.string.snackbar_file_opened), Snackbar.LENGTH_SHORT)
+            .setAction(getString(R.string.snackbar_dismiss)) {}
+            .show()
+
+        printStream.println("sh ${internalScript.absolutePath}")
+        printStream.flush()
     }
 
     private fun readEndOfFile(file: File): String {
@@ -126,7 +158,7 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
 
-    private fun initializeClient() {
+    private fun initializeClient(callback: Runnable? = null) {
         progress.visibility = View.VISIBLE
         command.isEnabled = false
         command.text = null
@@ -184,6 +216,8 @@ class MainActivity : AppCompatActivity() {
                 command.isEnabled = true
                 progress.visibility = View.INVISIBLE
             }
+
+            callback?.run()
         }.start()
     }
 
