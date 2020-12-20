@@ -185,7 +185,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun debugMessage(msg: String) {
-        outputBuffer.appendText(msg)
+        outputBuffer.appendText("DEBUG: " + msg + System.lineSeparator())
     }
 
     private fun adb(redirect: Boolean, vararg command: String): Process {
