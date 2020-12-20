@@ -60,12 +60,36 @@ class MainActivity : AppCompatActivity() {
         helpDialog = MaterialAlertDialogBuilder(this).apply {
             setTitle(R.string.help_title)
             setMessage(R.string.help_message)
-            setPositiveButton(R.string.snackbar_dismiss, null)
+            setPositiveButton(R.string.dismiss, null)
+            setNegativeButton(R.string.reset) { _, _ ->
+                progress.visibility = View.VISIBLE
+                command.isEnabled = false
+
+                Thread {
+                    outputBufferFile.writeText("")
+                    debugMessage("Disconnecting all clients")
+                    adb(false, "disconnect").waitFor()
+                    debugMessage("Killing server")
+                    adb(false, "kill-server").waitFor()
+                    debugMessage("Clearing pairing memory")
+                    with (getPreferences(MODE_PRIVATE).edit()) {
+                        putBoolean("paired", false)
+                        apply()
+                    }
+                    debugMessage("Erasing all ADB server files")
+                    filesDir.deleteRecursively()
+                    debugMessage("LADB reset complete!")
+                    debugMessage("Exiting in three seconds")
+                    Thread.sleep(3000)
+                    finishAffinity()
+                }.start()
+            }
         }
 
         pairDialog = MaterialAlertDialogBuilder(this).apply {
             setTitle(R.string.pair_title)
             setMessage(R.string.pair_message)
+            setCancelable(false)
             setView(R.layout.dialog_pair)
         }
 
@@ -122,7 +146,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         Snackbar.make(output, getString(R.string.snackbar_file_opened), Snackbar.LENGTH_SHORT)
-            .setAction(getString(R.string.snackbar_dismiss)) {}
+            .setAction(getString(R.string.dismiss)) {}
             .show()
 
         /* Execute the script here */
@@ -150,7 +174,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun startOutputFeed() {
         Thread {
-            while (true) {
+            while (outputBufferFile.exists()) {
                 val out = readEndOfFile(outputBufferFile)
                 val currentText = output.text.toString()
                 if (out != currentText) {
@@ -169,8 +193,6 @@ class MainActivity : AppCompatActivity() {
     private fun initializeClient(callback: Runnable? = null) {
         progress.visibility = View.VISIBLE
         command.isEnabled = false
-        command.text = null
-        output.text = null
 
         Thread {
             /* Begin forwarding output buffer text to output view */
@@ -179,7 +201,7 @@ class MainActivity : AppCompatActivity() {
             /* If we have not been paried yet, do so now */
             if (!getPreferences(MODE_PRIVATE).getBoolean("paired", false)) {
                 /* SDK 30+ need to pair to the device using a new method */
-                if (true || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     debugMessage("Requesting pairing information")
                     runOnUiThread {
                         handlePairing()
@@ -215,7 +237,7 @@ class MainActivity : AppCompatActivity() {
         pairDialog
             .create()
             .apply {
-                setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.snackbar_okay)) { _, _ ->
+                setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.okay)) { _, _ ->
                     val port = findViewById<TextInputEditText>(R.id.port)!!.text.toString()
                     val code = findViewById<TextInputEditText>(R.id.code)!!.text.toString()
 
@@ -267,14 +289,10 @@ class MainActivity : AppCompatActivity() {
             .start()
     }
 
-    private fun help() {
-        helpDialog.show()
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.help -> {
-                help()
+                helpDialog.show()
                 true
             }
             R.id.share -> {
@@ -291,7 +309,7 @@ class MainActivity : AppCompatActivity() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Snackbar.make(output, getString(R.string.snackbar_intent_failed), Snackbar.LENGTH_SHORT)
-                        .setAction(getString(R.string.snackbar_dismiss)) {}
+                        .setAction(getString(R.string.dismiss)) {}
                         .show()
                 }
                 true

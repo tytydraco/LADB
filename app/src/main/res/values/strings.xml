@@ -8,8 +8,9 @@
 
     <string name="snackbar_intent_failed">Failed to share log</string>
     <string name="snackbar_file_opened">Executing script from file</string>
-    <string name="snackbar_dismiss">Dismiss</string>
-    <string name="snackbar_okay">Okay</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="reset">Reset</string>
+    <string name="okay">Okay</string>
 
     <string name="port_hint">Port</string>
     <string name="port_text">1234</string>
@@ -23,26 +24,27 @@
 2. Developer Settings -> Wireless ADB Debugging -> On
 3. Developer Settings -> ADB Debugging -> On
 
-Troubleshooting:
-If you are using a device on Android 11 or higher, try this:
-1. Clear the app data
-2. Launch the app
-3. Pairing it using the instructions
+<b>Troubleshooting</b>
 
-If you encounter "device unauthorized" or "multiple devices connected", try this:
-1. Enable Airplane Mode
-2. Disconnect any USB devices
-3. Kill and restart LADB
+Attempt #1:
+1. Help -> Reset
 
-If your device hangs while waiting for a device, try this:
-1. Close LADB completely
+Attempt #2:
+1. Close LADB
+2. Enable Airplane Mode (Android 10 and below)
+3. Clear any existing Wireless Debugging connections (Android 11 and above)
+4. Disconnect all USB devices
+5. Open LADB
+
+Attempt #3:
+1. Close LADB
 2. Developer Settings -> Wireless ADB Debugging -> Off
 3. Developer Settings -> ADB Debugging -> Off
 4. Developer Settings -> Revoke authorizations
 5. Reboot
 6. Developer Settings -> Wireless ADB Debugging -> On
 7. Developer Settings -> ADB Debugging -> On
-8. Enable Airplane Mode
+8. Enable Airplane Mode (Android 10 and below)
 9. Open LADB
 
 Still confused? Email me at tylernij@gmail.com."
