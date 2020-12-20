@@ -2,6 +2,7 @@ package com.draco.ladb
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.KeyEvent
@@ -10,6 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.ScrollView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -18,6 +20,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 import java.io.File
 import java.io.PrintStream
+import java.util.concurrent.CountDownLatch
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -31,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var progress: ProgressBar
 
     private lateinit var helpDialog: MaterialAlertDialogBuilder
+    private lateinit var pairDialog: MaterialAlertDialogBuilder
 
     private lateinit var currentProcess: Process
 
@@ -38,6 +42,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var outputBuffer: File
     private lateinit var printStream: PrintStream
+
+    private val pairingInfoLatch = CountDownLatch(1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +57,13 @@ class MainActivity : AppCompatActivity() {
         helpDialog = MaterialAlertDialogBuilder(this).apply {
             setTitle(R.string.help_title)
             setMessage(R.string.help_message)
-            setPositiveButton(R.string.dismiss, null)
+            setPositiveButton(R.string.snackbar_dismiss, null)
+        }
+
+        pairDialog = MaterialAlertDialogBuilder(this).apply {
+            setTitle(R.string.pair_title)
+            setMessage(R.string.pair_message)
+            setView(R.layout.dialog_pair)
         }
 
         adbPath = "${applicationInfo.nativeLibraryDir}/libadb.so"
@@ -168,6 +180,15 @@ class MainActivity : AppCompatActivity() {
 
             debugMessage("Disconnecting existing connections")
             adb(false, "disconnect").waitFor()
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                runOnUiThread {
+                    handlePairing()
+                }
+
+                pairingInfoLatch.await()
+            }
+
             debugMessage("Waiting for device to accept connection")
             adb(false, "wait-for-device").waitFor()
             debugMessage("Shelling into device")
@@ -182,6 +203,31 @@ class MainActivity : AppCompatActivity() {
 
             callback?.run()
         }.start()
+    }
+
+    private fun handlePairing() {
+        pairDialog
+            .create()
+            .apply {
+                setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.snackbar_okay)) { _, _ ->
+                    val port = findViewById<TextInputEditText>(R.id.port)!!.text.toString()
+                    val code = findViewById<TextInputEditText>(R.id.code)!!.text.toString()
+
+                    Thread {
+                        debugMessage("Requesting additional pairing information")
+                        val pairShell = adb(true, "pair", "localhost:$port")
+                        val pairPrintStream = PrintStream(pairShell.outputStream)
+                        Thread.sleep(500)
+                        pairPrintStream.apply {
+                            println(code)
+                            flush()
+                        }
+                        pairShell.waitFor()
+                        pairingInfoLatch.countDown()
+                    }.start()
+                }
+            }
+            .show()
     }
 
     private fun debugMessage(msg: String) {

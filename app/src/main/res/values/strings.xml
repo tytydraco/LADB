@@ -9,6 +9,13 @@
     <string name="snackbar_intent_failed">Failed to share log</string>
     <string name="snackbar_file_opened">Executing script from file</string>
     <string name="snackbar_dismiss">Dismiss</string>
+    <string name="snackbar_okay">Okay</string>
+
+    <string name="port_hint">Port</string>
+    <string name="port_text">1234</string>
+
+    <string name="code_hint">Pairing code</string>
+    <string name="code_text">123456</string>
 
     <string name="help_title">Help</string>
     <string name="help_message">
@@ -36,5 +43,11 @@ Still not working? Try this:
 
 Still confused? Email me at tylernij@gmail.com."
     </string>
-    <string name="dismiss">Dismiss</string>
+
+    <string name="pair_title">Pairing information</string>
+    <string name="pair_message">
+"Your Android version requires more information connect. You can find the port and pairing code here:
+
+Settings -> Developer Settings -> Wireless Debugging"
+    </string>
 </resources>
