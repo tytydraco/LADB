@@ -28,21 +28,24 @@ class MainActivity : AppCompatActivity() {
         const val OUTPUT_BUFFER_DELAY_MS = 100L
     }
 
+    /* UI components */
     private lateinit var command: TextInputEditText
     private lateinit var output: MaterialTextView
     private lateinit var outputScrollView: ScrollView
     private lateinit var progress: ProgressBar
 
+    /* Alert dialogs */
     private lateinit var helpDialog: MaterialAlertDialogBuilder
     private lateinit var pairDialog: MaterialAlertDialogBuilder
 
-    private lateinit var currentProcess: Process
-
+    /* Path to ADB binary */
     private lateinit var adbPath: String
 
-    private lateinit var outputBuffer: File
-    private lateinit var printStream: PrintStream
+    /* Shell objects */
+    private lateinit var adbShellProcess: Process
+    private lateinit var outputBufferFile: File
 
+    /* Latch that gets decremented after user provides pairing port and code */
     private val pairingInfoLatch = CountDownLatch(1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,15 +72,18 @@ class MainActivity : AppCompatActivity() {
         adbPath = "${applicationInfo.nativeLibraryDir}/libadb.so"
 
         /* Store the buffer locally to avoid an OOM error */
-        outputBuffer = File.createTempFile("buffer", ".txt").apply {
+        outputBufferFile = File.createTempFile("buffer", ".txt").apply {
             deleteOnExit()
         }
 
         command.setOnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
                 Thread {
-                    printStream.println(command.text.toString())
-                    printStream.flush()
+                    /* Pipe commands directly to shell process */
+                    PrintStream(adbShellProcess.outputStream).apply {
+                        println(command.text.toString())
+                        flush()
+                    }
                 }.start()
 
                 return@setOnKeyListener true
@@ -86,19 +92,10 @@ class MainActivity : AppCompatActivity() {
             return@setOnKeyListener false
         }
 
-        with (getPreferences(MODE_PRIVATE)) {
-            if (getBoolean("firstLaunch", true)) {
-                with (edit()) {
-                    putBoolean("firstLaunch", false)
-                    apply()
-                }
-
-                help()
-            }
-        }
-
+        /* Prepare client */
         initializeClient {
-            if (intent.type != null)
+            /* If we started from a shell script, launch it after client init */
+            if (intent.type == "text/plain" || intent.type == "text/x-sh")
                 executeFromScript()
         }
     }
@@ -115,6 +112,7 @@ class MainActivity : AppCompatActivity() {
             else -> null
         } ?: return
 
+        /* Store script locally */
         val scriptPath = "${getExternalFilesDir(null)}/script.sh"
         val internalScript = File(scriptPath).apply {
             bufferedWriter().use {
@@ -127,8 +125,11 @@ class MainActivity : AppCompatActivity() {
             .setAction(getString(R.string.snackbar_dismiss)) {}
             .show()
 
-        printStream.println("sh ${internalScript.absolutePath}")
-        printStream.flush()
+        /* Execute the script here */
+        PrintStream(adbShellProcess.outputStream).apply {
+            println("sh ${internalScript.absolutePath}")
+            flush()
+        }
     }
 
     private fun readEndOfFile(file: File): String {
@@ -147,23 +148,19 @@ class MainActivity : AppCompatActivity() {
         return String(out)
     }
 
-    private fun updateOutputFeed() {
-        val out = readEndOfFile(outputBuffer)
-        val currentText = output.text.toString()
-        if (out != currentText) {
-            runOnUiThread {
-                output.text = out
-                outputScrollView.post {
-                    outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
-                }
-            }
-        }
-    }
-
     private fun startOutputFeed() {
         Thread {
             while (true) {
-                updateOutputFeed()
+                val out = readEndOfFile(outputBufferFile)
+                val currentText = output.text.toString()
+                if (out != currentText) {
+                    runOnUiThread {
+                        output.text = out
+                        outputScrollView.post {
+                            outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
+                        }
+                    }
+                }
                 Thread.sleep(OUTPUT_BUFFER_DELAY_MS)
             }
         }.start()
@@ -176,25 +173,34 @@ class MainActivity : AppCompatActivity() {
         output.text = null
 
         Thread {
+            /* Begin forwarding output buffer text to output view */
             startOutputFeed()
 
-            debugMessage("Disconnecting existing connections")
-            adb(false, "disconnect").waitFor()
+            /* If we have not been paried yet, do so now */
+            if (!getPreferences(MODE_PRIVATE).getBoolean("paired", false)) {
+                /* SDK 30+ need to pair to the device using a new method */
+                if (true || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    debugMessage("Requesting pairing information")
+                    runOnUiThread {
+                        handlePairing()
+                    }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                runOnUiThread {
-                    handlePairing()
+                    /* Wait for backend pairing to finish */
+                    pairingInfoLatch.await()
                 }
-
-                pairingInfoLatch.await()
             }
 
-            debugMessage("Waiting for device to accept connection")
+            debugMessage("Waiting for device to accept connection. This part may take a while.")
             adb(false, "wait-for-device").waitFor()
-            debugMessage("Shelling into device")
 
-            currentProcess = adb(true, "shell")
-            printStream = PrintStream(currentProcess.outputStream)
+            debugMessage("Connection established")
+            with (getPreferences(MODE_PRIVATE).edit()) {
+                putBoolean("paired", true)
+                apply()
+            }
+
+            debugMessage("Shelling into device")
+            adbShellProcess = adb(true, "shell")
 
             runOnUiThread {
                 command.isEnabled = true
@@ -216,12 +222,17 @@ class MainActivity : AppCompatActivity() {
                     Thread {
                         debugMessage("Requesting additional pairing information")
                         val pairShell = adb(true, "pair", "localhost:$port")
-                        val pairPrintStream = PrintStream(pairShell.outputStream)
-                        Thread.sleep(500)
-                        pairPrintStream.apply {
+
+                        /* Sleep to allow shell to catch up */
+                        Thread.sleep(1000)
+
+                        /* Pipe pairing code */
+                        PrintStream(pairShell.outputStream).apply {
                             println(code)
                             flush()
                         }
+
+                        /* Continue once finished pairing */
                         pairShell.waitFor()
                         pairingInfoLatch.countDown()
                     }.start()
@@ -231,7 +242,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun debugMessage(msg: String) {
-        outputBuffer.appendText("DEBUG: " + msg + System.lineSeparator())
+        outputBufferFile.appendText("DEBUG: " + msg + System.lineSeparator())
     }
 
     private fun adb(redirect: Boolean, vararg command: String): Process {
@@ -240,12 +251,12 @@ class MainActivity : AppCompatActivity() {
             for (piece in command)
                 add(piece)
         }
-        /* Boot up a shell instance */
+
         return ProcessBuilder(commandList)
             .apply {
                 if (redirect) {
                     redirectErrorStream(true)
-                    redirectOutput(outputBuffer)
+                    redirectOutput(outputBufferFile)
                 }
 
                 environment().apply {
@@ -268,7 +279,7 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.share -> {
                 try {
-                    val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", outputBuffer)
+                    val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", outputBufferFile)
                     val intent = Intent(Intent.ACTION_SEND)
                     with (intent) {
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
