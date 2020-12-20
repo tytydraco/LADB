@@ -51,12 +51,9 @@ Still confused? Email me at tylernij@gmail.com."
     </string>
 
     <string name="pair_title">Pairing information</string>
-    <string name="pair_message">"Your Android version requires more information to connect. You can find the port and the 6-digit pairing code here:
-
+    <string name="pair_message">"You can find the port and the 6-digit pairing code here:
 Settings -> Developer Settings -> Wireless Debugging
 
-The port comes after the colon. For example, 192.168.1.52:<b>1234</b>.
-
-<b>Be aware, the port and pairing code changes upon closing the window.</b> Open LADB and Settings using Split Screen to prevent the code from changing. Once connected, you should not have to do this again. Be aware that rebooting disables Wireless Debugging, and it may need to be enabled again."
+<b>Be aware, the port and pairing code change upon closing the window.</b> Open LADB and Settings using Split Screen to prevent the code from changing."
     </string>
 </resources>
