@@ -102,10 +102,12 @@ class MainActivity : AppCompatActivity() {
 
         command.setOnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
+                val text = command.text.toString()
+                command.text = null
                 Thread {
                     /* Pipe commands directly to shell process */
                     PrintStream(adbShellProcess.outputStream).apply {
-                        println(command.text.toString())
+                        println(text)
                         flush()
                     }
                 }.start()
