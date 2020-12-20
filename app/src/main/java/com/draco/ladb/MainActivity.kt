@@ -150,11 +150,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun startOutputFeed() {
         Thread {
-            while (currentProcess.isAlive) {
+            while (true) {
                 updateOutputFeed()
                 Thread.sleep(OUTPUT_BUFFER_DELAY_MS)
             }
-            updateOutputFeed()
         }.start()
     }
 
@@ -165,52 +164,16 @@ class MainActivity : AppCompatActivity() {
         output.text = null
 
         Thread {
-            /* Disconnect other connections */
-            ProcessBuilder(
-                adbPath, "disconnect"
-            )
-                .redirectErrorStream(true)
-                .redirectOutput(outputBuffer)
-                .apply {
-                    environment().apply {
-                        put("HOME", filesDir.path)
-                        put("TMPDIR", cacheDir.path)
-                    }
-                }
-                .start()
-                .waitFor()
-
-            /* Wait patiently for user to accept connection */
-            ProcessBuilder(
-                adbPath, "wait-for-device"
-            )
-                .redirectErrorStream(true)
-                .redirectOutput(outputBuffer)
-                .apply {
-                    environment().apply {
-                        put("HOME", filesDir.path)
-                        put("TMPDIR", cacheDir.path)
-                    }
-                }
-                .start()
-                .waitFor()
-
-            /* Boot up a shell instance */
-            currentProcess = ProcessBuilder(
-                adbPath, "shell"
-            )
-                .redirectErrorStream(true)
-                .redirectOutput(outputBuffer)
-                .apply {
-                    environment().apply {
-                        put("HOME", filesDir.path)
-                        put("TMPDIR", cacheDir.path)
-                    }
-                }
-                .start()
-            printStream = PrintStream(currentProcess.outputStream)
-
             startOutputFeed()
+
+            debugMessage("Disconnecting existing connections")
+            adb(false, "disconnect").waitFor()
+            debugMessage("Waiting for device to accept connection")
+            adb(false, "wait-for-device").waitFor()
+            debugMessage("Shelling into device")
+
+            currentProcess = adb(true, "shell")
+            printStream = PrintStream(currentProcess.outputStream)
 
             runOnUiThread {
                 command.isEnabled = true
@@ -219,6 +182,32 @@ class MainActivity : AppCompatActivity() {
 
             callback?.run()
         }.start()
+    }
+
+    private fun debugMessage(msg: String) {
+        outputBuffer.appendText(msg)
+    }
+
+    private fun adb(redirect: Boolean, vararg command: String): Process {
+        val commandList = ArrayList<String>().apply {
+            add(adbPath)
+            for (piece in command)
+                add(piece)
+        }
+        /* Boot up a shell instance */
+        return ProcessBuilder(commandList)
+            .apply {
+                if (redirect) {
+                    redirectErrorStream(true)
+                    redirectOutput(outputBuffer)
+                }
+
+                environment().apply {
+                    put("HOME", filesDir.path)
+                    put("TMPDIR", cacheDir.path)
+                }
+            }
+            .start()
     }
 
     private fun help() {
