@@ -246,6 +246,13 @@ class MainActivity : AppCompatActivity() {
             }
 
             callback?.run()
+
+            adbShellProcess.waitFor()
+            debugMessage("Shell has died")
+
+            runOnUiThread {
+                command.isEnabled = false
+            }
         }.start()
     }
 
