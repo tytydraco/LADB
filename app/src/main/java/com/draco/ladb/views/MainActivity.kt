@@ -1,4 +1,4 @@
-package com.draco.ladb
+package com.draco.ladb.views
 
 import android.content.Intent
 import android.net.Uri
@@ -14,6 +14,9 @@ import android.widget.ScrollView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import com.draco.ladb.BuildConfig
+import com.draco.ladb.R
+import com.draco.ladb.models.ProcessInfo
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
@@ -23,11 +26,6 @@ import java.io.PrintStream
 import java.util.concurrent.CountDownLatch
 
 class MainActivity : AppCompatActivity() {
-    companion object {
-        const val MAX_OUTPUT_BUFFER_SIZE = 1024 * 4
-        const val OUTPUT_BUFFER_DELAY_MS = 100L
-    }
-
     /* UI components */
     private lateinit var command: TextInputEditText
     private lateinit var output: MaterialTextView
@@ -159,7 +157,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readEndOfFile(file: File): String {
-        val out = ByteArray(MAX_OUTPUT_BUFFER_SIZE)
+        val out = ByteArray(ProcessInfo.MAX_OUTPUT_BUFFER_SIZE)
         file.inputStream().use {
             val size = it.channel.size()
 
@@ -187,7 +185,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 }
-                Thread.sleep(OUTPUT_BUFFER_DELAY_MS)
+                Thread.sleep(ProcessInfo.OUTPUT_BUFFER_DELAY_MS)
             }
         }.start()
     }
