@@ -205,8 +205,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun startOutputFeed() {
         outputThreadJob = lifecycleScope.launch(Dispatchers.IO) {
-            while (outputBufferFile.exists()) {
-                yield()
+            while (isActive) {
                 val out = readEndOfFile(outputBufferFile)
                 val currentText = viewModel.outputString.value
                 if (out != currentText) {
