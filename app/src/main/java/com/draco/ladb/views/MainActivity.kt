@@ -1,5 +1,6 @@
 package com.draco.ladb.views
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -140,6 +141,17 @@ class MainActivity : AppCompatActivity() {
             /* If we started from a shell script, launch it after client init */
             if (intent.type == "text/plain" || intent.type == "text/x-sh")
                 executeFromScript()
+        }
+
+        with (getPreferences(Context.MODE_PRIVATE)) {
+            if (getBoolean("firstLaunch", true)) {
+                helpDialog.show()
+
+                with (edit()) {
+                    putBoolean("firstLaunch", false)
+                    apply()
+                }
+            }
         }
     }
 
