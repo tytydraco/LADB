@@ -55,11 +55,11 @@ class MainActivity : AppCompatActivity() {
         outputScrollView = findViewById(R.id.output_scrollview)
         progress = findViewById(R.id.progress)
 
-        helpDialog = MaterialAlertDialogBuilder(this).apply {
-            setTitle(R.string.help_title)
-            setMessage(R.string.help_message)
-            setPositiveButton(R.string.dismiss, null)
-            setNegativeButton(R.string.reset) { _, _ ->
+        helpDialog = MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.help_title)
+            .setMessage(R.string.help_message)
+            .setPositiveButton(R.string.dismiss, null)
+            .setNegativeButton(R.string.reset) { _, _ ->
                 progress.visibility = View.VISIBLE
                 command.isEnabled = false
 
@@ -82,14 +82,12 @@ class MainActivity : AppCompatActivity() {
                     finishAffinity()
                 }.start()
             }
-        }
 
-        pairDialog = MaterialAlertDialogBuilder(this).apply {
-            setTitle(R.string.pair_title)
-            setMessage(R.string.pair_message)
-            setCancelable(false)
-            setView(R.layout.dialog_pair)
-        }
+        pairDialog = MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.pair_title)
+            .setMessage(R.string.pair_message)
+            .setCancelable(false)
+            .setView(R.layout.dialog_pair)
 
         adbPath = "${applicationInfo.nativeLibraryDir}/libadb.so"
 
