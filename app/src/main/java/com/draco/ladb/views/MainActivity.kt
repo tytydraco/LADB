@@ -23,10 +23,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.PrintStream
+import java.lang.Runnable
 import java.util.concurrent.CountDownLatch
 
 class MainActivity : AppCompatActivity() {
@@ -51,6 +51,9 @@ class MainActivity : AppCompatActivity() {
 
     /* Latch that gets decremented after user provides pairing port and code */
     private val pairingInfoLatch = CountDownLatch(1)
+
+    /* Coroutines */
+    private lateinit var outputThreadJob: Job
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -189,15 +192,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startOutputFeed() {
-        lifecycleScope.launch(Dispatchers.IO) {
+        outputThreadJob = lifecycleScope.launch(Dispatchers.IO) {
             while (outputBufferFile.exists()) {
+                yield()
                 val out = readEndOfFile(outputBufferFile)
                 val currentText = viewModel.outputString.value
                 if (out != currentText) {
                     viewModel.outputString.postValue(out)
-                    runOnUiThread {
-                        outputScrollView.post {
-                            outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
+                    if (lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+                        runOnUiThread {
+                            outputScrollView.post {
+                                outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
+                            }
                         }
                     }
                 }
@@ -344,5 +350,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         return true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        outputThreadJob.cancel()
     }
 }
