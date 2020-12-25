@@ -66,11 +66,11 @@ class MainActivity : AppCompatActivity() {
         outputScrollView = findViewById(R.id.output_scrollview)
         progress = findViewById(R.id.progress)
 
-        viewModel.commandString.observe(this, {
+        viewModel.commandString.observe(this, Observer {
             command.setText(it)
         })
 
-        viewModel.outputString.observe(this, {
+        viewModel.outputString.observe(this, Observer {
             output.text = it
         })
 
