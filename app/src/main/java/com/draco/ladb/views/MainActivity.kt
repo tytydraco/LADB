@@ -26,6 +26,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.PrintStream
 import java.util.concurrent.CountDownLatch
@@ -80,7 +83,7 @@ class MainActivity : AppCompatActivity() {
                 progress.visibility = View.VISIBLE
                 command.isEnabled = false
 
-                Thread {
+                GlobalScope.launch(Dispatchers.IO) {
                     outputBufferFile.writeText("")
                     debugMessage("Disconnecting all clients")
                     adb(false, "disconnect").waitFor()
@@ -97,7 +100,7 @@ class MainActivity : AppCompatActivity() {
                     debugMessage("Exiting in three seconds")
                     Thread.sleep(3000)
                     finishAffinity()
-                }.start()
+                }
             }
 
         pairDialog = MaterialAlertDialogBuilder(this)
@@ -118,13 +121,14 @@ class MainActivity : AppCompatActivity() {
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
                 val text = viewModel.commandString.value
                 viewModel.commandString.value = ""
-                Thread {
+
+                GlobalScope.launch(Dispatchers.IO) {
                     /* Pipe commands directly to shell process */
                     PrintStream(adbShellProcess.outputStream).apply {
                         println(text)
                         flush()
                     }
-                }.start()
+                }
 
                 return@setOnKeyListener true
             }
@@ -189,7 +193,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startOutputFeed() {
-        Thread {
+        GlobalScope.launch(Dispatchers.IO) {
             while (outputBufferFile.exists()) {
                 val out = readEndOfFile(outputBufferFile)
                 val currentText = viewModel.outputString.value
@@ -203,14 +207,14 @@ class MainActivity : AppCompatActivity() {
                 }
                 Thread.sleep(ProcessInfo.OUTPUT_BUFFER_DELAY_MS)
             }
-        }.start()
+        }
     }
 
     private fun initializeClient(callback: Runnable? = null) {
         progress.visibility = View.VISIBLE
         command.isEnabled = false
 
-        Thread {
+        GlobalScope.launch(Dispatchers.IO) {
             /* Begin forwarding output buffer text to output view */
             startOutputFeed()
 
@@ -253,7 +257,7 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread {
                 command.isEnabled = false
             }
-        }.start()
+        }
     }
 
     private fun handlePairing() {
@@ -264,7 +268,7 @@ class MainActivity : AppCompatActivity() {
                     val port = findViewById<TextInputEditText>(R.id.port)!!.text.toString()
                     val code = findViewById<TextInputEditText>(R.id.code)!!.text.toString()
 
-                    Thread {
+                    GlobalScope.launch(Dispatchers.IO) {
                         debugMessage("Requesting additional pairing information")
                         val pairShell = adb(true, "pair", "localhost:$port")
 
@@ -280,7 +284,7 @@ class MainActivity : AppCompatActivity() {
                         /* Continue once finished pairing */
                         pairShell.waitFor()
                         pairingInfoLatch.countDown()
-                    }.start()
+                    }
                 }
             }
             .show()
