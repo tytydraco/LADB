@@ -14,9 +14,14 @@ import android.widget.ScrollView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.draco.ladb.BuildConfig
 import com.draco.ladb.R
 import com.draco.ladb.models.ProcessInfo
+import com.draco.ladb.viewmodels.MainActivityViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
@@ -26,6 +31,8 @@ import java.io.PrintStream
 import java.util.concurrent.CountDownLatch
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var viewModel: MainActivityViewModel
+
     /* UI components */
     private lateinit var command: TextInputEditText
     private lateinit var output: MaterialTextView
@@ -50,10 +57,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+
         command = findViewById(R.id.command)
         output = findViewById(R.id.output)
         outputScrollView = findViewById(R.id.output_scrollview)
         progress = findViewById(R.id.progress)
+
+        viewModel.commandString.observe(this, {
+            command.setText(it)
+        })
+
+        viewModel.outputString.observe(this, {
+            output.text = it
+        })
 
         helpDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.help_title)
@@ -97,9 +114,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         command.setOnKeyListener { _, keyCode, event ->
+            viewModel.commandString.value = command.text.toString()
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-                val text = command.text.toString()
-                command.text = null
+                val text = viewModel.commandString.value
+                viewModel.commandString.value = ""
                 Thread {
                     /* Pipe commands directly to shell process */
                     PrintStream(adbShellProcess.outputStream).apply {
@@ -174,10 +192,10 @@ class MainActivity : AppCompatActivity() {
         Thread {
             while (outputBufferFile.exists()) {
                 val out = readEndOfFile(outputBufferFile)
-                val currentText = output.text.toString()
+                val currentText = viewModel.outputString.value
                 if (out != currentText) {
+                    viewModel.outputString.postValue(out)
                     runOnUiThread {
-                        output.text = out
                         outputScrollView.post {
                             outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
                         }
