@@ -14,10 +14,7 @@ import android.widget.ScrollView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import com.draco.ladb.BuildConfig
 import com.draco.ladb.R
 import com.draco.ladb.models.ProcessInfo
@@ -27,7 +24,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.PrintStream
@@ -83,7 +79,7 @@ class MainActivity : AppCompatActivity() {
                 progress.visibility = View.VISIBLE
                 command.isEnabled = false
 
-                GlobalScope.launch(Dispatchers.IO) {
+                lifecycleScope.launch(Dispatchers.IO) {
                     outputBufferFile.writeText("")
                     debugMessage("Disconnecting all clients")
                     adb(false, "disconnect").waitFor()
@@ -122,7 +118,7 @@ class MainActivity : AppCompatActivity() {
                 val text = viewModel.commandString.value
                 viewModel.commandString.value = ""
 
-                GlobalScope.launch(Dispatchers.IO) {
+                lifecycleScope.launch(Dispatchers.IO) {
                     /* Pipe commands directly to shell process */
                     PrintStream(adbShellProcess.outputStream).apply {
                         println(text)
@@ -193,7 +189,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startOutputFeed() {
-        GlobalScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.IO) {
             while (outputBufferFile.exists()) {
                 val out = readEndOfFile(outputBufferFile)
                 val currentText = viewModel.outputString.value
@@ -214,7 +210,7 @@ class MainActivity : AppCompatActivity() {
         progress.visibility = View.VISIBLE
         command.isEnabled = false
 
-        GlobalScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.IO) {
             /* Begin forwarding output buffer text to output view */
             startOutputFeed()
 
@@ -268,7 +264,7 @@ class MainActivity : AppCompatActivity() {
                     val port = findViewById<TextInputEditText>(R.id.port)!!.text.toString()
                     val code = findViewById<TextInputEditText>(R.id.code)!!.text.toString()
 
-                    GlobalScope.launch(Dispatchers.IO) {
+                    lifecycleScope.launch(Dispatchers.IO) {
                         debugMessage("Requesting additional pairing information")
                         val pairShell = adb(true, "pair", "localhost:$port")
 
