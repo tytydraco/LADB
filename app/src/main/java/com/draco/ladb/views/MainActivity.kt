@@ -67,11 +67,11 @@ class MainActivity : AppCompatActivity() {
         outputScrollView = findViewById(R.id.output_scrollview)
         progress = findViewById(R.id.progress)
 
-        viewModel.commandString.observe(this, Observer {
+        viewModel.getCommandString().observe(this, Observer {
             command.setText(it)
         })
 
-        viewModel.outputString.observe(this, Observer {
+        viewModel.getOutputString().observe(this, Observer {
             output.text = it
         })
 
@@ -117,10 +117,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         command.setOnKeyListener { _, keyCode, event ->
-            viewModel.commandString.value = command.text.toString()
+            viewModel.setCommandString(command.text.toString())
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-                val text = viewModel.commandString.value
-                viewModel.commandString.value = ""
+                val text = viewModel.getCommandString().value
+                viewModel.setCommandString("")
 
                 lifecycleScope.launch(Dispatchers.IO) {
                     /* Pipe commands directly to shell process */
@@ -207,14 +207,12 @@ class MainActivity : AppCompatActivity() {
         outputThreadJob = lifecycleScope.launch(Dispatchers.IO) {
             while (isActive) {
                 val out = readEndOfFile(outputBufferFile)
-                val currentText = viewModel.outputString.value
+                val currentText = viewModel.getOutputString().value
                 if (out != currentText) {
-                    viewModel.outputString.postValue(out)
-                    if (lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
-                        runOnUiThread {
-                            outputScrollView.post {
-                                outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
-                            }
+                    runOnUiThread {
+                        viewModel.setOutputString(out)
+                        outputScrollView.post {
+                            outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
                         }
                     }
                 }
