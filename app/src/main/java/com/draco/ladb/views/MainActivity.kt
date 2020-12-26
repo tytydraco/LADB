@@ -302,7 +302,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun debugMessage(msg: String) {
-        outputBufferFile.appendText("DEBUG: " + msg + System.lineSeparator())
+        outputBufferFile.appendText(viewModel.debugString(msg))
     }
 
     private fun adb(redirect: Boolean, vararg command: String): Process {
