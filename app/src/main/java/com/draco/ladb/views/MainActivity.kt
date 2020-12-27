@@ -19,6 +19,7 @@ import androidx.lifecycle.*
 import com.draco.ladb.BuildConfig
 import com.draco.ladb.R
 import com.draco.ladb.models.ProcessInfo
+import com.draco.ladb.utils.ADB
 import com.draco.ladb.viewmodels.MainActivityViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -26,12 +27,11 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.*
 import java.io.File
-import java.io.PrintStream
-import java.lang.Runnable
 import java.util.concurrent.CountDownLatch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainActivityViewModel
+    private lateinit var adb: ADB
 
     /* UI components */
     private lateinit var command: TextInputEditText
@@ -42,13 +42,6 @@ class MainActivity : AppCompatActivity() {
     /* Alert dialogs */
     private lateinit var helpDialog: MaterialAlertDialogBuilder
     private lateinit var pairDialog: MaterialAlertDialogBuilder
-
-    /* Path to ADB binary */
-    private lateinit var adbPath: String
-
-    /* Shell objects */
-    private lateinit var adbShellProcess: Process
-    private lateinit var outputBufferFile: File
 
     /* Latch that gets decremented after user provides pairing port and code */
     private val pairingInfoLatch = CountDownLatch(1)
@@ -61,6 +54,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        adb = ADB(this)
 
         command = findViewById(R.id.command)
         output = findViewById(R.id.output)
@@ -84,20 +78,13 @@ class MainActivity : AppCompatActivity() {
                 command.isEnabled = false
 
                 lifecycleScope.launch(Dispatchers.IO) {
-                    outputBufferFile.writeText("")
-                    debugMessage("Disconnecting all clients")
-                    adb(false, "disconnect").waitFor()
-                    debugMessage("Killing server")
-                    adb(false, "kill-server").waitFor()
-                    debugMessage("Clearing pairing memory")
+                    adb.reset()
                     with (getPreferences(MODE_PRIVATE).edit()) {
                         putBoolean("paired", false)
                         apply()
                     }
-                    debugMessage("Erasing all ADB server files")
-                    filesDir.deleteRecursively()
-                    debugMessage("LADB reset complete!")
-                    debugMessage("Exiting in three seconds")
+                    adb.debug("Exiting in three seconds")
+
                     Thread.sleep(3000)
                     finishAffinity()
                 }
@@ -109,25 +96,14 @@ class MainActivity : AppCompatActivity() {
             .setCancelable(false)
             .setView(R.layout.dialog_pair)
 
-        adbPath = "${applicationInfo.nativeLibraryDir}/libadb.so"
-
-        /* Store the buffer locally to avoid an OOM error */
-        outputBufferFile = File.createTempFile("buffer", ".txt").apply {
-            deleteOnExit()
-        }
-
         command.setOnKeyListener { _, keyCode, event ->
             viewModel.setCommandString(command.text.toString())
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-                val text = viewModel.getCommandString().value
+                val text = viewModel.getCommandString().value ?: return@setOnKeyListener true
                 viewModel.setCommandString("")
 
                 lifecycleScope.launch(Dispatchers.IO) {
-                    /* Pipe commands directly to shell process */
-                    PrintStream(adbShellProcess.outputStream).apply {
-                        println(text)
-                        flush()
-                    }
+                    adb.sendToAdbShellProcess(text)
                 }
 
                 return@setOnKeyListener true
@@ -181,10 +157,7 @@ class MainActivity : AppCompatActivity() {
             .show()
 
         /* Execute the script here */
-        PrintStream(adbShellProcess.outputStream).apply {
-            println("sh ${internalScript.absolutePath}")
-            flush()
-        }
+        adb.sendToAdbShellProcess("sh ${internalScript.absolutePath}")
     }
 
     private fun readEndOfFile(file: File): String {
@@ -206,7 +179,7 @@ class MainActivity : AppCompatActivity() {
     private fun startOutputFeed() {
         outputThreadJob = lifecycleScope.launch(Dispatchers.IO) {
             while (isActive) {
-                val out = readEndOfFile(outputBufferFile)
+                val out = readEndOfFile(adb.outputBufferFile)
                 val currentText = viewModel.getOutputString().value
                 if (out != currentText) {
                     runOnUiThread {
@@ -233,7 +206,7 @@ class MainActivity : AppCompatActivity() {
             if (!getPreferences(MODE_PRIVATE).getBoolean("paired", false)) {
                 /* SDK 30+ need to pair to the device using a new method */
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    debugMessage("Requesting pairing information")
+                    adb.debug("Requesting pairing information")
                     runOnUiThread {
                         handlePairing()
                     }
@@ -243,17 +216,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            debugMessage("Waiting for device to accept connection. This part may take a while.")
-            adb(false, "wait-for-device").waitFor()
+            adb.initializeClient()
 
-            debugMessage("Connection established")
             with (getPreferences(MODE_PRIVATE).edit()) {
                 putBoolean("paired", true)
                 apply()
             }
-
-            debugMessage("Shelling into device")
-            adbShellProcess = adb(true, "shell")
 
             runOnUiThread {
                 command.isEnabled = true
@@ -262,8 +230,8 @@ class MainActivity : AppCompatActivity() {
 
             callback?.run()
 
-            adbShellProcess.waitFor()
-            debugMessage("Shell has died")
+            adb.shellProcess.waitFor()
+            adb.debug("Shell has died")
 
             runOnUiThread {
                 command.isEnabled = false
@@ -280,51 +248,12 @@ class MainActivity : AppCompatActivity() {
                     val code = findViewById<TextInputEditText>(R.id.code)!!.text.toString()
 
                     lifecycleScope.launch(Dispatchers.IO) {
-                        debugMessage("Requesting additional pairing information")
-                        val pairShell = adb(true, "pair", "localhost:$port")
-
-                        /* Sleep to allow shell to catch up */
-                        Thread.sleep(1000)
-
-                        /* Pipe pairing code */
-                        PrintStream(pairShell.outputStream).apply {
-                            println(code)
-                            flush()
-                        }
-
-                        /* Continue once finished pairing */
-                        pairShell.waitFor()
-                        pairingInfoLatch.countDown()
+                        adb.debug("Requesting additional pairing information")
+                        adb.pair(port, code)
                     }
                 }
             }
             .show()
-    }
-
-    private fun debugMessage(msg: String) {
-        outputBufferFile.appendText(viewModel.debugString(msg))
-    }
-
-    private fun adb(redirect: Boolean, vararg command: String): Process {
-        val commandList = ArrayList<String>().apply {
-            add(adbPath)
-            for (piece in command)
-                add(piece)
-        }
-
-        return ProcessBuilder(commandList)
-            .apply {
-                if (redirect) {
-                    redirectErrorStream(true)
-                    redirectOutput(outputBufferFile)
-                }
-
-                environment().apply {
-                    put("HOME", filesDir.path)
-                    put("TMPDIR", cacheDir.path)
-                }
-            }
-            .start()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -335,7 +264,7 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.share -> {
                 try {
-                    val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", outputBufferFile)
+                    val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", adb.outputBufferFile)
                     val intent = Intent(Intent.ACTION_SEND)
                     with (intent) {
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

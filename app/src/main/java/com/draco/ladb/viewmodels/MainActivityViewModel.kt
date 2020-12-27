@@ -19,10 +19,6 @@ class MainActivityViewModel : ViewModel() {
         outputString.value = string
     }
 
-    fun debugString(msg: String): String {
-        return "DEBUG: $msg" + System.lineSeparator()
-    }
-
     init {
         commandString.value = ""
         outputString.value = ""
