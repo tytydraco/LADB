@@ -15,10 +15,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
-import java.util.concurrent.CountDownLatch
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
-    val adbReady = CountDownLatch(1)
+    private val adbReady = MutableLiveData<Boolean>()
+    fun getAdbReady(): LiveData<Boolean> = adbReady
 
     private val outputText = MutableLiveData<String>()
     fun getOutputText(): LiveData<String> = outputText
@@ -29,7 +29,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     init {
         viewModelScope.launch(Dispatchers.IO) {
             adb.initializeClient()
-            adbReady.countDown()
+            adbReady.postValue(true)
         }
 
         viewModelScope.launch(Dispatchers.IO) {

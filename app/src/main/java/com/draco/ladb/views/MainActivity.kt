@@ -55,13 +55,6 @@ class MainActivity : AppCompatActivity() {
         outputScrollView = findViewById(R.id.output_scrollview)
         progress = findViewById(R.id.progress)
 
-        viewModel.getOutputText().observe(this, Observer {
-            output.text = it
-            outputScrollView.post {
-                outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
-            }
-        })
-
         helpDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.help_title)
             .setMessage(R.string.help_message)
@@ -101,6 +94,36 @@ class MainActivity : AppCompatActivity() {
             return@setOnKeyListener false
         }
 
+        viewModel.getOutputText().observe(this, Observer {
+            output.text = it
+            outputScrollView.post {
+                outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
+            }
+        })
+        viewModel.getAdbReady().observe(this, Observer {
+            if (it == false)
+                return@Observer
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                pairingLatch.await()
+
+                runOnUiThread {
+                    command.isEnabled = true
+                    progress.visibility = View.INVISIBLE
+                }
+
+                if (viewModel.getScriptFromIntent(intent) != null)
+                    executeFromScript()
+
+                viewModel.adb.shellProcess.waitFor()
+                viewModel.adb.debug("Shell has died")
+
+                runOnUiThread {
+                    command.isEnabled = false
+                }
+            }
+        })
+
         progress.visibility = View.VISIBLE
         command.isEnabled = false
 
@@ -115,26 +138,6 @@ class MainActivity : AppCompatActivity() {
                     }
                     pairingLatch.countDown()
                 }
-            }
-        }
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.adbReady.await()
-            pairingLatch.await()
-
-            runOnUiThread {
-                command.isEnabled = true
-                progress.visibility = View.INVISIBLE
-            }
-
-            if (viewModel.getScriptFromIntent(intent) != null)
-                executeFromScript()
-
-            viewModel.adb.shellProcess.waitFor()
-            viewModel.adb.debug("Shell has died")
-
-            runOnUiThread {
-                command.isEnabled = false
             }
         }
     }
