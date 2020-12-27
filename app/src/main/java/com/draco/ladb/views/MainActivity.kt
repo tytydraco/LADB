@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                 command.isEnabled = false
 
                 lifecycleScope.launch(Dispatchers.IO) {
-                    viewModel.adb.reset()
+                    viewModel.getAdb().reset()
                     with(getPreferences(MODE_PRIVATE).edit()) {
                         putBoolean("paired", false)
                         apply()
@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity() {
                 command.text = null
 
                 lifecycleScope.launch(Dispatchers.IO) {
-                    viewModel.adb.sendToAdbShellProcess(text)
+                    viewModel.getAdb().sendToAdbShellProcess(text)
                 }
 
                 return@setOnKeyListener true
@@ -115,8 +115,8 @@ class MainActivity : AppCompatActivity() {
                 if (viewModel.getScriptFromIntent(intent) != null)
                     executeFromScript()
 
-                viewModel.adb.shellProcess.waitFor()
-                viewModel.adb.debug("Shell has died")
+                viewModel.getAdb().shellProcess.waitFor()
+                viewModel.getAdb().debug("Shell has died")
 
                 runOnUiThread {
                     command.isEnabled = false
@@ -130,7 +130,7 @@ class MainActivity : AppCompatActivity() {
         with (getPreferences(Context.MODE_PRIVATE)) {
             if (viewModel.shouldWePair(this)) {
                 pairingLatch = CountDownLatch(1)
-                viewModel.adb.debug("Requesting pairing information")
+                viewModel.getAdb().debug("Requesting pairing information")
                 askToPair {
                     with (edit()) {
                         putBoolean("paired", true)
@@ -152,7 +152,7 @@ class MainActivity : AppCompatActivity() {
             .setAction(getString(R.string.dismiss)) {}
             .show()
 
-        viewModel.adb.sendScript(code)
+        viewModel.getAdb().sendScript(code)
     }
 
     private fun askToPair(callback: Runnable? = null) {
@@ -164,8 +164,8 @@ class MainActivity : AppCompatActivity() {
                     val code = findViewById<TextInputEditText>(R.id.code)!!.text.toString()
 
                     lifecycleScope.launch(Dispatchers.IO) {
-                        viewModel.adb.debug("Requesting additional pairing information")
-                        viewModel.adb.pair(port, code)
+                        viewModel.getAdb().debug("Requesting additional pairing information")
+                        viewModel.getAdb().pair(port, code)
 
                         callback?.run()
                     }
@@ -182,7 +182,11 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.share -> {
                 try {
-                    val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", viewModel.adb.outputBufferFile)
+                    val uri = FileProvider.getUriForFile(
+                        this,
+                        BuildConfig.APPLICATION_ID + ".provider",
+                        viewModel.getAdb().outputBufferFile
+                    )
                     val intent = Intent(Intent.ACTION_SEND)
                     with (intent) {
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

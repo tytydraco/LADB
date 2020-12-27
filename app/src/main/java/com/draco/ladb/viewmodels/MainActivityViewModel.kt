@@ -17,14 +17,16 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
+    private val context = getApplication<Application>().applicationContext
+
     private val adbReady = MutableLiveData<Boolean>()
     fun getAdbReady(): LiveData<Boolean> = adbReady
 
     private val outputText = MutableLiveData<String>()
     fun getOutputText(): LiveData<String> = outputText
 
-    private val context = getApplication<Application>().applicationContext
-    val adb = ADB(context)
+    private val adb = ADB(context)
+    fun getAdb() = adb
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
