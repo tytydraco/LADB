@@ -2,10 +2,7 @@ package com.draco.ladb.views
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
@@ -24,7 +21,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.*
-import java.io.File
 import java.util.concurrent.CountDownLatch
 
 class MainActivity : AppCompatActivity() {
@@ -100,9 +96,15 @@ class MainActivity : AppCompatActivity() {
                 outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
             }
         })
-        viewModel.getAdbReady().observe(this, Observer {
-            if (it == false)
+
+        viewModel.getAdb().getReady().observe(this, Observer {
+            if (it == false) {
+                runOnUiThread {
+                    command.isEnabled = false
+                    progress.visibility = View.VISIBLE
+                }
                 return@Observer
+            }
 
             lifecycleScope.launch(Dispatchers.IO) {
                 pairingLatch.await()
@@ -114,13 +116,6 @@ class MainActivity : AppCompatActivity() {
 
                 if (viewModel.getScriptFromIntent(intent) != null)
                     executeFromScript()
-
-                viewModel.getAdb().shellProcess.waitFor()
-                viewModel.getAdb().debug("Shell has died")
-
-                runOnUiThread {
-                    command.isEnabled = false
-                }
             }
         })
 

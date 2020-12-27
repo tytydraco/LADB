@@ -1,6 +1,11 @@
 package com.draco.ladb.utils
 
 import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.PrintStream
 
@@ -8,10 +13,18 @@ class ADB(private val context: Context) {
     companion object {
         const val MAX_OUTPUT_BUFFER_SIZE = 1024 * 4
         const val OUTPUT_BUFFER_DELAY_MS = 100L
+
+        @Volatile private var instance: ADB? = null
+        fun getInstance(context: Context): ADB = instance ?: synchronized(this) {
+            instance ?: ADB(context).also { instance = it }
+        }
     }
 
     private val adbPath = "${context.applicationInfo.nativeLibraryDir}/libadb.so"
     private val scriptPath = "${context.getExternalFilesDir(null)}/script.sh"
+
+    private val ready = MutableLiveData<Boolean>()
+    fun getReady(): LiveData<Boolean> = ready
 
     lateinit var shellProcess: Process
 
@@ -20,14 +33,29 @@ class ADB(private val context: Context) {
     }
 
     fun initializeClient() {
+        if (ready.value == true)
+            return
+
         debug("Waiting for device to accept connection. This part may take a while.")
         send(false, "wait-for-device").waitFor()
 
         debug("Shelling into device")
         shellProcess = send(true, "shell")
+        ready.postValue(true)
+
+        shellDeathListener()
+    }
+
+    private fun shellDeathListener() {
+        GlobalScope.launch(Dispatchers.IO) {
+            shellProcess.waitFor()
+            ready.postValue(false)
+            debug("Shell has died")
+        }
     }
 
     fun reset() {
+        ready.postValue(false)
         outputBufferFile.writeText("")
         debug("Disconnecting all clients")
         send(false, "disconnect").waitFor()
@@ -36,7 +64,7 @@ class ADB(private val context: Context) {
         debug("Clearing pairing memory")
         debug("Erasing all ADB server files")
         context.filesDir.deleteRecursively()
-        debug("LADB reset complete!")
+        debug("LADB reset complete, please restart the client.")
     }
 
     fun pair(port: String, pairingCode: String) {

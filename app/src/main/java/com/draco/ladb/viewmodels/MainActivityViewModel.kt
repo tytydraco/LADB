@@ -19,19 +19,15 @@ import java.io.File
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
     private val context = getApplication<Application>().applicationContext
 
-    private val adbReady = MutableLiveData<Boolean>()
-    fun getAdbReady(): LiveData<Boolean> = adbReady
-
     private val outputText = MutableLiveData<String>()
     fun getOutputText(): LiveData<String> = outputText
 
-    private val adb = ADB(context)
+    private val adb = ADB.getInstance(context)
     fun getAdb() = adb
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
             adb.initializeClient()
-            adbReady.postValue(true)
         }
 
         viewModelScope.launch(Dispatchers.IO) {
