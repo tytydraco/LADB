@@ -5,6 +5,11 @@ import java.io.File
 import java.io.PrintStream
 
 class ADB(private val context: Context) {
+    companion object {
+        const val MAX_OUTPUT_BUFFER_SIZE = 1024 * 4
+        const val OUTPUT_BUFFER_DELAY_MS = 100L
+    }
+
     private val adbPath = "${context.applicationInfo.nativeLibraryDir}/libadb.so"
 
     lateinit var shellProcess: Process

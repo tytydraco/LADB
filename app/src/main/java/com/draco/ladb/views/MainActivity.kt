@@ -18,9 +18,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.*
 import com.draco.ladb.BuildConfig
 import com.draco.ladb.R
-import com.draco.ladb.models.ProcessInfo
 import com.draco.ladb.utils.ADB
-import com.draco.ladb.viewmodels.MainActivityViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
@@ -30,7 +28,7 @@ import java.io.File
 import java.util.concurrent.CountDownLatch
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var viewModel: MainActivityViewModel
+    /* Helers */
     private lateinit var adb: ADB
 
     /* UI components */
@@ -46,25 +44,19 @@ class MainActivity : AppCompatActivity() {
     /* Coroutines */
     private lateinit var outputThreadJob: Job
 
+    /* Held when pairing */
+    private var pairingLatch = CountDownLatch(0)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
         adb = ADB(this)
 
         command = findViewById(R.id.command)
         output = findViewById(R.id.output)
         outputScrollView = findViewById(R.id.output_scrollview)
         progress = findViewById(R.id.progress)
-
-        viewModel.getCommandString().observe(this, Observer {
-            command.setText(it)
-        })
-
-        viewModel.getOutputString().observe(this, Observer {
-            output.text = it
-        })
 
         helpDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.help_title)
@@ -80,9 +72,6 @@ class MainActivity : AppCompatActivity() {
                         putBoolean("paired", false)
                         apply()
                     }
-                    adb.debug("Exiting in three seconds")
-
-                    Thread.sleep(3000)
                     finishAffinity()
                 }
             }
@@ -94,10 +83,9 @@ class MainActivity : AppCompatActivity() {
             .setView(R.layout.dialog_pair)
 
         command.setOnKeyListener { _, keyCode, event ->
-            viewModel.setCommandString(command.text.toString())
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-                val text = viewModel.getCommandString().value ?: return@setOnKeyListener true
-                viewModel.setCommandString("")
+                val text = command.text.toString()
+                command.text = null
 
                 lifecycleScope.launch(Dispatchers.IO) {
                     adb.sendToAdbShellProcess(text)
@@ -127,14 +115,14 @@ class MainActivity : AppCompatActivity() {
         with (getPreferences(Context.MODE_PRIVATE)) {
             if (!getBoolean("paired", false)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    viewModel.setPairing()
+                    pairingLatch = CountDownLatch(1)
                     adb.debug("Requesting pairing information")
                     askToPair {
                         with (edit()) {
                             putBoolean("paired", true)
                             apply()
                         }
-                        viewModel.donePairing()
+                        pairingLatch.countDown()
                     }
                 }
             }
@@ -142,14 +130,13 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             adb.initializeClient()
-            viewModel.pairingLatch.await()
+            pairingLatch.await()
 
             runOnUiThread {
                 command.isEnabled = true
                 progress.visibility = View.INVISIBLE
             }
 
-            /* If we started from a shell script, launch it after client init */
             if (intent.type == "text/plain" || intent.type == "text/x-sh")
                 executeFromScript()
 
@@ -160,6 +147,22 @@ class MainActivity : AppCompatActivity() {
                 command.isEnabled = false
             }
         }
+    }
+
+    private fun readOutputFile(file: File): String {
+        val out = ByteArray(ADB.MAX_OUTPUT_BUFFER_SIZE)
+        file.inputStream().use {
+            val size = it.channel.size()
+
+            if (size <= out.size)
+                return String(it.readBytes())
+
+            val newPos = (it.channel.size() - out.size)
+            it.channel.position(newPos)
+            it.read(out)
+        }
+
+        return String(out)
     }
 
     private fun executeFromScript() {
@@ -191,36 +194,20 @@ class MainActivity : AppCompatActivity() {
         adb.sendToAdbShellProcess("sh ${internalScript.absolutePath}")
     }
 
-    private fun readEndOfFile(file: File): String {
-        val out = ByteArray(ProcessInfo.MAX_OUTPUT_BUFFER_SIZE)
-        file.inputStream().use {
-            val size = it.channel.size()
-
-            if (size <= out.size)
-                return String(it.readBytes())
-
-            val newPos = (it.channel.size() - out.size)
-            it.channel.position(newPos)
-            it.read(out)
-        }
-
-        return String(out)
-    }
-
     private fun startOutputFeed() {
         outputThreadJob = lifecycleScope.launch(Dispatchers.IO) {
             while (isActive) {
-                val out = readEndOfFile(adb.outputBufferFile)
-                val currentText = viewModel.getOutputString().value
+                val out = readOutputFile(adb.outputBufferFile)
+                val currentText = output.text.toString()
                 if (out != currentText) {
                     runOnUiThread {
-                        viewModel.setOutputString(out)
+                        output.text = out
                         outputScrollView.post {
                             outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
                         }
                     }
                 }
-                Thread.sleep(ProcessInfo.OUTPUT_BUFFER_DELAY_MS)
+                Thread.sleep(ADB.OUTPUT_BUFFER_DELAY_MS)
             }
         }
     }
