@@ -97,17 +97,6 @@ class MainActivity : AppCompatActivity() {
             return@setOnKeyListener false
         }
 
-        with(getPreferences(Context.MODE_PRIVATE)) {
-            if (getBoolean("firstLaunch", true)) {
-                helpDialog.show()
-
-                with(edit()) {
-                    putBoolean("firstLaunch", false)
-                    apply()
-                }
-            }
-        }
-
         progress.visibility = View.VISIBLE
         command.isEnabled = false
         startOutputFeed()
