@@ -19,11 +19,7 @@
     <string name="code_text">123456</string>
 
     <string name="pair_title">Pairing information</string>
-    <string name="pair_message">"You can find the port and the 6-digit pairing code here:
-Settings -> Developer Settings -> Wireless Debugging
-
-<b>Be aware, the port and pairing code change upon closing the window.</b> Open LADB and Settings using Split Screen to prevent the code from changing."
-    </string>
+    <string name="pair_message">You can find the port and the 6-digit pairing code here: Settings -> Developer Settings -> Wireless Debugging. Open LADB and Settings using <b>Split Screen</b> to prevent the code from changing.</string>
 
     <string name="actions">Actions</string>
     <string name="troubleshooting">Troubleshooting</string>
