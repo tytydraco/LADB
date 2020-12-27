@@ -9,6 +9,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.ScrollView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
@@ -25,7 +26,7 @@ import java.util.concurrent.CountDownLatch
 
 class MainActivity : AppCompatActivity() {
     /* View Model */
-    private lateinit var viewModel: MainActivityViewModel
+    private val viewModel: MainActivityViewModel by viewModels()
 
     /* UI components */
     private lateinit var command: TextInputEditText
@@ -42,8 +43,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
 
         command = findViewById(R.id.command)
         output = findViewById(R.id.output)

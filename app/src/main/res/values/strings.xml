@@ -18,38 +18,6 @@
     <string name="code_hint">Pairing code</string>
     <string name="code_text">123456</string>
 
-    <string name="help_title">Help</string>
-    <string name="help_message">"Initial Setup:
-1. About -> Build Number -> Click 7 times
-2. Developer Settings -> Wireless ADB Debugging -> On
-3. Developer Settings -> ADB Debugging -> On
-
-<b>Troubleshooting</b>
-
-Attempt #1:
-1. Help -> Reset
-
-Attempt #2:
-1. Close LADB
-2. Enable Airplane Mode (Android 10 and below)
-3. Clear any existing Wireless Debugging connections (Android 11 and above)
-4. Disconnect all USB devices
-5. Open LADB
-
-Attempt #3:
-1. Close LADB
-2. Developer Settings -> Wireless ADB Debugging -> Off
-3. Developer Settings -> ADB Debugging -> Off
-4. Developer Settings -> Revoke authorizations
-5. Reboot
-6. Developer Settings -> Wireless ADB Debugging -> On
-7. Developer Settings -> ADB Debugging -> On
-8. Enable Airplane Mode (Android 10 and below)
-9. Open LADB
-
-Still confused? Email me at tylernij@gmail.com."
-    </string>
-
     <string name="pair_title">Pairing information</string>
     <string name="pair_message">"You can find the port and the 6-digit pairing code here:
 Settings -> Developer Settings -> Wireless Debugging
