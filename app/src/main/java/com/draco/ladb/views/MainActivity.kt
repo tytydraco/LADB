@@ -153,6 +153,9 @@ class MainActivity : AppCompatActivity() {
             else -> null
         } ?: return
 
+        /* Invalidate intent */
+        intent.type = ""
+
         Snackbar.make(output, getString(R.string.snackbar_file_opened), Snackbar.LENGTH_SHORT)
             .setAction(getString(R.string.dismiss)) {}
             .show()
