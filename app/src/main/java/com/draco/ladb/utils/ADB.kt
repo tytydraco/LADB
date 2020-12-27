@@ -11,6 +11,7 @@ class ADB(private val context: Context) {
     }
 
     private val adbPath = "${context.applicationInfo.nativeLibraryDir}/libadb.so"
+    private val scriptPath = "${context.getExternalFilesDir(null)}/script.sh"
 
     lateinit var shellProcess: Process
 
@@ -74,6 +75,19 @@ class ADB(private val context: Context) {
                 }
             }
             .start()
+    }
+
+    fun sendScript(code: String) {
+        /* Store script locally */
+        val internalScript = File(scriptPath).apply {
+            bufferedWriter().use {
+                it.write(code)
+            }
+            deleteOnExit()
+        }
+
+        /* Execute the script here */
+        sendToAdbShellProcess("sh ${internalScript.absolutePath}")
     }
 
     fun sendToAdbShellProcess(msg: String) {

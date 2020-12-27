@@ -18,7 +18,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.*
 import com.draco.ladb.BuildConfig
 import com.draco.ladb.R
-import com.draco.ladb.utils.ADB
+import com.draco.ladb.viewmodels.MainActivityViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
@@ -28,8 +28,8 @@ import java.io.File
 import java.util.concurrent.CountDownLatch
 
 class MainActivity : AppCompatActivity() {
-    /* Helers */
-    private lateinit var adb: ADB
+    /* View Model */
+    private lateinit var viewModel: MainActivityViewModel
 
     /* UI components */
     private lateinit var command: TextInputEditText
@@ -41,9 +41,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var helpDialog: MaterialAlertDialogBuilder
     private lateinit var pairDialog: MaterialAlertDialogBuilder
 
-    /* Coroutines */
-    private lateinit var outputThreadJob: Job
-
     /* Held when pairing */
     private var pairingLatch = CountDownLatch(0)
 
@@ -51,12 +48,19 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        adb = ADB(this)
+        viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
 
         command = findViewById(R.id.command)
         output = findViewById(R.id.output)
         outputScrollView = findViewById(R.id.output_scrollview)
         progress = findViewById(R.id.progress)
+
+        viewModel.getOutputText().observe(this, Observer {
+            output.text = it
+            outputScrollView.post {
+                outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
+            }
+        })
 
         helpDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.help_title)
@@ -67,7 +71,7 @@ class MainActivity : AppCompatActivity() {
                 command.isEnabled = false
 
                 lifecycleScope.launch(Dispatchers.IO) {
-                    adb.reset()
+                    viewModel.adb.reset()
                     with(getPreferences(MODE_PRIVATE).edit()) {
                         putBoolean("paired", false)
                         apply()
@@ -88,7 +92,7 @@ class MainActivity : AppCompatActivity() {
                 command.text = null
 
                 lifecycleScope.launch(Dispatchers.IO) {
-                    adb.sendToAdbShellProcess(text)
+                    viewModel.adb.sendToAdbShellProcess(text)
                 }
 
                 return@setOnKeyListener true
@@ -99,13 +103,12 @@ class MainActivity : AppCompatActivity() {
 
         progress.visibility = View.VISIBLE
         command.isEnabled = false
-        startOutputFeed()
 
         with (getPreferences(Context.MODE_PRIVATE)) {
             if (!getBoolean("paired", false)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     pairingLatch = CountDownLatch(1)
-                    adb.debug("Requesting pairing information")
+                    viewModel.adb.debug("Requesting pairing information")
                     askToPair {
                         with (edit()) {
                             putBoolean("paired", true)
@@ -118,7 +121,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch(Dispatchers.IO) {
-            adb.initializeClient()
+            viewModel.adbReady.await()
             pairingLatch.await()
 
             runOnUiThread {
@@ -129,8 +132,8 @@ class MainActivity : AppCompatActivity() {
             if (intent.type == "text/plain" || intent.type == "text/x-sh")
                 executeFromScript()
 
-            adb.shellProcess.waitFor()
-            adb.debug("Shell has died")
+            viewModel.adb.shellProcess.waitFor()
+            viewModel.adb.debug("Shell has died")
 
             runOnUiThread {
                 command.isEnabled = false
@@ -138,24 +141,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun readOutputFile(file: File): String {
-        val out = ByteArray(ADB.MAX_OUTPUT_BUFFER_SIZE)
-        file.inputStream().use {
-            val size = it.channel.size()
-
-            if (size <= out.size)
-                return String(it.readBytes())
-
-            val newPos = (it.channel.size() - out.size)
-            it.channel.position(newPos)
-            it.read(out)
-        }
-
-        return String(out)
-    }
-
     private fun executeFromScript() {
-        val script = when (intent.type) {
+        val code = when (intent.type) {
             "text/x-sh" -> {
                 val uri = Uri.parse(intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM).toString())
                 contentResolver.openInputStream(uri)?.bufferedReader().use {
@@ -166,39 +153,11 @@ class MainActivity : AppCompatActivity() {
             else -> null
         } ?: return
 
-        /* Store script locally */
-        val scriptPath = "${getExternalFilesDir(null)}/script.sh"
-        val internalScript = File(scriptPath).apply {
-            bufferedWriter().use {
-                it.write(script)
-            }
-            deleteOnExit()
-        }
-
         Snackbar.make(output, getString(R.string.snackbar_file_opened), Snackbar.LENGTH_SHORT)
             .setAction(getString(R.string.dismiss)) {}
             .show()
 
-        /* Execute the script here */
-        adb.sendToAdbShellProcess("sh ${internalScript.absolutePath}")
-    }
-
-    private fun startOutputFeed() {
-        outputThreadJob = lifecycleScope.launch(Dispatchers.IO) {
-            while (isActive) {
-                val out = readOutputFile(adb.outputBufferFile)
-                val currentText = output.text.toString()
-                if (out != currentText) {
-                    runOnUiThread {
-                        output.text = out
-                        outputScrollView.post {
-                            outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
-                        }
-                    }
-                }
-                Thread.sleep(ADB.OUTPUT_BUFFER_DELAY_MS)
-            }
-        }
+        viewModel.adb.sendScript(code)
     }
 
     private fun askToPair(callback: Runnable? = null) {
@@ -210,8 +169,8 @@ class MainActivity : AppCompatActivity() {
                     val code = findViewById<TextInputEditText>(R.id.code)!!.text.toString()
 
                     lifecycleScope.launch(Dispatchers.IO) {
-                        adb.debug("Requesting additional pairing information")
-                        adb.pair(port, code)
+                        viewModel.adb.debug("Requesting additional pairing information")
+                        viewModel.adb.pair(port, code)
 
                         callback?.run()
                     }
@@ -228,7 +187,7 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.share -> {
                 try {
-                    val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", adb.outputBufferFile)
+                    val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", viewModel.adb.outputBufferFile)
                     val intent = Intent(Intent.ACTION_SEND)
                     with (intent) {
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -252,10 +211,5 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         return true
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        outputThreadJob.cancel()
     }
 }
