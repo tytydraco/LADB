@@ -34,7 +34,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var progress: ProgressBar
 
     /* Alert dialogs */
-    private lateinit var helpDialog: MaterialAlertDialogBuilder
     private lateinit var pairDialog: MaterialAlertDialogBuilder
 
     /* Held when pairing */
@@ -50,24 +49,6 @@ class MainActivity : AppCompatActivity() {
         output = findViewById(R.id.output)
         outputScrollView = findViewById(R.id.output_scrollview)
         progress = findViewById(R.id.progress)
-
-        helpDialog = MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.help_title)
-            .setMessage(R.string.help_message)
-            .setPositiveButton(R.string.dismiss, null)
-            .setNegativeButton(R.string.reset) { _, _ ->
-                progress.visibility = View.VISIBLE
-                command.isEnabled = false
-
-                lifecycleScope.launch(Dispatchers.IO) {
-                    viewModel.getAdb().reset()
-                    with(getPreferences(MODE_PRIVATE).edit()) {
-                        putBoolean("paired", false)
-                        apply()
-                    }
-                    finishAffinity()
-                }
-            }
 
         pairDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.pair_title)

@@ -4,6 +4,7 @@
     <PreferenceCategory
         android:title="@string/actions">
         <Preference
+            android:icon="@drawable/ic_baseline_refresh_24"
             android:title="@string/reset_title"
             android:summary="@string/reset_summary"
             android:key="@string/reset_key" />
@@ -11,7 +12,47 @@
     <PreferenceCategory
         android:title="@string/troubleshooting">
         <Preference
+            android:icon="@drawable/ic_baseline_help_24"
+            android:title="@string/tutorial_title"
+            app:summary="@string/tutorial_summary" />
+        <Preference
+            android:icon="@drawable/ic_baseline_error_24"
+            android:title="@string/error_no_wireless_debugging_title"
+            app:summary="@string/error_no_wireless_debugging_summary" />
+        <Preference
+            android:icon="@drawable/ic_baseline_error_24"
             android:title="@string/error_more_than_one_title"
             app:summary="@string/error_more_than_one_summary" />
+        <Preference
+            android:icon="@drawable/ic_baseline_error_24"
+            android:title="@string/error_pairing_client_title"
+            app:summary="@string/error_pairing_client_summary" />
+        <Preference
+            android:icon="@drawable/ic_baseline_error_24"
+            android:title="@string/error_inaccessible_title"
+            app:summary="@string/error_inaccessible_summary" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/about">
+        <Preference
+            android:icon="@drawable/ic_baseline_person_24"
+            android:title="@string/developer_title"
+            android:summary="@string/developer_summary"
+            android:key="@string/developer_key" />
+        <Preference
+            android:icon="@drawable/ic_baseline_code_24"
+            android:title="@string/source_title"
+            android:summary="@string/source_summary"
+            android:key="@string/source_key" />
+        <Preference
+            android:icon="@drawable/ic_baseline_email_24"
+            android:title="@string/contact_title"
+            android:summary="@string/contact_summary"
+            android:key="@string/contact_key" />
+        <Preference
+            android:icon="@drawable/ic_baseline_insert_drive_file_24"
+            android:title="@string/licenses_title"
+            android:summary="@string/licenses_summary"
+            android:key="@string/licenses_key" />
     </PreferenceCategory>
 </PreferenceScreen>

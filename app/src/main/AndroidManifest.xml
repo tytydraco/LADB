@@ -25,7 +25,7 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
-        <activity android:name=".views.HelpActivity" />
+        <activity android:name=".views.HelpActivity" android:label="@string/help" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"

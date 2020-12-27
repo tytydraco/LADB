@@ -59,11 +59,40 @@ Settings -> Developer Settings -> Wireless Debugging
 
     <string name="actions">Actions</string>
     <string name="troubleshooting">Troubleshooting</string>
+    <string name="about">About</string>
 
     <string name="reset_title">Reset server</string>
     <string name="reset_summary">Restore the app to factory settings, erasing pairing information and ADB server files</string>
     <string name="reset_key">reset</string>
 
+    <string name="tutorial_title">Tutorial</string>
+    <string name="tutorial_summary">The initial steps to setup LADB are as follows. First, enable Developer Settings by tapping on the Build Number rapidly. Next, enter Developer Settings and enable Wireless Debugging. Next, enable USB Debugging. <b>It must occur in this order for some devices</b>. Restart LADB and grant it permission when it asks.</string>
+
+    <string name="error_no_wireless_debugging_title">No \"Wireless Debugging\" toggle</string>
+    <string name="error_no_wireless_debugging_summary">Your device does not natively support Wireless Debugging, which is required by LADB.</string>
+
     <string name="error_more_than_one_title">More than one device connected</string>
     <string name="error_more_than_one_summary">This error is one of the most common. Often, it can be fixed by <b>rebooting the device</b>. Another possible way to fix this for Android 10 users and below is to <b>enable Airplane Mode</b> because launching the app. Remember that after rebooting the device, Wireless Debugging <i>may turn off</i> and need to be turned on again.</string>
+
+    <string name="error_pairing_client_title">Unable to start pairing client</string>
+    <string name="error_pairing_client_summary">The most likely scenario for this error is an incorrectly entered port or pairing code. The port should always be followed by the colon. For example, 50123. The pairing code is six digits, it is the number that is on its own.</string>
+
+    <string name="error_inaccessible_title">Inaccessible or not found</string>
+    <string name="error_inaccessible_summary">You have most likely written a command that is not valid. Remember, LADB is the equivalent of having already ran \"adb shell\".</string>
+
+    <string name="developer_title">Developer</string>
+    <string name="developer_summary">Tyler Nijmeh</string>
+    <string name="developer_key">developer</string>
+
+    <string name="source_title">Source code</string>
+    <string name="source_summary">View the source code on GitHub</string>
+    <string name="source_key">source</string>
+
+    <string name="contact_title">Contact</string>
+    <string name="contact_summary">Email me for assistance</string>
+    <string name="contact_key">contact</string>
+
+    <string name="licenses_title">Licenses</string>
+    <string name="licenses_summary">View the open source licenses</string>
+    <string name="licenses_key">licenses</string>
 </resources>
