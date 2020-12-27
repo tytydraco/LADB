@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        android:title="@string/actions">
+        <Preference
+            android:title="@string/reset_title"
+            android:summary="@string/reset_summary"
+            android:key="@string/reset_key" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/troubleshooting">
+        <Preference
+            android:title="@string/error_more_than_one_title"
+            app:summary="@string/error_more_than_one_summary" />
+    </PreferenceCategory>
+</PreferenceScreen>

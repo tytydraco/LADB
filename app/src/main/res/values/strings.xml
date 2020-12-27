@@ -56,4 +56,14 @@ Settings -> Developer Settings -> Wireless Debugging
 
 <b>Be aware, the port and pairing code change upon closing the window.</b> Open LADB and Settings using Split Screen to prevent the code from changing."
     </string>
+
+    <string name="actions">Actions</string>
+    <string name="troubleshooting">Troubleshooting</string>
+
+    <string name="reset_title">Reset server</string>
+    <string name="reset_summary">Restore the app to factory settings, erasing pairing information and ADB server files</string>
+    <string name="reset_key">reset</string>
+
+    <string name="error_more_than_one_title">More than one device connected</string>
+    <string name="error_more_than_one_summary">This error is one of the most common. Often, it can be fixed by <b>rebooting the device</b>. Another possible way to fix this for Android 10 users and below is to <b>enable Airplane Mode</b> because launching the app. Remember that after rebooting the device, Wireless Debugging <i>may turn off</i> and need to be turned on again.</string>
 </resources>
