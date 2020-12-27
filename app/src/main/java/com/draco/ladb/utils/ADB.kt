@@ -79,6 +79,6 @@ class ADB(private val context: Context) {
     }
 
     fun debug(msg: String) {
-        outputBufferFile.writeText("DEBUG: $msg" + System.lineSeparator())
+        outputBufferFile.appendText("DEBUG: $msg" + System.lineSeparator())
     }
 }

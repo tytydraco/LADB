@@ -43,9 +43,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var helpDialog: MaterialAlertDialogBuilder
     private lateinit var pairDialog: MaterialAlertDialogBuilder
 
-    /* Latch that gets decremented after user provides pairing port and code */
-    private val pairingInfoLatch = CountDownLatch(1)
-
     /* Coroutines */
     private lateinit var outputThreadJob: Job
 
@@ -79,7 +76,7 @@ class MainActivity : AppCompatActivity() {
 
                 lifecycleScope.launch(Dispatchers.IO) {
                     adb.reset()
-                    with (getPreferences(MODE_PRIVATE).edit()) {
+                    with(getPreferences(MODE_PRIVATE).edit()) {
                         putBoolean("paired", false)
                         apply()
                     }
@@ -112,21 +109,55 @@ class MainActivity : AppCompatActivity() {
             return@setOnKeyListener false
         }
 
-        /* Prepare client */
-        initializeClient {
-            /* If we started from a shell script, launch it after client init */
-            if (intent.type == "text/plain" || intent.type == "text/x-sh")
-                executeFromScript()
-        }
-
-        with (getPreferences(Context.MODE_PRIVATE)) {
+        with(getPreferences(Context.MODE_PRIVATE)) {
             if (getBoolean("firstLaunch", true)) {
                 helpDialog.show()
 
-                with (edit()) {
+                with(edit()) {
                     putBoolean("firstLaunch", false)
                     apply()
                 }
+            }
+        }
+
+        progress.visibility = View.VISIBLE
+        command.isEnabled = false
+        startOutputFeed()
+
+        with (getPreferences(Context.MODE_PRIVATE)) {
+            if (!getBoolean("paired", false)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    viewModel.setPairing()
+                    adb.debug("Requesting pairing information")
+                    askToPair {
+                        with (edit()) {
+                            putBoolean("paired", true)
+                            apply()
+                        }
+                        viewModel.donePairing()
+                    }
+                }
+            }
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            adb.initializeClient()
+            viewModel.pairingLatch.await()
+
+            runOnUiThread {
+                command.isEnabled = true
+                progress.visibility = View.INVISIBLE
+            }
+
+            /* If we started from a shell script, launch it after client init */
+            if (intent.type == "text/plain" || intent.type == "text/x-sh")
+                executeFromScript()
+
+            adb.shellProcess.waitFor()
+            adb.debug("Shell has died")
+
+            runOnUiThread {
+                command.isEnabled = false
             }
         }
     }
@@ -194,52 +225,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initializeClient(callback: Runnable? = null) {
-        progress.visibility = View.VISIBLE
-        command.isEnabled = false
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            /* Begin forwarding output buffer text to output view */
-            startOutputFeed()
-
-            /* If we have not been paried yet, do so now */
-            if (!getPreferences(MODE_PRIVATE).getBoolean("paired", false)) {
-                /* SDK 30+ need to pair to the device using a new method */
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    adb.debug("Requesting pairing information")
-                    runOnUiThread {
-                        handlePairing()
-                    }
-
-                    /* Wait for backend pairing to finish */
-                    pairingInfoLatch.await()
-                }
-            }
-
-            adb.initializeClient()
-
-            with (getPreferences(MODE_PRIVATE).edit()) {
-                putBoolean("paired", true)
-                apply()
-            }
-
-            runOnUiThread {
-                command.isEnabled = true
-                progress.visibility = View.INVISIBLE
-            }
-
-            callback?.run()
-
-            adb.shellProcess.waitFor()
-            adb.debug("Shell has died")
-
-            runOnUiThread {
-                command.isEnabled = false
-            }
-        }
-    }
-
-    private fun handlePairing() {
+    private fun askToPair(callback: Runnable? = null) {
         pairDialog
             .create()
             .apply {
@@ -250,6 +236,8 @@ class MainActivity : AppCompatActivity() {
                     lifecycleScope.launch(Dispatchers.IO) {
                         adb.debug("Requesting additional pairing information")
                         adb.pair(port, code)
+
+                        callback?.run()
                     }
                 }
             }
