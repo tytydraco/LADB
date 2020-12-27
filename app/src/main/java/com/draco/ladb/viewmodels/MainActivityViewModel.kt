@@ -1,6 +1,11 @@
 package com.draco.ladb.viewmodels
 
 import android.app.Application
+import android.content.Intent
+import android.content.SharedPreferences
+import android.net.Uri
+import android.os.Build
+import android.os.Parcelable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -35,6 +40,30 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                     outputText.postValue(out)
                 Thread.sleep(ADB.OUTPUT_BUFFER_DELAY_MS)
             }
+        }
+    }
+
+    fun shouldWePair(sharedPreferences: SharedPreferences): Boolean {
+        with (sharedPreferences) {
+            if (!getBoolean("paired", false)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                    return true
+            }
+        }
+
+        return false
+    }
+
+    fun getScriptFromIntent(intent: Intent): String? {
+        return when (intent.type) {
+            "text/x-sh" -> {
+                val uri = Uri.parse(intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM).toString())
+                context.contentResolver.openInputStream(uri)?.bufferedReader().use {
+                    it?.readText()
+                }
+            }
+            "text/plain" -> intent.getStringExtra(Intent.EXTRA_TEXT)
+            else -> null
         }
     }
 

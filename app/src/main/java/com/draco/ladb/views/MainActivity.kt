@@ -105,17 +105,15 @@ class MainActivity : AppCompatActivity() {
         command.isEnabled = false
 
         with (getPreferences(Context.MODE_PRIVATE)) {
-            if (!getBoolean("paired", false)) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    pairingLatch = CountDownLatch(1)
-                    viewModel.adb.debug("Requesting pairing information")
-                    askToPair {
-                        with (edit()) {
-                            putBoolean("paired", true)
-                            apply()
-                        }
-                        pairingLatch.countDown()
+            if (viewModel.shouldWePair(this)) {
+                pairingLatch = CountDownLatch(1)
+                viewModel.adb.debug("Requesting pairing information")
+                askToPair {
+                    with (edit()) {
+                        putBoolean("paired", true)
+                        apply()
                     }
+                    pairingLatch.countDown()
                 }
             }
         }
@@ -129,7 +127,7 @@ class MainActivity : AppCompatActivity() {
                 progress.visibility = View.INVISIBLE
             }
 
-            if (intent.type == "text/plain" || intent.type == "text/x-sh")
+            if (viewModel.getScriptFromIntent(intent) != null)
                 executeFromScript()
 
             viewModel.adb.shellProcess.waitFor()
@@ -142,16 +140,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun executeFromScript() {
-        val code = when (intent.type) {
-            "text/x-sh" -> {
-                val uri = Uri.parse(intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM).toString())
-                contentResolver.openInputStream(uri)?.bufferedReader().use {
-                    it?.readText()
-                }
-            }
-            "text/plain" -> intent.getStringExtra(Intent.EXTRA_TEXT)
-            else -> null
-        } ?: return
+        val code = viewModel.getScriptFromIntent(intent) ?: return
 
         /* Invalidate intent */
         intent.type = ""
