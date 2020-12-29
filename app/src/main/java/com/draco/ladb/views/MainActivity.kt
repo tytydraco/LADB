@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
                 command.text = null
 
                 lifecycleScope.launch(Dispatchers.IO) {
-                    viewModel.getAdb().sendToAdbShellProcess(text)
+                    viewModel.getAdb().sendToShellProcess(text)
                 }
 
                 return@setOnKeyListener true

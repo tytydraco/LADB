@@ -26,7 +26,7 @@ class ADB(private val context: Context) {
     private val ready = MutableLiveData<Boolean>()
     fun getReady(): LiveData<Boolean> = ready
 
-    lateinit var shellProcess: Process
+    private lateinit var shellProcess: Process
 
     val outputBufferFile: File = File.createTempFile("buffer", ".txt").also {
         it.deleteOnExit()
@@ -37,10 +37,10 @@ class ADB(private val context: Context) {
             return
 
         debug("Waiting for device to accept connection. This part may take a while.")
-        send(false, "wait-for-device").waitFor()
+        adb(false, listOf("wait-for-device")).waitFor()
 
         debug("Shelling into device")
-        shellProcess = send(true, "shell")
+        shellProcess = adb(true, listOf("shell"))
         ready.postValue(true)
 
         shellDeathListener()
@@ -58,9 +58,9 @@ class ADB(private val context: Context) {
         ready.postValue(false)
         outputBufferFile.writeText("")
         debug("Disconnecting all clients")
-        send(false, "disconnect").waitFor()
+        adb(false, listOf("disconnect")).waitFor()
         debug("Killing server")
-        send(false, "kill-server").waitFor()
+        adb(false, listOf("kill-server")).waitFor()
         debug("Clearing pairing memory")
         debug("Erasing all ADB server files")
         context.filesDir.deleteRecursively()
@@ -68,7 +68,7 @@ class ADB(private val context: Context) {
     }
 
     fun pair(port: String, pairingCode: String) {
-        val pairShell = send(true, "pair", "localhost:$port")
+        val pairShell = adb(true, listOf("pair", "localhost:$port"))
 
         /* Sleep to allow shell to catch up */
         Thread.sleep(1000)
@@ -83,14 +83,16 @@ class ADB(private val context: Context) {
         pairShell.waitFor()
     }
 
-    fun send(redirect: Boolean, vararg command: String): Process {
-        val commandList = ArrayList<String>().apply {
-            add(adbPath)
-            for (piece in command)
-                add(piece)
+    private fun adb(redirect: Boolean, command: List<String>): Process {
+        val commandList = command.toMutableList().apply {
+            add(0, adbPath)
         }
+        return shell(redirect, commandList)
+    }
 
-        return ProcessBuilder(commandList)
+    private fun shell(redirect: Boolean, command: List<String>): Process {
+        return ProcessBuilder(command)
+            .directory(context.filesDir)
             .apply {
                 if (redirect) {
                     redirectErrorStream(true)
@@ -115,10 +117,10 @@ class ADB(private val context: Context) {
         }
 
         /* Execute the script here */
-        sendToAdbShellProcess("sh ${internalScript.absolutePath}")
+        sendToShellProcess("sh ${internalScript.absolutePath}")
     }
 
-    fun sendToAdbShellProcess(msg: String) {
+    fun sendToShellProcess(msg: String) {
         PrintStream(shellProcess.outputStream).apply {
             println(msg)
             flush()
