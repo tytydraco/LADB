@@ -66,6 +66,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private fun readOutputFile(file: File): String {
+        if (!file.exists())
+            return ""
+
         val out = ByteArray(ADB.MAX_OUTPUT_BUFFER_SIZE)
         file.inputStream().use {
             val size = it.channel.size()
