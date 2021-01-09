@@ -31,6 +31,10 @@
             android:icon="@drawable/ic_baseline_error_24"
             android:title="@string/error_inaccessible_title"
             app:summary="@string/error_inaccessible_summary" />
+        <Preference
+            android:icon="@drawable/ic_baseline_error_24"
+            android:title="@string/error_failed_to_find_title"
+            app:summary="@string/error_failed_to_find_summary" />
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/about">

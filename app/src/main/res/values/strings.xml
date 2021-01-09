@@ -44,6 +44,9 @@
     <string name="error_inaccessible_title">Inaccessible or not found</string>
     <string name="error_inaccessible_summary">You have most likely written a command that is not valid. Remember, LADB is the equivalent of having already ran \"adb shell\".</string>
 
+    <string name="error_failed_to_find_title">Failed to find ADB server binary</string>
+    <string name="error_failed_to_find_summary">The ADB server binary was never extracted from the application files. Try reinstalling the application.</string>
+
     <string name="developer_title">Developer</string>
     <string name="developer_summary">Tyler Nijmeh</string>
     <string name="developer_key">developer</string>
