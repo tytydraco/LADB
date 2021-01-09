@@ -36,6 +36,11 @@ class ADB(private val context: Context) {
         if (ready.value == true)
             return
 
+        if (!File(adbPath).exists()) {
+            debug ("Failed to find ADB server binary at $adbPath")
+            return
+        }
+
         debug("Waiting for device to accept connection. This part may take a while.")
         adb(false, listOf("wait-for-device")).waitFor()
 
