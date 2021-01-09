@@ -66,19 +66,22 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private fun readOutputFile(file: File): String {
-        if (!file.exists())
-            return ""
-
         val out = ByteArray(ADB.MAX_OUTPUT_BUFFER_SIZE)
-        file.inputStream().use {
-            val size = it.channel.size()
 
-            if (size <= out.size)
-                return String(it.readBytes())
+        synchronized(file) {
+            if (!file.exists())
+                return ""
 
-            val newPos = (it.channel.size() - out.size)
-            it.channel.position(newPos)
-            it.read(out)
+            file.inputStream().use {
+                val size = it.channel.size()
+
+                if (size <= out.size)
+                    return String(it.readBytes())
+
+                val newPos = (it.channel.size() - out.size)
+                it.channel.position(newPos)
+                it.read(out)
+            }
         }
 
         return String(out)
