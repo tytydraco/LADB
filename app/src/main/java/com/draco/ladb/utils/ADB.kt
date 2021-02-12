@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.IOException
 import java.io.PrintStream
 
 class ADB(private val context: Context) {
@@ -37,15 +38,20 @@ class ADB(private val context: Context) {
             return
 
         if (!File(adbPath).exists()) {
-            debug ("Failed to find ADB server binary at $adbPath")
+            debug("Failed to find ADB server binary at $adbPath")
             return
         }
 
         debug("Waiting for device to accept connection. This part may take a while.")
-        adb(false, listOf("wait-for-device")).waitFor()
+        adb(false, listOf("wait-for-device"))?.waitFor()
 
         debug("Shelling into device")
-        shellProcess = adb(true, listOf("shell"))
+        val process = adb(true, listOf("shell"))
+        if (process == null) {
+            debug("Failed to open shell connection")
+            return
+        }
+        shellProcess = process
         ready.postValue(true)
 
         shellDeathListener()
@@ -63,13 +69,13 @@ class ADB(private val context: Context) {
         ready.postValue(false)
         outputBufferFile.writeText("")
         debug("Disconnecting all clients")
-        adb(false, listOf("disconnect")).waitFor()
+        adb(false, listOf("disconnect"))?.waitFor()
         debug("Killing server")
-        adb(false, listOf("kill-server")).waitFor()
+        adb(false, listOf("kill-server"))?.waitFor()
         debug("Clearing pairing memory")
         debug("Erasing all ADB server files")
         context.filesDir.deleteRecursively()
-        debug("LADB reset complete, please restart the client.")
+        debug("LADB reset complete, please restart the client")
     }
 
     fun pair(port: String, pairingCode: String) {
@@ -79,24 +85,24 @@ class ADB(private val context: Context) {
         Thread.sleep(1000)
 
         /* Pipe pairing code */
-        PrintStream(pairShell.outputStream).apply {
+        PrintStream(pairShell?.outputStream).apply {
             println(pairingCode)
             flush()
         }
 
         /* Continue once finished pairing */
-        pairShell.waitFor()
+        pairShell?.waitFor()
     }
 
-    private fun adb(redirect: Boolean, command: List<String>): Process {
+    private fun adb(redirect: Boolean, command: List<String>): Process? {
         val commandList = command.toMutableList().apply {
             add(0, adbPath)
         }
         return shell(redirect, commandList)
     }
 
-    private fun shell(redirect: Boolean, command: List<String>): Process {
-        return ProcessBuilder(command)
+    private fun shell(redirect: Boolean, command: List<String>): Process? {
+        val processBuilder = ProcessBuilder(command)
             .directory(context.filesDir)
             .apply {
                 if (redirect) {
@@ -109,7 +115,13 @@ class ADB(private val context: Context) {
                     put("TMPDIR", context.cacheDir.path)
                 }
             }
-            .start()
+
+        return try {
+            processBuilder.start()
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
     }
 
     fun sendScript(code: String) {
