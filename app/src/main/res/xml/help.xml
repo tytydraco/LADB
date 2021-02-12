@@ -17,6 +17,10 @@
             app:summary="@string/tutorial_summary" />
         <Preference
             android:icon="@drawable/ic_baseline_error_24"
+            android:title="@string/error_waiting_title"
+            app:summary="@string/error_waiting_summary" />
+        <Preference
+            android:icon="@drawable/ic_baseline_error_24"
             android:title="@string/error_no_wireless_debugging_title"
             app:summary="@string/error_no_wireless_debugging_summary" />
         <Preference

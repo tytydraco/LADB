@@ -32,6 +32,9 @@
     <string name="tutorial_title">Tutorial</string>
     <string name="tutorial_summary">The initial steps to setup LADB are as follows. First, enable Developer Settings by tapping on the Build Number rapidly. Next, enter Developer Settings and enable Wireless Debugging. Next, enable USB Debugging. <b>It must occur in this order for some devices</b>. Restart LADB and grant it permission when it asks.</string>
 
+    <string name="error_waiting_title">Stuck on \"Waiting\"</string>
+    <string name="error_waiting_summary">This is the most common issue. First, make sure you follow the Tutorial steps. Then, try first restarting the app. If the issue is still occurring, reboot the device.</string>
+
     <string name="error_no_wireless_debugging_title">No \"Wireless Debugging\" toggle</string>
     <string name="error_no_wireless_debugging_summary">Your device does not natively support Wireless Debugging, which is required by LADB.</string>
 
