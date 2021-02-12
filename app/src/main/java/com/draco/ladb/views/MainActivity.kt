@@ -23,6 +23,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.*
 import java.util.concurrent.CountDownLatch
+import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
     /* View Model */
@@ -74,6 +75,16 @@ class MainActivity : AppCompatActivity() {
             output.text = it
             outputScrollView.post {
                 outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
+            }
+        })
+
+        viewModel.getAdb().getClosed().observe(this, Observer {
+            if (it == true) {
+                val intent = packageManager.getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)!!
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                finishAffinity()
+                startActivity(intent)
+                exitProcess(0)
             }
         })
 

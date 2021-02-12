@@ -27,6 +27,9 @@ class ADB(private val context: Context) {
     private val ready = MutableLiveData<Boolean>()
     fun getReady(): LiveData<Boolean> = ready
 
+    private val closed = MutableLiveData<Boolean>()
+    fun getClosed(): LiveData<Boolean> = closed
+
     private lateinit var shellProcess: Process
 
     val outputBufferFile: File = File.createTempFile("buffer", ".txt").also {
@@ -68,14 +71,19 @@ class ADB(private val context: Context) {
     fun reset() {
         ready.postValue(false)
         outputBufferFile.writeText("")
+        debug("Destroying shell process")
+        if (this::shellProcess.isInitialized)
+            shellProcess.destroyForcibly()
         debug("Disconnecting all clients")
         adb(false, listOf("disconnect"))?.waitFor()
         debug("Killing server")
         adb(false, listOf("kill-server"))?.waitFor()
         debug("Clearing pairing memory")
         debug("Erasing all ADB server files")
-        context.filesDir.deleteRecursively()
         debug("LADB reset complete, please restart the client")
+        context.filesDir.deleteRecursively()
+        context.cacheDir.deleteRecursively()
+        closed.postValue(true)
     }
 
     fun pair(port: String, pairingCode: String) {
@@ -145,6 +153,7 @@ class ADB(private val context: Context) {
     }
 
     fun debug(msg: String) {
-        outputBufferFile.appendText("DEBUG: $msg" + System.lineSeparator())
+        if (outputBufferFile.exists())
+            outputBufferFile.appendText("DEBUG: $msg" + System.lineSeparator())
     }
 }
