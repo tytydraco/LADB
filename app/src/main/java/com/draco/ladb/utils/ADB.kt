@@ -42,7 +42,7 @@ class ADB(private val context: Context) {
             return
         }
 
-        debug("Waiting for device to accept connection. This part may take a while.")
+        debug("Waiting for device to accept connection. This part may take a while. If you find yourself stuck waiting here, click the help icon in the toolbar and ensure you setup the device properly.")
         adb(false, listOf("wait-for-device"))?.waitFor()
 
         debug("Shelling into device")

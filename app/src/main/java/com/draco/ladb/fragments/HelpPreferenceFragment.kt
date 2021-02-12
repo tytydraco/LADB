@@ -1,5 +1,6 @@
 package com.draco.ladb.fragments
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,6 +10,7 @@ import androidx.preference.PreferenceFragmentCompat
 import com.draco.ladb.R
 import com.draco.ladb.utils.ADB
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -68,6 +70,13 @@ class HelpPreferenceFragment : PreferenceFragmentCompat() {
             getString(R.string.licenses_key) -> {
                 val intent = Intent(requireContext(), OssLicensesMenuActivity::class.java)
                 startActivity(intent)
+            }
+
+            else -> {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(preference.title)
+                    .setMessage(preference.summary)
+                    .show()
             }
         }
 
