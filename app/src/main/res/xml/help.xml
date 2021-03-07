@@ -8,6 +8,12 @@
             android:title="@string/reset_title"
             android:summary="@string/reset_summary"
             android:key="@string/reset_key" />
+        <SwitchPreference
+            android:icon="@drawable/ic_baseline_home_repair_service_24"
+            android:title="@string/auto_shell_title"
+            android:summary="@string/auto_shell_summary"
+            android:key="@string/auto_shell_key"
+            android:defaultValue="true"/>
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/troubleshooting">

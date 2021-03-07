@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreference
 import com.draco.ladb.R
 import com.draco.ladb.utils.ADB
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
@@ -73,10 +74,12 @@ class HelpPreferenceFragment : PreferenceFragmentCompat() {
             }
 
             else -> {
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(preference.title)
-                    .setMessage(preference.summary)
-                    .show()
+                if (preference !is SwitchPreference) {
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(preference.title)
+                        .setMessage(preference.summary)
+                        .show()
+                }
             }
         }
 

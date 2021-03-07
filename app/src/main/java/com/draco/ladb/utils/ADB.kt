@@ -3,6 +3,8 @@ package com.draco.ladb.utils
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.preference.PreferenceManager
+import com.draco.ladb.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -20,6 +22,8 @@ class ADB(private val context: Context) {
             instance ?: ADB(context).also { instance = it }
         }
     }
+
+    private val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     private val adbPath = "${context.applicationInfo.nativeLibraryDir}/libadb.so"
     private val scriptPath = "${context.getExternalFilesDir(null)}/script.sh"
@@ -40,6 +44,15 @@ class ADB(private val context: Context) {
         if (ready.value == true)
             return
 
+        val autoShell = sharedPrefs.getBoolean(context.getString(R.string.auto_shell_key), true)
+        if (autoShell)
+            initializeADBShell()
+        else
+            initializeShell()
+
+    }
+
+    private fun initializeADBShell() {
         if (!File(adbPath).exists()) {
             debug("Failed to find ADB server binary at $adbPath")
             return
@@ -55,6 +68,20 @@ class ADB(private val context: Context) {
             return
         }
         shellProcess = process
+        ready.postValue(true)
+
+        shellDeathListener()
+    }
+
+    private fun initializeShell() {
+        debug("Shelling into device")
+        val process = shell(true, listOf("sh", "-l"))
+        if (process == null) {
+            debug("Failed to open shell connection")
+            return
+        }
+        shellProcess = process
+        sendToShellProcess("alias adb=\"$adbPath\"")
         ready.postValue(true)
 
         shellDeathListener()
