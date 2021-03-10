@@ -2,11 +2,10 @@ package com.draco.ladb.views
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
-import android.view.KeyEvent
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.ProgressBar
 import android.widget.ScrollView
 import androidx.activity.viewModels
@@ -56,13 +55,15 @@ class MainActivity : AppCompatActivity() {
             .setCancelable(false)
             .setView(R.layout.dialog_pair)
 
-        command.setOnKeyListener { _, keyCode, event ->
-            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-                val text = command.text.toString()
-                command.text = null
+        command.setOnKeyListener { view, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    val text = command.text.toString()
+                    command.text = null
 
-                lifecycleScope.launch(Dispatchers.IO) {
-                    viewModel.getAdb().sendToShellProcess(text)
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        viewModel.getAdb().sendToShellProcess(text)
+                    }
                 }
 
                 return@setOnKeyListener true
@@ -75,6 +76,7 @@ class MainActivity : AppCompatActivity() {
             output.text = it
             outputScrollView.post {
                 outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
+                command.requestFocus()
             }
         })
 
