@@ -41,6 +41,7 @@
                     android:layout_height="match_parent"
                     android:textSize="12sp"
                     android:textIsSelectable="true"
+                    style="@style/TextAppearance.AppCompat.Body1"
                     android:id="@+id/output" />
             </HorizontalScrollView>
         </ScrollView>

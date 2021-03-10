@@ -2,10 +2,8 @@ package com.draco.ladb.views
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
-import android.view.inputmethod.InputMethodManager
 import android.widget.ProgressBar
 import android.widget.ScrollView
 import androidx.activity.viewModels
