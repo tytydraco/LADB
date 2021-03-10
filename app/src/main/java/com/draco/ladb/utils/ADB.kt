@@ -69,6 +69,7 @@ class ADB(private val context: Context) {
             return
         }
         shellProcess = process
+        sendToShellProcess("echo Hello world!")
         ready.postValue(true)
 
         shellDeathListener()
@@ -83,6 +84,7 @@ class ADB(private val context: Context) {
         }
         shellProcess = process
         sendToShellProcess("alias adb=\"$adbPath\"")
+        sendToShellProcess("echo Hello world!")
         ready.postValue(true)
 
         shellDeathListener()
