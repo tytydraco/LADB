@@ -49,7 +49,6 @@ class ADB(private val context: Context) {
             initializeADBShell()
         else
             initializeShell()
-
     }
 
     private fun initializeADBShell() {
@@ -62,7 +61,7 @@ class ADB(private val context: Context) {
         adb(false, listOf("wait-for-device"))?.waitFor()
 
         debug("Shelling into device")
-        val process = adb(true, listOf("shell"))
+        val process = adb(true, listOf("-t", "1", "shell"))
         if (process == null) {
             debug("Failed to open shell connection")
             return
