@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import android.view.inputmethod.InputMethod
 import android.widget.ProgressBar
 import android.widget.ScrollView
 import androidx.activity.viewModels
@@ -21,6 +22,10 @@ import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.*
 import java.util.concurrent.CountDownLatch
 import kotlin.system.exitProcess
+import android.view.inputmethod.InputMethodManager
+
+
+
 
 class MainActivity : AppCompatActivity() {
     /* View Model */
@@ -75,13 +80,16 @@ class MainActivity : AppCompatActivity() {
             outputScrollView.post {
                 outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
                 command.requestFocus()
+
+                val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.showSoftInput(command, InputMethod.SHOW_FORCED)
             }
         })
 
         viewModel.getAdb().getClosed().observe(this, Observer {
             if (it == true) {
                 val intent = packageManager.getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)!!
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 finishAffinity()
                 startActivity(intent)
                 exitProcess(0)
@@ -113,12 +121,12 @@ class MainActivity : AppCompatActivity() {
         progress.visibility = View.VISIBLE
         command.isEnabled = false
 
-        with (getPreferences(Context.MODE_PRIVATE)) {
+        with(getPreferences(Context.MODE_PRIVATE)) {
             if (viewModel.shouldWePair(this)) {
                 pairingLatch = CountDownLatch(1)
                 viewModel.getAdb().debug("Requesting pairing information")
                 askToPair {
-                    with (edit()) {
+                    with(edit()) {
                         putBoolean("paired", true)
                         apply()
                     }
@@ -170,12 +178,12 @@ class MainActivity : AppCompatActivity() {
             R.id.share -> {
                 try {
                     val uri = FileProvider.getUriForFile(
-                        this,
-                        BuildConfig.APPLICATION_ID + ".provider",
-                        viewModel.getAdb().outputBufferFile
+                            this,
+                            BuildConfig.APPLICATION_ID + ".provider",
+                            viewModel.getAdb().outputBufferFile
                     )
                     val intent = Intent(Intent.ACTION_SEND)
-                    with (intent) {
+                    with(intent) {
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         putExtra(Intent.EXTRA_STREAM, uri)
                         type = "file/*"
@@ -185,8 +193,8 @@ class MainActivity : AppCompatActivity() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Snackbar.make(output, getString(R.string.snackbar_intent_failed), Snackbar.LENGTH_SHORT)
-                        .setAction(getString(R.string.dismiss)) {}
-                        .show()
+                            .setAction(getString(R.string.dismiss)) {}
+                            .show()
                 }
                 true
             }
