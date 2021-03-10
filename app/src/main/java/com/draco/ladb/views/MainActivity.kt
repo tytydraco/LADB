@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
             .setCancelable(false)
             .setView(R.layout.dialog_pair)
 
-        command.setOnKeyListener { view, keyCode, event ->
+        command.setOnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
                 if (event.action == KeyEvent.ACTION_DOWN) {
                     val text = command.text.toString()
