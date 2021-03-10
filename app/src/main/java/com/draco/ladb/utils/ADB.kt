@@ -57,10 +57,15 @@ class ADB(private val context: Context) {
             return
         }
 
-        debug("Waiting for device to accept connection. This part may take a while. If you find yourself stuck waiting here, click the help icon in the toolbar and ensure you setup the device properly.")
+        debug("Scanning for devices...\n" +
+                "If stuck, try these common solutions:\n\n" +
+                "1) Reboot\n" +
+                "2) Enable wireless debugging BEFORE USB debugging\n" +
+                "3) Reset server from help page\n" +
+                "4) Email tylernij@gmail.com")
         adb(false, listOf("wait-for-device"))?.waitFor()
 
-        debug("Shelling into device")
+        debug("Devices found. Shelling into device...")
         val process = adb(true, listOf("-t", "1", "shell"))
         if (process == null) {
             debug("Failed to open shell connection")
