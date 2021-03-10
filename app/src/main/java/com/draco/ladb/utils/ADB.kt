@@ -7,6 +7,7 @@ import androidx.preference.PreferenceManager
 import com.draco.ladb.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
@@ -57,12 +58,8 @@ class ADB(private val context: Context) {
             return
         }
 
-        debug("Scanning for devices...\n" +
-                "If stuck, try these common solutions:\n\n" +
-                "1) Reboot\n" +
-                "2) Enable wireless debugging BEFORE USB debugging\n" +
-                "3) Reset server from help page\n" +
-                "4) Email tylernij@gmail.com")
+        debug("Scanning for device...")
+        debug("This may take a minute...")
         adb(false, listOf("wait-for-device"))?.waitFor()
 
         debug("Devices found. Shelling into device...")
@@ -95,7 +92,11 @@ class ADB(private val context: Context) {
         GlobalScope.launch(Dispatchers.IO) {
             shellProcess.waitFor()
             ready.postValue(false)
-            debug("Shell has died")
+            debug("Shell has died.")
+            delay(1_000)
+            debug("Attempting to reset connection...")
+            adb(false, listOf("kill-server"))?.waitFor()
+            initializeClient()
         }
     }
 
