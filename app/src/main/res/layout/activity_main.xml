@@ -33,11 +33,15 @@
             android:layout_height="match_parent"
             android:layout_marginTop="16dp"
             android:id="@+id/output_scrollview">
-            <com.google.android.material.textview.MaterialTextView
+            <HorizontalScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textIsSelectable="true"
-                android:id="@+id/output" />
+                android:layout_height="wrap_content">
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textIsSelectable="true"
+                    android:id="@+id/output" />
+            </HorizontalScrollView>
         </ScrollView>
     </LinearLayout>
 </RelativeLayout>
