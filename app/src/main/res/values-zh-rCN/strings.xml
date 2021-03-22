@@ -54,49 +54,49 @@
 
     <string name="error_waiting_title">卡死在 \"等待中\"</string>
 
-    <string name="error_waiting_summary">This is the most common issue. First, make sure you follow the Tutorial steps. Then, try first restarting the app. If the issue is still occurring, reboot the device.</string>
+    <string name="error_waiting_summary">这是最常见的问题。首先确定你按照教程操作，然后尝试重启一次App，如果还是不行那就试试重启。</string>
 
-    <string name="error_no_wireless_debugging_title">No \"Wireless Debugging\" toggle</string>
+    <string name="error_no_wireless_debugging_title">没有 \"无线调试\" 开关</string>
 
-    <string name="error_no_wireless_debugging_summary">Your device does not natively support Wireless Debugging, which is required by LADB.</string>
+    <string name="error_no_wireless_debugging_summary">你的设备非原生支持无线调试（LADB的刚需）</string>
 
-    <string name="error_more_than_one_title">More than one device connected</string>
+    <string name="error_more_than_one_title">超过一个设备连接</string>
 
-    <string name="error_more_than_one_summary">This error is one of the most common. Often, it can be fixed by <b>rebooting the device</b>. Another possible way to fix this for Android 10 users and below is to <b>enable Airplane Mode</b> because launching the app. Remember that after rebooting the device, Wireless Debugging <i>may turn off</i> and need to be turned on again.</string>
+    <string name="error_more_than_one_summary">这是一个常见错误。这个问题可以通过<b>重启设备</b>解决，另一个对Android10的可能解决方案是<b>打开飞行模式</b>。在重启设备后无线调试<i>可能被关闭</i>需要重新开启</string>
 
-    <string name="error_pairing_client_title">Unable to start pairing client</string>
+    <string name="error_pairing_client_title">无法启动配对</string>
 
-    <string name="error_pairing_client_summary">The most likely scenario for this error is an incorrectly entered port or pairing code. The port should always be followed by the colon. For example, 50123. The pairing code is six digits, it is the number that is on its own.</string>
+    <string name="error_pairing_client_summary">一般来说是你把端口和配对码输错了，端口在冒号后面，比如50123，配对码是一个六位数字。</string>
 
-    <string name="error_inaccessible_title">Inaccessible or not found</string>
+    <string name="error_inaccessible_title">无法访问或未找到</string>
 
-    <string name="error_inaccessible_summary">You have most likely written a command that is not valid. Remember, LADB is the equivalent of having already ran \"adb shell\".</string>
+    <string name="error_inaccessible_summary">你很可能输入了无效的命令。LADB等同于已经运行\"adb shell\"</string>
 
-    <string name="error_failed_to_find_title">Failed to find ADB server binary</string>
+    <string name="error_failed_to_find_title">未找到ADB服务端二进制文件</string>
 
-    <string name="error_failed_to_find_summary">The ADB server binary was never extracted from the application files. Try reinstalling the application.</string>
+    <string name="error_failed_to_find_summary">ADB服务端二进制文件未能释放，尝试重新安装App</string>
 
-    <string name="developer_title">Developer</string>
+    <string name="developer_title">开发者</string>
 
-    <string name="developer_summary">Tyler Nijmeh</string>
+    <string name="developer_summary">Tyler Nijmeh（简体中文汉化：琴梨梨）</string>
 
     <string name="developer_key">developer</string>
 
-    <string name="source_title">Source code</string>
+    <string name="source_title">源代码</string>
 
-    <string name="source_summary">View the source code on GitHub</string>
+    <string name="source_summary">在GitHub上查看源码</string>
 
     <string name="source_key">source</string>
 
-    <string name="contact_title">Contact</string>
+    <string name="contact_title">联系</string>
 
-    <string name="contact_summary">Email me for assistance</string>
+    <string name="contact_summary">通过邮件获取协助</string>
 
     <string name="contact_key">contact</string>
 
-    <string name="licenses_title">Licenses</string>
+    <string name="licenses_title">许可证</string>
 
-    <string name="licenses_summary">View the open source licenses</string>
+    <string name="licenses_summary">查看开源许可</string>
 
     <string name="licenses_key">licenses</string>
 
