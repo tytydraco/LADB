@@ -1,0 +1,103 @@
+<resources>
+
+    <string name="app_name">LADB</string>
+
+    <string name="command_hint">Shell指令</string>
+
+    <string name="help">帮助</string>
+
+    <string name="share">分享</string>
+
+    <string name="snackbar_intent_failed">分享日志失败</string>
+
+    <string name="snackbar_file_opened">执行脚本文件</string>
+
+    <string name="dismiss">取消</string>
+
+    <string name="reset">重置</string>
+
+    <string name="okay">好的</string>
+
+    <string name="port_hint">端口</string>
+
+    <string name="port_text">1234</string>
+
+    <string name="code_hint">配对码</string>
+
+    <string name="code_text">123456</string>
+
+    <string name="pair_title">配对信息</string>
+
+    <string name="pair_message">你可以在设置-›开发者选项-›无线调试找到端口和六位配对码。将LADB和设置<b>分屏</b>来防止配对码变化</string>
+
+    <string name="actions">操作</string>
+
+    <string name="troubleshooting">疑难解答</string>
+
+    <string name="about">关于</string>
+
+    <string name="reset_title">重置服务端</string>
+
+    <string name="reset_summary">重置App到初始状态，清除配对信息和ADB服务端文件</string>
+
+    <string name="reset_key">重置</string>
+
+    <string name="auto_shell_title">自动进入ADB Shell</string>
+
+    <string name="auto_shell_summary">自动直接进入ADB shell</string>
+
+    <string name="auto_shell_key">no_adb</string>
+
+    <string name="tutorial_title">教程</string>
+
+    <string name="tutorial_summary">首次设定LADB的方法如下：首先快速点击版本号打开开发者选项，然后进入开发者选项打开无线调试，接着打开USB调试。 <b>这是某些设备上的必须操作。</b>重启LADB并允许其请求的权限。</string>
+
+    <string name="error_waiting_title">卡死在 \"等待中\"</string>
+
+    <string name="error_waiting_summary">This is the most common issue. First, make sure you follow the Tutorial steps. Then, try first restarting the app. If the issue is still occurring, reboot the device.</string>
+
+    <string name="error_no_wireless_debugging_title">No \"Wireless Debugging\" toggle</string>
+
+    <string name="error_no_wireless_debugging_summary">Your device does not natively support Wireless Debugging, which is required by LADB.</string>
+
+    <string name="error_more_than_one_title">More than one device connected</string>
+
+    <string name="error_more_than_one_summary">This error is one of the most common. Often, it can be fixed by <b>rebooting the device</b>. Another possible way to fix this for Android 10 users and below is to <b>enable Airplane Mode</b> because launching the app. Remember that after rebooting the device, Wireless Debugging <i>may turn off</i> and need to be turned on again.</string>
+
+    <string name="error_pairing_client_title">Unable to start pairing client</string>
+
+    <string name="error_pairing_client_summary">The most likely scenario for this error is an incorrectly entered port or pairing code. The port should always be followed by the colon. For example, 50123. The pairing code is six digits, it is the number that is on its own.</string>
+
+    <string name="error_inaccessible_title">Inaccessible or not found</string>
+
+    <string name="error_inaccessible_summary">You have most likely written a command that is not valid. Remember, LADB is the equivalent of having already ran \"adb shell\".</string>
+
+    <string name="error_failed_to_find_title">Failed to find ADB server binary</string>
+
+    <string name="error_failed_to_find_summary">The ADB server binary was never extracted from the application files. Try reinstalling the application.</string>
+
+    <string name="developer_title">Developer</string>
+
+    <string name="developer_summary">Tyler Nijmeh</string>
+
+    <string name="developer_key">developer</string>
+
+    <string name="source_title">Source code</string>
+
+    <string name="source_summary">View the source code on GitHub</string>
+
+    <string name="source_key">source</string>
+
+    <string name="contact_title">Contact</string>
+
+    <string name="contact_summary">Email me for assistance</string>
+
+    <string name="contact_key">contact</string>
+
+    <string name="licenses_title">Licenses</string>
+
+    <string name="licenses_summary">View the open source licenses</string>
+
+    <string name="licenses_key">licenses</string>
+
+</resources>
