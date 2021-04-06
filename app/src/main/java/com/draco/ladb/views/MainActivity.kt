@@ -198,6 +198,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 true
             }
+            R.id.clear -> {
+                viewModel.clearOutputText()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

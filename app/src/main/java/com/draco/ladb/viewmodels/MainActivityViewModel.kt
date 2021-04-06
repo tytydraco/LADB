@@ -41,6 +41,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    fun clearOutputText() {
+        adb.outputBufferFile.writeText("")
+    }
+
     fun shouldWePair(sharedPreferences: SharedPreferences): Boolean {
         with (sharedPreferences) {
             if (!getBoolean("paired", false)) {

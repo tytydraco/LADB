@@ -4,8 +4,13 @@
     <item
         android:id="@+id/share"
         android:title="@string/share"
-        app:showAsAction="ifRoom"
+        app:showAsAction="withText"
         android:icon="@drawable/ic_baseline_share_24" />
+    <item
+        android:id="@+id/clear"
+        android:title="@string/clear"
+        app:showAsAction="withText"
+        android:icon="@drawable/ic_baseline_clear_24" />
     <item
         android:id="@+id/help"
         android:title="@string/help"
