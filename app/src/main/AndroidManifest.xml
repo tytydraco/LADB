@@ -13,7 +13,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LADB"
         android:extractNativeLibs="true">
-        <activity android:name=".views.MainActivity">
+        <activity android:name=".views.MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
