@@ -13,6 +13,10 @@
     <string name="reset">Reset</string>
     <string name="okay">Okay</string>
 
+    <string name="developer_url">https://www.github.com/tytydraco</string>
+    <string name="source_url">https://www.github.com/tytydraco/LADB</string>
+    <string name="contact_url">mailto:tylernij@gmail.com</string>
+
     <string name="port_hint">Port</string>
     <string name="port_text">1234</string>
 

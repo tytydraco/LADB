@@ -1,5 +1,6 @@
 package com.draco.ladb.viewmodels
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Intent
 import android.content.SharedPreferences
