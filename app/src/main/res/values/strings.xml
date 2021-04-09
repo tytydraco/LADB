@@ -45,7 +45,7 @@
     <string name="error_waiting_summary">This is the most common issue. First, make sure you follow the Tutorial steps. Then, try first restarting the app. If the issue is still occurring, reboot the device.</string>
 
     <string name="error_no_wireless_debugging_title">No \"Wireless Debugging\" toggle</string>
-    <string name="error_no_wireless_debugging_summary">Your device does not natively support Wireless Debugging, which is required by LADB.</string>
+    <string name="error_no_wireless_debugging_summary">Your device does not natively support Wireless Debugging, which is required by LADB. Alternatively, you can use a PC to enable this feature, even on unsupported features. It will last until the next reboot. Connect the device and type: adb tcpip 5555</string>
 
     <string name="error_more_than_one_title">More than one device connected</string>
     <string name="error_more_than_one_summary">This error is one of the most common. Often, it can be fixed by <b>rebooting the device</b>. Another possible way to fix this for Android 10 users and below is to <b>enable Airplane Mode</b> because launching the app. Remember that after rebooting the device, Wireless Debugging <i>may turn off</i> and need to be turned on again.</string>
