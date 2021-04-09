@@ -24,13 +24,20 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val _outputText = MutableLiveData<String>()
     val outputText: LiveData<String> = _outputText
 
-    val adb = ADB.getInstance(context)
+    val adb = ADB.getInstance(context).also {
+        viewModelScope.launch(Dispatchers.IO) {
+            it.initializeClient()
+        }
+    }
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            adb.initializeClient()
-        }
+        startOutputThread()
+    }
 
+    /**
+     * Continuously update shell output
+     */
+    private fun startOutputThread() {
         viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
                 val out = readOutputFile(adb.outputBufferFile)
@@ -42,6 +49,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    /**
+     * Erase all shell text
+     */
     fun clearOutputText() {
         adb.outputBufferFile.writeText("")
     }
@@ -50,16 +60,17 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
      * Check if the user should be prompted to pair
      */
     fun shouldWePair(sharedPreferences: SharedPreferences): Boolean {
-        with (sharedPreferences) {
-            if (!getBoolean(context.getString(R.string.paired_key), false)) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                    return true
-            }
+        if (!sharedPreferences.getBoolean(context.getString(R.string.paired_key), false)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                return true
         }
 
         return false
     }
 
+    /**
+     * Return the contents of the script from the intent
+     */
     fun getScriptFromIntent(intent: Intent): String? {
         return when (intent.type) {
             "text/x-sh" -> {
@@ -73,6 +84,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    /**
+     * Read the content of the ABD output file
+     */
     private fun readOutputFile(file: File): String {
         val out = ByteArray(ADB.MAX_OUTPUT_BUFFER_SIZE)
 
