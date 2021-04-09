@@ -29,20 +29,35 @@ class ADB(private val context: Context) {
     private val adbPath = "${context.applicationInfo.nativeLibraryDir}/libadb.so"
     private val scriptPath = "${context.getExternalFilesDir(null)}/script.sh"
 
-    private val ready = MutableLiveData<Boolean>()
-    fun getReady(): LiveData<Boolean> = ready
+    /**
+     * Is the shell ready to handle commands?
+     */
+    private val _ready = MutableLiveData<Boolean>()
+    val ready: LiveData<Boolean> = _ready
 
-    private val closed = MutableLiveData<Boolean>()
-    fun getClosed(): LiveData<Boolean> = closed
+    /**
+     * Is the shell closed for any reason?
+     */
+    private val _closed = MutableLiveData<Boolean>()
+    val closed: LiveData<Boolean> = _closed
 
-    private lateinit var shellProcess: Process
-
+    /**
+     * Where shell output is stored
+     */
     val outputBufferFile: File = File.createTempFile("buffer", ".txt").also {
         it.deleteOnExit()
     }
 
+    /**
+     * Single shell instance where we can pipe commands to
+     */
+    private lateinit var shellProcess: Process
+
+    /**
+     * Decide how to initialize the shellProcess variable
+     */
     fun initializeClient() {
-        if (ready.value == true)
+        if (_ready.value == true)
             return
 
         val autoShell = sharedPrefs.getBoolean(context.getString(R.string.auto_shell_key), true)
@@ -52,14 +67,11 @@ class ADB(private val context: Context) {
             initializeShell()
     }
 
+    /**
+     * Scan and make a connection to a wireless device
+     */
     private fun initializeADBShell() {
-        if (!File(adbPath).exists()) {
-            debug("Failed to find ADB server binary at $adbPath")
-            return
-        }
-
-        debug("Scanning for device...")
-        debug("This may take a minute...")
+        debug("Starting ADB client and scanning for devices...")
         adb(false, listOf("wait-for-device"))?.waitFor()
 
         debug("Devices found. Shelling into device...")
@@ -70,11 +82,14 @@ class ADB(private val context: Context) {
         }
         shellProcess = process
         sendToShellProcess("echo Hello world!")
-        ready.postValue(true)
+        _ready.postValue(true)
 
         shellDeathListener()
     }
 
+    /**
+     * Make a local shell instance
+     */
     private fun initializeShell() {
         debug("Shelling into device")
         val process = shell(true, listOf("sh", "-l"))
@@ -85,15 +100,18 @@ class ADB(private val context: Context) {
         shellProcess = process
         sendToShellProcess("alias adb=\"$adbPath\"")
         sendToShellProcess("echo Hello world!")
-        ready.postValue(true)
+        _ready.postValue(true)
 
         shellDeathListener()
     }
 
+    /**
+     * Start a death listener to restart the shell once it dies
+     */
     private fun shellDeathListener() {
         GlobalScope.launch(Dispatchers.IO) {
             shellProcess.waitFor()
-            ready.postValue(false)
+            _ready.postValue(false)
             debug("Shell has died.")
             delay(1_000)
             debug("Attempting to reset connection...")
@@ -102,8 +120,11 @@ class ADB(private val context: Context) {
         }
     }
 
+    /**
+     * Completely reset the ADB client
+     */
     fun reset() {
-        ready.postValue(false)
+        _ready.postValue(false)
         outputBufferFile.writeText("")
         debug("Destroying shell process")
         if (this::shellProcess.isInitialized)
@@ -117,9 +138,12 @@ class ADB(private val context: Context) {
         debug("LADB reset complete, please restart the client")
         context.filesDir.deleteRecursively()
         context.cacheDir.deleteRecursively()
-        closed.postValue(true)
+        _closed.postValue(true)
     }
 
+    /**
+     * Ask the device to pair on Android 11 phones
+     */
     fun pair(port: String, pairingCode: String) {
         val pairShell = adb(true, listOf("pair", "localhost:$port"))
 
@@ -136,6 +160,9 @@ class ADB(private val context: Context) {
         pairShell?.waitFor()
     }
 
+    /**
+     * Send a raw ADB command
+     */
     private fun adb(redirect: Boolean, command: List<String>): Process? {
         val commandList = command.toMutableList().apply {
             add(0, adbPath)
@@ -143,6 +170,9 @@ class ADB(private val context: Context) {
         return shell(redirect, commandList)
     }
 
+    /**
+     * Send a raw shell command
+     */
     private fun shell(redirect: Boolean, command: List<String>): Process? {
         val processBuilder = ProcessBuilder(command)
             .directory(context.filesDir)
@@ -166,6 +196,9 @@ class ADB(private val context: Context) {
         }
     }
 
+    /**
+     * Execute a script
+     */
     fun sendScript(code: String) {
         /* Store script locally */
         val internalScript = File(scriptPath).apply {
@@ -179,6 +212,9 @@ class ADB(private val context: Context) {
         sendToShellProcess("sh ${internalScript.absolutePath}")
     }
 
+    /**
+     * Send commands directly to the shell process
+     */
     fun sendToShellProcess(msg: String) {
         PrintStream(shellProcess.outputStream).apply {
             println(msg)
@@ -186,6 +222,9 @@ class ADB(private val context: Context) {
         }
     }
 
+    /**
+     * Write a debug message to the user
+     */
     fun debug(msg: String) {
         if (outputBufferFile.exists())
             outputBufferFile.appendText("DEBUG: $msg" + System.lineSeparator())

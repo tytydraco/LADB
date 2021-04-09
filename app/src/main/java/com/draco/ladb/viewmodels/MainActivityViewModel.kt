@@ -23,7 +23,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val _outputText = MutableLiveData<String>()
     val outputText: LiveData<String> = _outputText
 
-    private val adb = ADB.getInstance(context)
+    val adb = ADB.getInstance(context)
 
     init {
         viewModelScope.launch(Dispatchers.IO) {

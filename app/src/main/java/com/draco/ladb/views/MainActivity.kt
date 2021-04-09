@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
                     command.text = null
 
                     lifecycleScope.launch(Dispatchers.IO) {
-                        viewModel.adb().sendToShellProcess(text)
+                        viewModel.adb.sendToShellProcess(text)
                     }
                 }
 
@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        viewModel.adb().getClosed().observe(this, Observer {
+        viewModel.adb.closed.observe(this, Observer {
             if (it == true) {
                 val intent = packageManager.getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)!!
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        viewModel.adb().getReady().observe(this, Observer {
+        viewModel.adb.ready.observe(this, Observer {
             if (it == false) {
                 runOnUiThread {
                     command.isEnabled = false
@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity() {
         with(getPreferences(Context.MODE_PRIVATE)) {
             if (viewModel.shouldWePair(this)) {
                 pairingLatch = CountDownLatch(1)
-                viewModel.adb().debug("Requesting pairing information")
+                viewModel.adb.debug("Requesting pairing information")
                 askToPair {
                     with(edit()) {
                         putBoolean("paired", true)
@@ -146,7 +146,7 @@ class MainActivity : AppCompatActivity() {
             .setAction(getString(R.string.dismiss)) {}
             .show()
 
-        viewModel.adb().sendScript(code)
+        viewModel.adb.sendScript(code)
     }
 
     private fun askToPair(callback: Runnable? = null) {
@@ -158,8 +158,8 @@ class MainActivity : AppCompatActivity() {
                     val code = findViewById<TextInputEditText>(R.id.code)!!.text.toString()
 
                     lifecycleScope.launch(Dispatchers.IO) {
-                        viewModel.adb().debug("Requesting additional pairing information")
-                        viewModel.adb().pair(port, code)
+                        viewModel.adb.debug("Requesting additional pairing information")
+                        viewModel.adb.pair(port, code)
 
                         callback?.run()
                     }
@@ -180,7 +180,7 @@ class MainActivity : AppCompatActivity() {
                     val uri = FileProvider.getUriForFile(
                             this,
                             BuildConfig.APPLICATION_ID + ".provider",
-                            viewModel.adb().outputBufferFile
+                            viewModel.adb.outputBufferFile
                     )
                     val intent = Intent(Intent.ACTION_SEND)
                     with(intent) {
