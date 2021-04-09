@@ -71,20 +71,22 @@ class ADB(private val context: Context) {
      * Scan and make a connection to a wireless device
      */
     private fun initializeADBShell() {
-        debug("Starting ADB client and scanning for devices...")
+        debug("Starting ADB client")
+        adb(false, listOf("start-server"))?.waitFor()
+        debug("Waiting for device to be found")
         adb(false, listOf("wait-for-device"))?.waitFor()
 
-        debug("Devices found. Shelling into device...")
+        debug("Shelling into device")
         val process = adb(true, listOf("-t", "1", "shell"))
         if (process == null) {
             debug("Failed to open shell connection")
             return
         }
         shellProcess = process
-        sendToShellProcess("echo Hello world!")
+        sendToShellProcess("echo 'Success! ※\\(^o^)/※'")
         _ready.postValue(true)
 
-        shellDeathListener()
+        startShellDeathThread()
     }
 
     /**
@@ -99,22 +101,21 @@ class ADB(private val context: Context) {
         }
         shellProcess = process
         sendToShellProcess("alias adb=\"$adbPath\"")
-        sendToShellProcess("echo Hello world!")
+        sendToShellProcess("echo 'Success! ※\\(^o^)/※'")
         _ready.postValue(true)
 
-        shellDeathListener()
+        startShellDeathThread()
     }
 
     /**
      * Start a death listener to restart the shell once it dies
      */
-    private fun shellDeathListener() {
+    private fun startShellDeathThread() {
         GlobalScope.launch(Dispatchers.IO) {
             shellProcess.waitFor()
             _ready.postValue(false)
-            debug("Shell has died.")
+            debug("Shell is dead, resetting")
             delay(1_000)
-            debug("Attempting to reset connection...")
             adb(false, listOf("kill-server"))?.waitFor()
             initializeClient()
         }
@@ -131,11 +132,9 @@ class ADB(private val context: Context) {
             shellProcess.destroyForcibly()
         debug("Disconnecting all clients")
         adb(false, listOf("disconnect"))?.waitFor()
-        debug("Killing server")
+        debug("Killing ADB server")
         adb(false, listOf("kill-server"))?.waitFor()
-        debug("Clearing pairing memory")
         debug("Erasing all ADB server files")
-        debug("LADB reset complete, please restart the client")
         context.filesDir.deleteRecursively()
         context.cacheDir.deleteRecursively()
         _closed.postValue(true)
@@ -227,6 +226,6 @@ class ADB(private val context: Context) {
      */
     fun debug(msg: String) {
         if (outputBufferFile.exists())
-            outputBufferFile.appendText("DEBUG: $msg" + System.lineSeparator())
+            outputBufferFile.appendText(">>> $msg" + System.lineSeparator())
     }
 }
