@@ -1,6 +1,7 @@
 package com.draco.ladb.fragments
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -17,6 +18,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class HelpPreferenceFragment : PreferenceFragmentCompat() {
+    private lateinit var adb: ADB
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        adb = ADB.getInstance(context)
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.help, rootKey)
     }
@@ -25,9 +33,7 @@ class HelpPreferenceFragment : PreferenceFragmentCompat() {
         when (preference.key) {
             getString(R.string.reset_key) -> {
                 lifecycleScope.launch(Dispatchers.IO) {
-                    with(ADB.getInstance(requireContext())) {
-                        reset()
-                    }
+                    adb.reset()
                 }
                 activity?.finish()
             }
