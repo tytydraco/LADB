@@ -19,11 +19,10 @@ import java.io.File
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
     private val context = getApplication<Application>().applicationContext
 
-    private val outputText = MutableLiveData<String>()
-    fun getOutputText(): LiveData<String> = outputText
+    private val _outputText = MutableLiveData<String>()
+    val outputText: LiveData<String> = _outputText
 
     private val adb = ADB.getInstance(context)
-    fun getAdb() = adb
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -33,9 +32,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
                 val out = readOutputFile(adb.outputBufferFile)
-                val currentText = outputText.value
+                val currentText = _outputText.value
                 if (out != currentText)
-                    outputText.postValue(out)
+                    _outputText.postValue(out)
                 Thread.sleep(ADB.OUTPUT_BUFFER_DELAY_MS)
             }
         }
