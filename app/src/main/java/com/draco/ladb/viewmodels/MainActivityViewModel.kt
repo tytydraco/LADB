@@ -11,6 +11,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.draco.ladb.R
 import com.draco.ladb.utils.ADB
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
@@ -45,9 +46,12 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         adb.outputBufferFile.writeText("")
     }
 
+    /**
+     * Check if the user should be prompted to pair
+     */
     fun shouldWePair(sharedPreferences: SharedPreferences): Boolean {
         with (sharedPreferences) {
-            if (!getBoolean("paired", false)) {
+            if (!getBoolean(context.getString(R.string.paired_key), false)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
                     return true
             }

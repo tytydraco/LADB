@@ -135,6 +135,10 @@ class ADB(private val context: Context) {
         debug("Killing ADB server")
         adb(false, listOf("kill-server"))?.waitFor()
         debug("Erasing all ADB server files")
+        with (sharedPrefs.edit()) {
+            putBoolean(context.getString(R.string.paired_key), false)
+            apply()
+        }
         context.filesDir.deleteRecursively()
         context.cacheDir.deleteRecursively()
         _closed.postValue(true)
@@ -163,8 +167,8 @@ class ADB(private val context: Context) {
      * Send a raw ADB command
      */
     private fun adb(redirect: Boolean, command: List<String>): Process? {
-        val commandList = command.toMutableList().apply {
-            add(0, adbPath)
+        val commandList = command.toMutableList().also {
+            it.add(0, adbPath)
         }
         return shell(redirect, commandList)
     }
