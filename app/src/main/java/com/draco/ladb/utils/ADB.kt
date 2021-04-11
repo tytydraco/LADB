@@ -228,6 +228,9 @@ class ADB(private val context: Context) {
      * Write a debug message to the user
      */
     fun debug(msg: String) {
-        outputBufferFile.appendText(">>> $msg" + System.lineSeparator())
+        synchronized(outputBufferFile) {
+            if (outputBufferFile.exists())
+                outputBufferFile.appendText(">>> $msg" + System.lineSeparator())
+        }
     }
 }
