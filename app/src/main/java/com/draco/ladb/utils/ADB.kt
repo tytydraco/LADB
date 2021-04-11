@@ -51,7 +51,7 @@ class ADB(private val context: Context) {
     /**
      * Single shell instance where we can pipe commands to
      */
-    private lateinit var shellProcess: Process
+    private var shellProcess: Process? = null
 
     /**
      * Decide how to initialize the shellProcess variable
@@ -112,7 +112,7 @@ class ADB(private val context: Context) {
      */
     private fun startShellDeathThread() {
         GlobalScope.launch(Dispatchers.IO) {
-            shellProcess.waitFor()
+            shellProcess?.waitFor()
             _ready.postValue(false)
             debug("Shell is dead, resetting")
             delay(1_000)
@@ -128,8 +128,7 @@ class ADB(private val context: Context) {
         _ready.postValue(false)
         outputBufferFile.writeText("")
         debug("Destroying shell process")
-        if (this::shellProcess.isInitialized)
-            shellProcess.destroyForcibly()
+        shellProcess?.destroyForcibly()
         debug("Disconnecting all clients")
         adb(false, listOf("disconnect"))?.waitFor()
         debug("Killing ADB server")
@@ -219,7 +218,7 @@ class ADB(private val context: Context) {
      * Send commands directly to the shell process
      */
     fun sendToShellProcess(msg: String) {
-        PrintStream(shellProcess.outputStream).apply {
+        PrintStream(shellProcess?.outputStream).apply {
             println(msg)
             flush()
         }
