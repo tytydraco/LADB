@@ -218,7 +218,9 @@ class ADB(private val context: Context) {
      * Send commands directly to the shell process
      */
     fun sendToShellProcess(msg: String) {
-        PrintStream(shellProcess?.outputStream).apply {
+        if (shellProcess == null || shellProcess?.outputStream == null)
+            return
+        PrintStream(shellProcess!!.outputStream!!).apply {
             println(msg)
             flush()
         }
