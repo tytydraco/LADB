@@ -15,7 +15,7 @@ import java.io.PrintStream
 
 class ADB(private val context: Context) {
     companion object {
-        const val MAX_OUTPUT_BUFFER_SIZE = 1024 * 8
+        const val MAX_OUTPUT_BUFFER_SIZE = 1024 * 16
         const val OUTPUT_BUFFER_DELAY_MS = 100L
 
         @Volatile private var instance: ADB? = null
