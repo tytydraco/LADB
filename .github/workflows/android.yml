@@ -22,9 +22,9 @@ jobs:
     - name: gradle cmd Action
       uses: eskatos/gradle-command-action@v1
       with:
-        wrapper-cache-enabled: true
-        dependencies-cache-enabled: true
-        configuration-cache-enabled: true
+        wrapper-cache-enabled: false
+        dependencies-cache-enabled: false
+        configuration-cache-enabled: false
         gradle-version: 6.8.3
         arguments: build
 
