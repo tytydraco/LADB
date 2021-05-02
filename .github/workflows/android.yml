@@ -19,6 +19,15 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
 
+    - name: gradle cmd Action
+      uses: eskatos/gradle-command-action@v1
+      with:
+        wrapper-cache-enabled: true
+        dependencies-cache-enabled: true
+        configuration-cache-enabled: true
+        gradle-version: 6.5
+        arguments: build
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
@@ -28,4 +37,4 @@ jobs:
       uses: 'actions/upload-artifact@v2'
       with:
         name: my-artifact ${{ matrix.node-version }}
-        path: '**.apk'
+        path: '**/*.apk'
