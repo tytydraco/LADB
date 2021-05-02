@@ -36,5 +36,5 @@ jobs:
     - name: upload-artifact my-artifact ${{ matrix.node-version }}
       uses: 'actions/upload-artifact@v2'
       with:
-        name: my-artifact ${{ matrix.node-version }}
+        name: my-artifact-${{ matrix.node-version }}
         path: '**/*.apk'
