@@ -25,7 +25,7 @@ jobs:
         wrapper-cache-enabled: true
         dependencies-cache-enabled: true
         configuration-cache-enabled: true
-        gradle-version: v6
+        gradle-version: 6.8.3
         arguments: build
 
 #    - name: Grant execute permission for gradlew
