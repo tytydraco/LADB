@@ -25,13 +25,13 @@ jobs:
         wrapper-cache-enabled: true
         dependencies-cache-enabled: true
         configuration-cache-enabled: true
-        gradle-version: 6.8.3
+        gradle-version: v6
         arguments: build
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
+#    - name: Grant execute permission for gradlew
+€      run: chmod +x gradlew
+#    - name: Build with Gradle
+#      run: ./gradlew build
 
     - name: upload-artifact my-artifact ${{ matrix.node-version }}
       uses: 'actions/upload-artifact@v2'
