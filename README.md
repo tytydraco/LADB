@@ -1,11 +1,9 @@
-# LADB
-A local ADB shell for Android!
+# LADB: A local ADB shell for Android!
 
+## Working:
+LADB bundles with an ADB server within the app. Normally, this server cannot connect to the local device because it requires an active USB connection. However, wireless ADB debugging feature of Android-11 allows the LADB to create a local server and pass-on the adb shell commands as if they are comming from a USB connected PC, but in reality without requiring any connection to a computer.
 
-## How does it work?
-LADB bundles an ADB server within the app libraries. Normally, this server cannot connect to the local device because it requires an active USB connection. However, Android's Wireless ADB Debugging feature allows the server and the client to speak to each other locally.
-
-## Initial Setup:
+## Setup:
 1. "About phone" > Tap "Build number" 7 times.
 2. "System" > "Advanced" > "Developer options" > "Wireless debugging" in the "DEBUGGING" section > on/enable.
 3. "Developer options" > ADB Debugging > on/enable.
