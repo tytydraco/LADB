@@ -26,4 +26,7 @@ Still not working? Try this:
 8. Enable Airplane Mode
 9. Open LADB
 
+# Credit
+Thanks to Surge1223 for precompiling ADB for the ARM/ARM64 architecture.
+
 Still confused? Email me at tylernij@gmail.com.
