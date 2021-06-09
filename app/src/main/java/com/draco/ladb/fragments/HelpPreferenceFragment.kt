@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceManager
 import androidx.preference.SwitchPreference
 import com.draco.ladb.R
 import com.draco.ladb.utils.ADB
@@ -32,6 +33,12 @@ class HelpPreferenceFragment : PreferenceFragmentCompat() {
         when (preference.key) {
             getString(R.string.reset_key) -> {
                 lifecycleScope.launch(Dispatchers.IO) {
+                    /* Unpair server and client */
+                    with(PreferenceManager.getDefaultSharedPreferences(context).edit()) {
+                        putBoolean(getString(R.string.paired_key), false)
+                        apply()
+                    }
+
                     adb.reset()
                 }
                 activity?.finish()

@@ -134,10 +134,6 @@ class ADB(private val context: Context) {
         debug("Killing ADB server")
         adb(false, listOf("kill-server"))?.waitFor()
         debug("Erasing all ADB server files")
-        with (sharedPrefs.edit()) {
-            putBoolean(context.getString(R.string.paired_key), false)
-            apply()
-        }
         context.filesDir.deleteRecursively()
         context.cacheDir.deleteRecursively()
         _closed.postValue(true)

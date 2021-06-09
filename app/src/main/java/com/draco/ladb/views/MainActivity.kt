@@ -1,10 +1,10 @@
 package com.draco.ladb.views
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethod
+import android.view.inputmethod.InputMethodManager
 import android.widget.ProgressBar
 import android.widget.ScrollView
 import androidx.activity.viewModels
@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.*
+import androidx.preference.PreferenceManager
 import com.draco.ladb.BuildConfig
 import com.draco.ladb.R
 import com.draco.ladb.viewmodels.MainActivityViewModel
@@ -22,10 +23,6 @@ import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.*
 import java.util.concurrent.CountDownLatch
 import kotlin.system.exitProcess
-import android.view.inputmethod.InputMethodManager
-
-
-
 
 class MainActivity : AppCompatActivity() {
     /* View Model */
@@ -118,7 +115,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         /* Check if we need to pair with the device on Android 11 */
-        with(getPreferences(Context.MODE_PRIVATE)) {
+        with(PreferenceManager.getDefaultSharedPreferences(this)) {
             if (viewModel.shouldWePair(this)) {
                 pairingLatch = CountDownLatch(1)
                 viewModel.adb.debug("Requesting pairing information")
