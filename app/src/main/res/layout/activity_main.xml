@@ -42,6 +42,7 @@
             android:layout_height="wrap_content"
             android:inputType="textNoSuggestions|text"
             android:hint="@string/command_hint"
+            android:enabled="false"
             android:id="@+id/command" />
     </com.google.android.material.textfield.TextInputLayout>
 </RelativeLayout>
