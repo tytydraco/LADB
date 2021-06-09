@@ -54,7 +54,6 @@ class MainActivity : AppCompatActivity() {
 
         pairDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.pair_title)
-            .setMessage(R.string.pair_message)
             .setCancelable(false)
             .setView(R.layout.dialog_pair)
 
