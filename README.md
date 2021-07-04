@@ -3,7 +3,8 @@
 A local ADB shell for Android!
 
 ## Installation
-
+```
+git clone 
 ```
 
 ## How does it work?
