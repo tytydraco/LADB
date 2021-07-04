@@ -3,8 +3,8 @@ A local ADB shell for Android!
 
 ## Installation
 Requirements:
-Gradle
-Git/Github CLI/GitHub Desktop
+* Gradle
+* Git/Github CLI/GitHub Desktop
 
 
 ```
