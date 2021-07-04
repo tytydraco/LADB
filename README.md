@@ -1,15 +1,29 @@
 # LADB
 A local ADB shell for Android!
 
-# How does it work?
+## Installation
+Requirements:
+* Gradle
+* Git/Github CLI/GitHub Desktop (Download from [dependencies]() folder)
+
+
+```
+git clone https://github.com/pronoymukherjeewritescode/LADB.git
+```
+or 
+```
+gh repo clone pronoymukherjeewritescode/LADB
+```
+
+## How does it work?
 LADB bundles an ADB server within the app libraries. Normally, this server cannot connect to the local device because it requires an active USB connection. However, Android's Wireless ADB Debugging feature allows the server and the client to speak to each other locally.
 
-# Initial Setup:
+## Initial Setup:
 1. About -> Build Number -> Click 7 times
 2. Developer Settings -> Wireless ADB Debugging -> On
 3. Developer Settings -> ADB Debugging -> On
 
-# Troubleshooting:
+## Troubleshooting:
 If you encounter "device unauthorized" or "multiple devices connected", try this:
 1. Enable Airplane Mode
 2. Disconnect any USB devices
