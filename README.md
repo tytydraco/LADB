@@ -4,7 +4,7 @@ A local ADB shell for Android!
 ## Installation
 Requirements:
 * Gradle
-* Git/Github CLI/GitHub Desktop
+* Git/Github CLI/GitHub Desktop (Download from [dependencies]() folder)
 
 
 ```
