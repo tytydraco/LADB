@@ -29,4 +29,7 @@ Still not working? Try this:
 # Credit
 Thanks to Surge1223 for precompiling ADB for the ARM/ARM64 architecture.
 
+# License
+While this project is GPLv3 licensed, I would like to add an additional parameter: no recompilations of the app are to be placed on the Google Play Store or any alternative APK-providing websites.
+
 Still confused? Email me at tylernij@gmail.com.
