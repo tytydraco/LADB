@@ -23,8 +23,6 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
-    private val context = getApplication<Application>().applicationContext
-
     private val _outputText = MutableLiveData<String>()
     val outputText: LiveData<String> = _outputText
 
@@ -38,7 +36,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             Context.MODE_PRIVATE
         )
 
-    val adb = ADB.getInstance(context).also {
+    val adb = ADB.getInstance(getApplication<Application>().applicationContext).also {
         viewModelScope.launch(Dispatchers.IO) {
             it.initializeClient()
         }
@@ -98,6 +96,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
      * Check if the user should be prompted to pair
      */
     fun shouldWePair(sharedPreferences: SharedPreferences): Boolean {
+        val context = getApplication<Application>().applicationContext
+
         if (!sharedPreferences.getBoolean(context.getString(R.string.paired_key), false)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
                 return true
@@ -110,6 +110,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
      * Return the contents of the script from the intent
      */
     fun getScriptFromIntent(intent: Intent): String? {
+        val context = getApplication<Application>().applicationContext
+
         return when (intent.type) {
             "text/x-sh" -> {
                 val uri = Uri.parse(intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM).toString())
