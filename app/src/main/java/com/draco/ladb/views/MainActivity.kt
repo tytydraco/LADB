@@ -128,6 +128,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        viewModel.piracyCheck(this)
     }
 
     /**

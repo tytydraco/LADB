@@ -75,4 +75,7 @@
     <string name="licenses_title">Licenses</string>
     <string name="licenses_summary">View the open source licenses</string>
     <string name="licenses_key">licenses</string>
+
+    <string name="pref_file" translatable="false">preferences</string>
+    <string name="pref_key_verified" translatable="false">verified</string>
 </resources>
