@@ -13,6 +13,13 @@
             android:title="@string/auto_shell_title"
             android:summary="@string/auto_shell_summary"
             android:key="@string/auto_shell_key"
+            android:dependency="@string/auto_pair_key"
+            android:defaultValue="true"/>
+        <SwitchPreference
+            android:icon="@drawable/ic_baseline_home_repair_service_24"
+            android:title="@string/auto_pair_title"
+            android:summary="@string/auto_pair_summary"
+            android:key="@string/auto_pair_key"
             android:defaultValue="true"/>
     </PreferenceCategory>
     <PreferenceCategory

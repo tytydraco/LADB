@@ -37,7 +37,11 @@
 
     <string name="auto_shell_title">Auto ADB Shell</string>
     <string name="auto_shell_summary">Automatically enter the ADB shell</string>
-    <string name="auto_shell_key">no_adb</string>
+    <string name="auto_shell_key">auto_shell</string>
+
+    <string name="auto_pair_title">Auto pair</string>
+    <string name="auto_pair_summary">Attempt to automatically pair with ADB and wait for device to connect</string>
+    <string name="auto_pair_key">auto_pair</string>
 
     <string name="tutorial_title">Tutorial</string>
     <string name="tutorial_summary">The initial steps to setup LADB are as follows. First, enable Developer Settings by tapping on the Build Number rapidly. Next, enter Developer Settings and enable Wireless Debugging. Next, enable USB Debugging. <b>It must occur in this order for some devices</b>. Restart LADB and grant it permission when it asks.</string>
