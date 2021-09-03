@@ -5,12 +5,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdk 30
 
     defaultConfig {
         applicationId "com.draco.ladb"
-        minSdkVersion 26
-        targetSdkVersion 30
+        minSdk 26
+        targetSdk 30
         versionCode 25
         versionName "1.5.1"
 
