@@ -21,6 +21,12 @@
             android:summary="@string/auto_pair_summary"
             android:key="@string/auto_pair_key"
             android:defaultValue="true"/>
+        <EditTextPreference
+            android:icon="@drawable/ic_baseline_home_repair_service_24"
+            android:title="@string/buffer_size_title"
+            android:summary="@string/buffer_size_summary"
+            android:key="@string/buffer_size_key"
+            android:defaultValue="16384"/>
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/troubleshooting">

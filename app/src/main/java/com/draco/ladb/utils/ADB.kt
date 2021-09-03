@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
 import java.io.PrintStream
+import java.lang.NumberFormatException
 
 class ADB(private val context: Context) {
     companion object {
@@ -52,6 +53,18 @@ class ADB(private val context: Context) {
      * Single shell instance where we can pipe commands to
      */
     private var shellProcess: Process? = null
+
+    /**
+     * Returns the user buffer size if valid, else the default
+     */
+    fun getOutputBufferSize(): Int {
+        val userValue = sharedPrefs.getString(context.getString(R.string.buffer_size_key), "16384")!!
+        return try {
+            Integer.parseInt(userValue)
+        } catch (_: NumberFormatException) {
+            16384
+        }
+    }
 
     /**
      * Decide how to initialize the shellProcess variable

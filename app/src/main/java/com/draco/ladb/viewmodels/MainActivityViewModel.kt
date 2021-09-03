@@ -128,7 +128,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
      * Read the content of the ABD output file
      */
     private fun readOutputFile(file: File): String {
-        val out = ByteArray(ADB.MAX_OUTPUT_BUFFER_SIZE)
+        val out = ByteArray(adb.getOutputBufferSize())
 
         synchronized(file) {
             if (!file.exists())
