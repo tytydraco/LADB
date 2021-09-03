@@ -61,47 +61,40 @@ class ADB(private val context: Context) {
             return
 
         val autoShell = sharedPrefs.getBoolean(context.getString(R.string.auto_shell_key), true)
-        if (autoShell)
-            initializeADBShell()
-        else
-            initializeShell()
+        initializeADBShell(autoShell)
     }
 
     /**
      * Scan and make a connection to a wireless device
      */
-    private fun initializeADBShell() {
+    private fun initializeADBShell(autoShell: Boolean) {
         debug("Starting ADB client")
         adb(false, listOf("start-server"))?.waitFor()
         debug("Waiting for device to be found")
         adb(false, listOf("wait-for-device"))?.waitFor()
 
+
         debug("Shelling into device")
-        val process = adb(true, listOf("-t", "1", "shell"))
+        val process = if (autoShell)
+            adb(true, listOf("-t", "1", "shell"))
+        else
+            shell(true, listOf("sh", "-l"))
+
         if (process == null) {
             debug("Failed to open shell connection")
             return
         }
         shellProcess = process
-        sendToShellProcess("echo 'Success! ※\\(^o^)/※'")
-        _ready.postValue(true)
 
-        startShellDeathThread()
-    }
-
-    /**
-     * Make a local shell instance
-     */
-    private fun initializeShell() {
-        debug("Shelling into device")
-        val process = shell(true, listOf("sh", "-l"))
-        if (process == null) {
-            debug("Failed to open shell connection")
-            return
-        }
-        shellProcess = process
         sendToShellProcess("alias adb=\"$adbPath\"")
+
+        if (autoShell)
+            sendToShellProcess("echo 'NOTE: Dropped into ADB shell automatically'")
+        else
+            sendToShellProcess("echo 'NOTE: In unprivileged shell, not ADB shell'")
+
         sendToShellProcess("echo 'Success! ※\\(^o^)/※'")
+        
         _ready.postValue(true)
 
         startShellDeathThread()
