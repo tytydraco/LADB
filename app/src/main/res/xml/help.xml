@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory
-        android:title="@string/actions">
+        android:title="@string/settings">
         <Preference
             android:icon="@drawable/ic_baseline_refresh_24"
             android:title="@string/reset_title"

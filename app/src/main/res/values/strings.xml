@@ -27,7 +27,7 @@
     <string name="pair_title">Pairing information</string>
     <string name="pair_message">You can find the port and the 6-digit pairing code here: Settings -> Developer Settings -> Wireless Debugging. Open LADB and Settings using <b>Split Screen</b> to prevent the code from changing.</string>
 
-    <string name="actions">Actions</string>
+    <string name="settings">Settings</string>
     <string name="troubleshooting">Troubleshooting</string>
     <string name="about">About</string>
 
@@ -47,7 +47,7 @@
     <string name="tutorial_summary">The initial steps to setup LADB are as follows. First, enable Developer Settings by tapping on the Build Number rapidly. Next, enter Developer Settings and enable Wireless Debugging. Next, enable USB Debugging. <b>It must occur in this order for some devices</b>. Restart LADB and grant it permission when it asks.</string>
 
     <string name="error_waiting_title">Stuck on \"Waiting\"</string>
-    <string name="error_waiting_summary">This is the most common issue. First, make sure you follow the Tutorial steps. Then, try first restarting the app. If the issue is still occurring, reboot the device.</string>
+    <string name="error_waiting_summary">This is the most common issue. First, make sure you follow the Tutorial steps. Then, try clearing the app data and restarting the app. If the issue is still occurring, reboot the device.</string>
 
     <string name="error_no_wireless_debugging_title">No \"Wireless Debugging\" toggle</string>
     <string name="error_no_wireless_debugging_summary">Your device does not natively support Wireless Debugging, which is required by LADB. Alternatively, you can use a PC to enable this feature, even on unsupported features. It will last until the next reboot. Connect the device and type: adb tcpip 5555</string>
@@ -59,7 +59,7 @@
     <string name="error_pairing_client_summary">The most likely scenario for this error is an incorrectly entered port or pairing code. The port should always be followed by the colon. For example, 50123. The pairing code is six digits, it is the number that is on its own.</string>
 
     <string name="error_inaccessible_title">Inaccessible or not found</string>
-    <string name="error_inaccessible_summary">You have most likely written a command that is not valid. Remember, LADB is the equivalent of having already ran \"adb shell\".</string>
+    <string name="error_inaccessible_summary">You have most likely written a command that is not valid. Remember, LADB is the equivalent of having already ran \"adb shell\" by default. See the Auto ADB Shell toggle.</string>
 
     <string name="error_failed_to_find_title">Failed to find ADB server binary</string>
     <string name="error_failed_to_find_summary">The ADB server binary was never extracted from the application files. Try reinstalling the application.</string>
