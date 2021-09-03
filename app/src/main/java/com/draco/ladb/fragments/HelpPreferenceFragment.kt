@@ -33,7 +33,7 @@ class HelpPreferenceFragment : PreferenceFragmentCompat() {
                     /* Unpair server and client */
                     with(PreferenceManager.getDefaultSharedPreferences(context).edit()) {
                         putBoolean(getString(R.string.paired_key), false)
-                        apply()
+                        commit()
                     }
 
                     adb.reset()
