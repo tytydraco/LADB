@@ -62,7 +62,7 @@ class ADB(private val context: Context) {
         return try {
             Integer.parseInt(userValue)
         } catch (_: NumberFormatException) {
-            16384
+            MAX_OUTPUT_BUFFER_SIZE
         }
     }
 
