@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/last_command"
+        android:title="@string/last_command"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_baseline_restore_24dp" />
+    <item
         android:id="@+id/share"
         android:title="@string/share"
         app:showAsAction="withText"

@@ -40,6 +40,8 @@ class MainActivity : AppCompatActivity() {
     /* Held when pairing */
     private var pairingLatch = CountDownLatch(0)
 
+    private var lastCommand = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -59,6 +61,7 @@ class MainActivity : AppCompatActivity() {
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
                 if (event.action == KeyEvent.ACTION_DOWN) {
                     val text = command.text.toString()
+                    lastCommand = text
                     command.text = null
                     lifecycleScope.launch(Dispatchers.IO) {
                         viewModel.adb.sendToShellProcess(text)
@@ -172,6 +175,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.last_command -> {
+                command.setText(lastCommand)
+                command.setSelection(lastCommand.length)
+                true
+            }
             R.id.help -> {
                 val intent = Intent(this, HelpActivity::class.java)
                 startActivity(intent)
