@@ -11,7 +11,6 @@
     <string name="snackbar_intent_failed">Failed to share log</string>
     <string name="snackbar_file_opened">Executing script from file</string>
     <string name="dismiss">Dismiss</string>
-    <string name="reset">Reset</string>
     <string name="okay">Okay</string>
 
     <string name="developer_url">https://www.github.com/tytydraco</string>

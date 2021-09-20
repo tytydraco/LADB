@@ -2,7 +2,6 @@ package com.draco.ladb.views
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import com.draco.ladb.R
 import com.draco.ladb.fragments.HelpPreferenceFragment
 

@@ -26,7 +26,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val _outputText = MutableLiveData<String>()
     val outputText: LiveData<String> = _outputText
 
-    var checker: PiracyChecker? = null
+    private var checker: PiracyChecker? = null
     private val sharedPreferences = application
         .applicationContext
         .getSharedPreferences(
