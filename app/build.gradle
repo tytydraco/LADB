@@ -11,8 +11,8 @@ android {
         applicationId "com.draco.ladb"
         minSdk 26
         targetSdk 31
-        versionCode 27
-        versionName "1.6.1"
+        versionCode 28
+        versionName "1.7"
 
         ndk {
             abiFilters 'arm64-v8a', 'armeabi-v7a'
