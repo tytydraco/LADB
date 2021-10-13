@@ -93,8 +93,7 @@ class ADB(private val context: Context) {
 
         debug("Shelling into device")
         val process = if (autoShell && autoPair) {
-            val argList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-                Build.SUPPORTED_ABIS[0] == "arm64-v8a")
+            val argList = if (Build.SUPPORTED_ABIS[0] == "arm64-v8a")
                 listOf("-t", "1", "shell")
             else
                 listOf("shell")
