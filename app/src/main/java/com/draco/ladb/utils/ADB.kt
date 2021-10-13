@@ -1,6 +1,7 @@
 package com.draco.ladb.utils
 
 import android.content.Context
+import android.os.Build
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
@@ -91,9 +92,14 @@ class ADB(private val context: Context) {
 
 
         debug("Shelling into device")
-        val process = if (autoShell && autoPair)
-            adb(true, listOf("-t", "1", "shell"))
-        else
+        val process = if (autoShell && autoPair) {
+            val argList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+                Build.SUPPORTED_ABIS[0] == "arm64-v8a")
+                listOf("-t", "1", "shell")
+            else
+                listOf("shell")
+            adb(true, argList)
+        } else
             shell(true, listOf("sh", "-l"))
 
         if (process == null) {
