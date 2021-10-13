@@ -47,6 +47,10 @@
     <string name="buffer_size_summary">The size of the screen output buffer. Increasing this value will show more output on the screen at once at the cost of performance. (Default: 16384)</string>
     <string name="buffer_size_key">buffer_size</string>
 
+    <string name="startup_command_title">Startup command</string>
+    <string name="startup_command_summary">The command to run once the shell has begun</string>
+    <string name="startup_command_key">startup_command</string>
+
     <string name="tutorial_title">Tutorial</string>
     <string name="tutorial_summary">The initial steps to setup LADB are as follows. First, enable Developer Settings by tapping on the Build Number rapidly. Next, enter Developer Settings and enable Wireless Debugging. Next, enable USB Debugging. <b>It must occur in this order for some devices</b>. Restart LADB and grant it permission when it asks.</string>
 

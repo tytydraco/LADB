@@ -76,13 +76,15 @@ class ADB(private val context: Context) {
 
         val autoShell = sharedPrefs.getBoolean(context.getString(R.string.auto_shell_key), true)
         val autoPair = sharedPrefs.getBoolean(context.getString(R.string.auto_pair_key), true)
-        initializeADBShell(autoShell, autoPair)
+        val startupCommand = sharedPrefs.getString(context.getString(R.string.startup_command_key), "echo 'Success! ※\\(^o^)/※'")!!
+
+        initializeADBShell(autoShell, autoPair, startupCommand)
     }
 
     /**
      * Scan and make a connection to a wireless device
      */
-    private fun initializeADBShell(autoShell: Boolean, autoPair: Boolean) {
+    private fun initializeADBShell(autoShell: Boolean, autoPair: Boolean, startupCommand: String) {
         if (autoPair) {
             debug("Starting ADB client")
             adb(false, listOf("start-server"))?.waitFor()
@@ -114,7 +116,8 @@ class ADB(private val context: Context) {
         else
             sendToShellProcess("echo 'NOTE: In unprivileged shell, not ADB shell'")
 
-        sendToShellProcess("echo 'Success! ※\\(^o^)/※'")
+        if (startupCommand.isNotEmpty())
+            sendToShellProcess(startupCommand)
 
         _ready.postValue(true)
 

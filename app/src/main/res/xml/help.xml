@@ -27,6 +27,12 @@
             android:summary="@string/buffer_size_summary"
             android:key="@string/buffer_size_key"
             android:defaultValue="16384"/>
+        <EditTextPreference
+            android:icon="@drawable/ic_baseline_home_repair_service_24"
+            android:title="@string/startup_command_title"
+            android:summary="@string/startup_command_summary"
+            android:key="@string/startup_command_key"
+            android:defaultValue="echo 'Success! ※\\(^o^)/※'"/>
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/troubleshooting">
