@@ -1,5 +1,6 @@
 package com.draco.ladb.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import androidx.lifecycle.LiveData
@@ -20,6 +21,7 @@ class ADB(private val context: Context) {
         const val MAX_OUTPUT_BUFFER_SIZE = 1024 * 16
         const val OUTPUT_BUFFER_DELAY_MS = 100L
 
+        @SuppressLint("StaticFieldLeak")
         @Volatile private var instance: ADB? = null
         fun getInstance(context: Context): ADB = instance ?: synchronized(this) {
             instance ?: ADB(context).also { instance = it }
