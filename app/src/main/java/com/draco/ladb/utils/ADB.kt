@@ -165,7 +165,7 @@ class ADB(private val context: Context) {
         val pairShell = adb(true, listOf("pair", "localhost:$port"))
 
         /* Sleep to allow shell to catch up */
-        Thread.sleep(1000)
+        Thread.sleep(5000)
 
         /* Pipe pairing code */
         PrintStream(pairShell?.outputStream).apply {
