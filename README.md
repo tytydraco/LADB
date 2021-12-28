@@ -8,11 +8,11 @@ Requirements:
 
 
 ```
-git clone https://github.com/pronoymukherjeewritescode/LADB.git
+git clone https://github.com/pronoy2108/LADB.git
 ```
 or 
 ```
-gh repo clone pronoymukherjeewritescode/LADB
+gh repo clone pronoy2108/LADB
 ```
 
 ## How does it work?
