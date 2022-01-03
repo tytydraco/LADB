@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
 
     /* Alert dialogs */
     private lateinit var pairDialog: MaterialAlertDialogBuilder
+    private lateinit var badAbiDialog: MaterialAlertDialogBuilder
 
     /* Held when pairing */
     private var pairingLatch = CountDownLatch(0)
@@ -55,6 +56,12 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.pair_title)
             .setCancelable(false)
             .setView(R.layout.dialog_pair)
+
+        badAbiDialog = MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.bad_abi_title)
+            .setMessage(R.string.bad_abi_message)
+            .setCancelable(false)
+            .setPositiveButton(R.string.exit) { _, _ -> finishAffinity() }
 
         /* Send commands to the ADB instance */
         command.setOnKeyListener { _, keyCode, event ->
@@ -132,6 +139,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        viewModel.abiUnsupportedDialog(badAbiDialog)
         viewModel.piracyCheck(this)
     }
 

@@ -17,6 +17,7 @@ import com.draco.ladb.R
 import com.draco.ladb.utils.ADB
 import com.github.javiersantos.piracychecker.PiracyChecker
 import com.github.javiersantos.piracychecker.piracyChecker
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -44,6 +45,16 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     init {
         startOutputThread()
+    }
+
+    /**
+     * Show a dialog that tells the user that their ABI version is unsupported
+     */
+    fun abiUnsupportedDialog(dialog: MaterialAlertDialogBuilder) {
+        if (Build.SUPPORTED_64_BIT_ABIS.isNullOrEmpty() &&
+                BuildConfig.VERSION_CODE >= Build.VERSION_CODES.R) {
+            dialog.show()
+        }
     }
 
     /**
