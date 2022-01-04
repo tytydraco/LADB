@@ -12,7 +12,6 @@
     <string name="snackbar_file_opened">Executing script from file</string>
     <string name="dismiss">Dismiss</string>
     <string name="okay">Okay</string>
-    <string name="exit">Exit</string>
 
     <string name="developer_url">https://www.github.com/tytydraco</string>
     <string name="source_url">https://www.github.com/tytydraco/LADB</string>

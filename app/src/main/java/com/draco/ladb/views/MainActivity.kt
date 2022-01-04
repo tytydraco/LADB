@@ -60,8 +60,7 @@ class MainActivity : AppCompatActivity() {
         badAbiDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.bad_abi_title)
             .setMessage(R.string.bad_abi_message)
-            .setCancelable(false)
-            .setPositiveButton(R.string.exit) { _, _ -> finishAffinity() }
+            .setPositiveButton(R.string.dismiss, null)
 
         /* Send commands to the ADB instance */
         command.setOnKeyListener { _, keyCode, event ->
