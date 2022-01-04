@@ -52,7 +52,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
      */
     fun abiUnsupportedDialog(dialog: MaterialAlertDialogBuilder) {
         if (Build.SUPPORTED_64_BIT_ABIS.isNullOrEmpty() &&
-                BuildConfig.VERSION_CODE >= Build.VERSION_CODES.R) {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             dialog.show()
         }
     }
