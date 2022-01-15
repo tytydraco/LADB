@@ -1,11 +1,15 @@
 package com.draco.ladb.utils
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
+import android.provider.Settings
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
+import com.draco.ladb.BuildConfig
 import com.draco.ladb.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -79,22 +83,41 @@ class ADB(private val context: Context) {
 
         val autoShell = sharedPrefs.getBoolean(context.getString(R.string.auto_shell_key), true)
         val autoPair = sharedPrefs.getBoolean(context.getString(R.string.auto_pair_key), true)
+        val autoWireless = sharedPrefs.getBoolean(context.getString(R.string.auto_wireless_key), true)
         val startupCommand = sharedPrefs.getString(context.getString(R.string.startup_command_key), "echo 'Success! ※\\(^o^)/※'")!!
 
-        initializeADBShell(autoShell, autoPair, startupCommand)
+        initializeADBShell(autoShell, autoPair, autoWireless, startupCommand)
     }
 
     /**
      * Scan and make a connection to a wireless device
      */
-    private fun initializeADBShell(autoShell: Boolean, autoPair: Boolean, startupCommand: String) {
+    private fun initializeADBShell(autoShell: Boolean, autoPair: Boolean, autoWireless: Boolean, startupCommand: String) {
+        val secureSettingsGranted =
+            context.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) == PackageManager.PERMISSION_GRANTED
+
+        if (autoWireless) {
+            debug("Enabling wireless debugging")
+            if (secureSettingsGranted) {
+                Settings.Global.putInt(
+                    context.contentResolver,
+                    "adb_wifi_enabled",
+                    1
+                )
+                debug("Waiting a few moments...")
+                Thread.sleep(3_000)
+            } else {
+                debug("NOTE: Secure settings permission not granted yet")
+                debug("NOTE: After first pair, it will auto-grant")
+            }
+        }
+
         if (autoPair) {
             debug("Starting ADB client")
             adb(false, listOf("start-server"))?.waitFor()
             debug("Waiting for device respond (max 5m)")
             adb(false, listOf("wait-for-device"))?.waitFor()
         }
-
 
         debug("Shelling into device")
         val process = if (autoShell && autoPair) {
@@ -113,6 +136,11 @@ class ADB(private val context: Context) {
         shellProcess = process
 
         sendToShellProcess("alias adb=\"$adbPath\"")
+
+        if (autoWireless && !secureSettingsGranted) {
+            sendToShellProcess("echo 'NOTE: Granting secure settings permission for next time'")
+            sendToShellProcess("pm grant ${BuildConfig.APPLICATION_ID} android.permission.WRITE_SECURE_SETTINGS")
+        }
 
         if (autoShell && autoPair)
             sendToShellProcess("echo 'NOTE: Dropped into ADB shell automatically'")

@@ -46,6 +46,10 @@
     <string name="auto_pair_summary">Attempt to automatically pair with ADB and wait for device to connect</string>
     <string name="auto_pair_key">auto_pair</string>
 
+    <string name="auto_wireless_title">Auto-enable wireless debugging</string>
+    <string name="auto_wireless_summary">Enable wireless debugging automatically upon app start for compatible devices</string>
+    <string name="auto_wireless_key">auto_wireless</string>
+
     <string name="buffer_size_title">Buffer size</string>
     <string name="buffer_size_summary">The size of the screen output buffer. Increasing this value will show more output on the screen at once at the cost of performance. (Default: 16384)</string>
     <string name="buffer_size_key">buffer_size</string>

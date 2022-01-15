@@ -21,6 +21,12 @@
             android:summary="@string/auto_pair_summary"
             android:key="@string/auto_pair_key"
             android:defaultValue="true"/>
+        <SwitchPreference
+            android:icon="@drawable/ic_baseline_home_repair_service_24"
+            android:title="@string/auto_wireless_title"
+            android:summary="@string/auto_wireless_summary"
+            android:key="@string/auto_wireless_key"
+            android:defaultValue="true"/>
         <EditTextPreference
             android:icon="@drawable/ic_baseline_home_repair_service_24"
             android:title="@string/buffer_size_title"
