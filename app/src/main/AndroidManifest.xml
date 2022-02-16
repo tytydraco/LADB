@@ -18,8 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LADB"
         android:extractNativeLibs="true"
-        android:banner="@drawable/banner"
-        tools:targetApi="m">
+        android:banner="@drawable/banner">
         <activity android:name=".views.MainActivity"
             android:exported="true">
             <intent-filter>
