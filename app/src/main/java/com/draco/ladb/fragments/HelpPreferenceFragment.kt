@@ -29,16 +29,18 @@ class HelpPreferenceFragment : PreferenceFragmentCompat() {
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
         when (preference.key) {
             getString(R.string.reset_key) -> {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    /* Unpair server and client */
-                    with(PreferenceManager.getDefaultSharedPreferences(context).edit()) {
-                        putBoolean(getString(R.string.paired_key), false)
-                        commit()
-                    }
+                context?.let {
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        /* Unpair server and client */
+                        with(PreferenceManager.getDefaultSharedPreferences(it).edit()) {
+                            putBoolean(getString(R.string.paired_key), false)
+                            commit()
+                        }
 
-                    adb.reset()
+                        adb.reset()
+                    }
+                    activity?.finish()
                 }
-                activity?.finish()
             }
 
             getString(R.string.developer_key) -> openURL(getString(R.string.developer_url))
