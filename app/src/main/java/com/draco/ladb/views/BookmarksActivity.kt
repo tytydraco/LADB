@@ -41,7 +41,9 @@ class BookmarksActivity: AppCompatActivity() {
             .setTitle("Add")
             .setView(editText)
             .setPositiveButton("Done") { _, _ ->
-                viewModel.recyclerAdapter.add(editText.text.toString())
+                val text = editText.text.toString()
+                if (text.isNotEmpty())
+                    viewModel.recyclerAdapter.add(text)
             }
             .setNegativeButton("Cancel", null)
             .show()
