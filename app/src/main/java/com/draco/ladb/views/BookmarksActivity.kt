@@ -1,5 +1,7 @@
 package com.draco.ladb.views
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -12,6 +14,10 @@ import com.draco.ladb.R
 import com.draco.ladb.viewmodels.BookmarksActivityViewModel
 
 class BookmarksActivity: AppCompatActivity() {
+    companion object {
+        const val REQUEST_CODE = 123
+    }
+
     private val viewModel: BookmarksActivityViewModel by viewModels()
     private lateinit var recycler: RecyclerView
 
@@ -21,6 +27,12 @@ class BookmarksActivity: AppCompatActivity() {
         recycler = findViewById(R.id.recycler)
 
         viewModel.prepareRecycler(this, recycler)
+        viewModel.recyclerAdapter.pickHook = {
+            val intent = Intent()
+                .putExtra(Intent.EXTRA_TEXT, it)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        }
     }
 
     private fun addBookmark() {

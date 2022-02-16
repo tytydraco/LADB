@@ -14,6 +14,8 @@ class BookmarksRecyclerAdapter(val context: Context): RecyclerView.Adapter<Bookm
     private val list = mutableSetOf<String>()
     val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
+    var pickHook: (String) -> Unit = {}
+
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val content: TextView = view.findViewById(R.id.content)
         val delete: ImageButton = view.findViewById(R.id.delete)
@@ -50,7 +52,7 @@ class BookmarksRecyclerAdapter(val context: Context): RecyclerView.Adapter<Bookm
         val text = list.elementAt(position)
         holder.content.text = text
         holder.itemView.setOnClickListener {
-            // TODO: Copy text into box
+            pickHook(text)
         }
         holder.delete.setOnClickListener {
             list.remove(text)

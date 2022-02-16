@@ -7,6 +7,7 @@ import android.view.inputmethod.InputMethod
 import android.view.inputmethod.InputMethodManager
 import android.widget.ProgressBar
 import android.widget.ScrollView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -42,6 +43,11 @@ class MainActivity : AppCompatActivity() {
     private var pairingLatch = CountDownLatch(0)
 
     private var lastCommand = ""
+
+    var bookmarkGetResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        val text = it.data?.getStringExtra(Intent.EXTRA_TEXT) ?: return@registerForActivityResult
+        command.setText(text)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -184,7 +190,7 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.bookmarks -> {
                 val intent = Intent(this, BookmarksActivity::class.java)
-                startActivity(intent)
+                bookmarkGetResult.launch(intent)
                 true
             }
             R.id.last_command -> {
