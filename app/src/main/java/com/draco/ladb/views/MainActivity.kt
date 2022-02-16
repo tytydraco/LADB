@@ -182,6 +182,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.bookmarks -> {
+                val intent = Intent(this, BookmarksActivity::class.java)
+                startActivity(intent)
+                true
+            }
             R.id.last_command -> {
                 command.setText(lastCommand)
                 command.setSelection(lastCommand.length)
