@@ -3,7 +3,9 @@ package com.draco.ladb.views
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.EditText
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.draco.ladb.R
@@ -21,10 +23,22 @@ class BookmarksActivity: AppCompatActivity() {
         viewModel.prepareRecycler(this, recycler)
     }
 
+    private fun addBookmark() {
+        val editText = EditText(this)
+        AlertDialog.Builder(this)
+            .setTitle("Add")
+            .setView(editText)
+            .setPositiveButton("Done") { _, _ ->
+                viewModel.recyclerAdapter.add(editText.text.toString())
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.add -> {
-                // TODO: Add bookmark
+                addBookmark()
                 true
             }
 

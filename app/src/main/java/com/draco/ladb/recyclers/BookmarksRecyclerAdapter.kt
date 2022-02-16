@@ -33,6 +33,12 @@ class BookmarksRecyclerAdapter(val context: Context): RecyclerView.Adapter<Bookm
         }
     }
 
+    fun add(text: String) {
+        list.add(text)
+        saveList()
+        notifyDataSetChanged()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         updateList(false)
         val view = LayoutInflater.from(parent.context)
