@@ -8,6 +8,8 @@
     <string name="help">Help</string>
     <string name="share">Share</string>
     <string name="clear">Clear screen</string>
+    <string name="add">Add</string>
+    <string name="delete">Delete</string>
 
     <string name="snackbar_intent_failed">Failed to share log</string>
     <string name="snackbar_file_opened">Executing script from file</string>
