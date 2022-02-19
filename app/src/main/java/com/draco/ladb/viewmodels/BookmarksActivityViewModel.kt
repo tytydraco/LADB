@@ -24,8 +24,11 @@ class BookmarksActivityViewModel(application: Application): AndroidViewModel(app
         recyclerAdapter.updateList()
     }
 
-    fun add(context: Context) {
+    fun add(context: Context, initialText: String) {
         val editText = EditText(context)
+            .also {
+                it.setText(initialText)
+            }
         AlertDialog.Builder(context)
             .setTitle(R.string.add)
             .setView(editText)

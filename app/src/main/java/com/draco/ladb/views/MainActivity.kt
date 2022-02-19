@@ -190,6 +190,7 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.bookmarks -> {
                 val intent = Intent(this, BookmarksActivity::class.java)
+                    .putExtra(Intent.EXTRA_TEXT, command.text.toString())
                 bookmarkGetResult.launch(intent)
                 true
             }

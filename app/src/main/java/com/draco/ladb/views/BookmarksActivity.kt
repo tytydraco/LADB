@@ -16,11 +16,14 @@ import com.draco.ladb.viewmodels.BookmarksActivityViewModel
 class BookmarksActivity: AppCompatActivity() {
     private val viewModel: BookmarksActivityViewModel by viewModels()
     private lateinit var recycler: RecyclerView
+    private lateinit var initialText: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bookmarks)
         recycler = findViewById(R.id.recycler)
+
+        initialText = intent.getStringExtra(Intent.EXTRA_TEXT) ?: ""
 
         viewModel.prepareRecycler(this, recycler)
         viewModel.recyclerAdapter.pickHook = {
@@ -40,7 +43,8 @@ class BookmarksActivity: AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.add -> {
-                viewModel.add(this)
+                viewModel.add(this, initialText)
+                initialText = ""
                 true
             }
 
