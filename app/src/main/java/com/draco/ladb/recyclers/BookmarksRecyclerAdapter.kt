@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.draco.ladb.R
 
 class BookmarksRecyclerAdapter(val context: Context): RecyclerView.Adapter<BookmarksRecyclerAdapter.ViewHolder>() {
-    private val list = mutableSetOf<String>()
+    private val list = sortedSetOf<String>()
     val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     var pickHook: (String) -> Unit = {}
