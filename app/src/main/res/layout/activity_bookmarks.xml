@@ -5,5 +5,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingBottom="12dp"
+        android:clipToPadding="false"
         android:id="@+id/recycler" />
 </LinearLayout>
