@@ -25,7 +25,7 @@
     <string name="source_url">https://www.github.com/tytydraco/LADB</string>
     <string name="contact_url">mailto:tylernij@gmail.com</string>
 
-    <string name="paired_key">paired</string>
+    <string name="paired_key" translatable="false">paired</string>
     <string name="port_hint">Port</string>
     <string name="port_text">1234</string>
 
@@ -44,27 +44,27 @@
 
     <string name="reset_title">Reset server</string>
     <string name="reset_summary">Restore the app to factory settings, erasing pairing information and ADB server files</string>
-    <string name="reset_key">reset</string>
+    <string name="reset_key" translatable="false">reset</string>
 
     <string name="auto_shell_title">Auto ADB Shell</string>
     <string name="auto_shell_summary">Automatically enter the ADB shell</string>
-    <string name="auto_shell_key">auto_shell</string>
+    <string name="auto_shell_key" translatable="false">auto_shell</string>
 
     <string name="auto_pair_title">Auto pair</string>
     <string name="auto_pair_summary">Attempt to automatically pair with ADB and wait for device to connect</string>
-    <string name="auto_pair_key">auto_pair</string>
+    <string name="auto_pair_key" translatable="false">auto_pair</string>
 
     <string name="auto_wireless_title">Auto-enable wireless debugging</string>
     <string name="auto_wireless_summary">Enable wireless debugging automatically upon app start for compatible devices</string>
-    <string name="auto_wireless_key">auto_wireless</string>
+    <string name="auto_wireless_key" translatable="false">auto_wireless</string>
 
     <string name="buffer_size_title">Buffer size</string>
     <string name="buffer_size_summary">The size of the screen output buffer. Increasing this value will show more output on the screen at once at the cost of performance. (Default: 16384)</string>
-    <string name="buffer_size_key">buffer_size</string>
+    <string name="buffer_size_key" translatable="false">buffer_size</string>
 
     <string name="startup_command_title">Startup command</string>
     <string name="startup_command_summary">The command to run once the shell has begun</string>
-    <string name="startup_command_key">startup_command</string>
+    <string name="startup_command_key" translatable="false">startup_command</string>
 
     <string name="tutorial_title">Tutorial</string>
     <string name="tutorial_summary">The initial steps to setup LADB are as follows. First, enable Developer Settings by tapping on the Build Number rapidly. Next, enter Developer Settings and enable Wireless Debugging. Next, enable USB Debugging. <b>It must occur in this order for some devices</b>. Restart LADB and grant it permission when it asks.</string>
@@ -89,19 +89,19 @@
 
     <string name="developer_title">Developer</string>
     <string name="developer_summary">Tyler Nijmeh</string>
-    <string name="developer_key">developer</string>
+    <string name="developer_key" translatable="false">developer</string>
 
     <string name="source_title">Source code</string>
     <string name="source_summary">View the source code on GitHub</string>
-    <string name="source_key">source</string>
+    <string name="source_key" translatable="false">source</string>
 
     <string name="contact_title">Contact</string>
     <string name="contact_summary">Email me for assistance</string>
-    <string name="contact_key">contact</string>
+    <string name="contact_key" translatable="false">contact</string>
 
     <string name="licenses_title">Licenses</string>
     <string name="licenses_summary">View the open source licenses</string>
-    <string name="licenses_key">licenses</string>
+    <string name="licenses_key" translatable="false">licenses</string>
 
     <string name="pref_file" translatable="false">preferences</string>
     <string name="pref_key_verified" translatable="false">verified</string>
