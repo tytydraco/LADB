@@ -3,10 +3,19 @@
 
     <string name="command_hint">Shell指令</string>
 
+    <string name="bookmarks">书签</string>
     <string name="last_command">上一个指令</string>
     <string name="help">帮助</string>
     <string name="share">分享</string>
     <string name="clear">清屏</string>
+    <string name="add">添加</string>
+    <string name="delete">删除</string>
+    <string name="edit">编辑</string>
+    <string name="cancel">取消</string>
+    <string name="done">完成</string>
+
+
+    <string name="delete_confirm">你确定要删除这个吗？</string>
 
     <string name="snackbar_intent_failed">分享日志失败</string>
     <string name="snackbar_file_opened">执行脚本文件</string>
@@ -27,6 +36,9 @@
     <string name="pair_title">配对信息</string>
     <string name="pair_message">你可以在设置-›开发者选项-›无线调试找到端口和六位配对码。将LADB和设置<b>分屏</b>来防止配对码变化</string>
 
+    <string name="bad_abi_title">设备本不受支持</string>
+    <string name="bad_abi_message">不支持您的设备，因为它是 32 位并在 Android 11+ 上运行。 对不起 (´;︵;`)</string>
+
     <string name="settings">设置</string>
     <string name="troubleshooting">疑难解答</string>
     <string name="about">关于</string>
@@ -42,6 +54,11 @@
     <string name="auto_pair_title">自动配对</string>
     <string name="auto_pair_summary">尝试自动和ADB配对并等待设备连接</string>
     <string name="auto_pair_key">auto_pair</string>
+
+
+    <string name="auto_wireless_title">自动启用无线调试</string>
+    <string name="auto_wireless_summary">如果您的设备兼容，无线调试将在应用启动时自动启用</string>
+    <string name="auto_wireless_key">auto_wireless</string>
 
     <string name="buffer_size_title">缓冲区大小</string>
     <string name="buffer_size_summary">屏幕输出缓冲区的大小。增大这个值可以一次性显示更多输出但降低性能。(默认: 16384)</string>
