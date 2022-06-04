@@ -139,7 +139,7 @@ class ADB(private val context: Context) {
 
         if (autoWireless && !secureSettingsGranted) {
             sendToShellProcess("echo 'NOTE: Granting secure settings permission for next time'")
-            sendToShellProcess("pm grant ${BuildConfig.APPLICATION_ID} android.permission.WRITE_SECURE_SETTINGS")
+            sendToShellProcess("pm grant ${BuildConfig.APPLICATION_ID} android.permission.WRITE_SECURE_SETTINGS &> /dev/null")
         }
 
         if (autoShell && autoPair)
