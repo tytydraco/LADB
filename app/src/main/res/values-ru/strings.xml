@@ -1,0 +1,80 @@
+<resources>
+    <string name="app_name">LADB</string>
+
+    <string name="command_hint">Команда оболочки</string>
+
+    <string name="last_command">Последняя команда</string>
+    <string name="help">Помощь</string>
+    <string name="share">Поделиться</string>
+    <string name="clear">Очистить экран</string>
+
+    <string name="snackbar_intent_failed">Не удалось поделиться журналом</string>
+    <string name="snackbar_file_opened">Выполнение скрипта из файла</string>
+    <string name="dismiss">Закрыть</string>
+    <string name="okay">Ок</string>
+
+    <string name="port_hint">Порт</string>
+
+    <string name="code_hint">Код сопряжения</string>
+
+    <string name="pair_title">Информация о сопряжении</string>
+    <string name="pair_message">Вы можете найти порт и 6-значный код сопряжения здесь: Настройки -> Настройки разработчика -> Отладка по беспроводной сети. Откройте LADB и настройки с помощью <b>разделенного экрана</b>, чтобы предотвратить изменение кода.</string>
+
+    <string name="bad_abi_title">Неподдерживаемое устройство</string>
+    <string name="bad_abi_message">Ваше устройство не поддерживается, так как оно 32-разрядное и работает под управлением Android 11+.\n\nИзвините :(</string>
+
+    <string name="settings">Настройки</string>
+    <string name="troubleshooting">Исправление проблем</string>
+    <string name="about">Описание</string>
+
+    <string name="reset_title">Перезапустить сервер</string>
+    <string name="reset_summary">Восстановите заводские настройки приложения, удалив информацию о сопряжении и файлы сервера ADB.</string>
+
+    <string name="auto_shell_title">Автоматическая оболочка ADB</string>
+    <string name="auto_shell_summary">Автоматически вход в оболочку ADB</string>
+
+    <string name="auto_pair_title">Автоматическое сопряжение</string>
+    <string name="auto_pair_summary">Попытка автоматического сопряжения с ADB и ожидание подключения устройства</string>
+
+    <string name="auto_wireless_title">Автоматическое включение беспроводной отладки</string>
+    <string name="auto_wireless_summary">Автоматически включать беспроводную отладку при запуске приложения для совместимых устройств</string>
+
+    <string name="buffer_size_title">Размер буфера</string>
+    <string name="buffer_size_summary">Размер буфера вывода на экран. Увеличение этого значения приведет к одновременному отображению большего количества выходных данных на экране за счет снижения производительности. (По умолчанию: 16384)</string>
+
+    <string name="startup_command_title">Команда запуска</string>
+    <string name="startup_command_summary">Команда для запуска после запуска оболочки</string>
+
+    <string name="tutorial_title">Руководство</string>
+    <string name="tutorial_summary">Начальные шаги по настройке LADB следующие. Сначала включите настройки разработчика, быстро нажав на номер сборки. Затем войдите в настройки разработчика и включите отладку по беспроводной сети. Далее включите отладку по USB. <b>Для некоторых устройств это должно происходить именно в таком порядке</b>. Перезапустите LADB и предоставьте ему разрешение.</string>
+
+    <string name="error_waiting_title">Застрял на \"Ожидание\"</string>
+    <string name="error_waiting_summary">Это самая распространенная проблема. Во-первых, убедитесь, что вы следуете шагам учебника. Затем попробуйте очистить данные приложения и перезапустить приложение. Если проблема не устранена, перезагрузите устройство.</string>
+
+    <string name="error_no_wireless_debugging_title">Нет переключателя \"Беспроводная отладка\"</string>
+    <string name="error_no_wireless_debugging_summary">Ваше устройство изначально не поддерживает беспроводную отладку, которая требуется для LADB. Кроме того, вы можете использовать ПК для включения этой функции, даже для неподдерживаемых функций. Это продлится до следующей перезагрузки. Подключите устройство и введите: adb tcpip 5555</string>
+
+    <string name="error_more_than_one_title">Подключено более одного устройства</string>
+    <string name="error_more_than_one_summary">Эта ошибка является одной из самых распространенных. Часто это можно исправить, <b>перезагрузив устройство</b>. Другой возможный способ исправить это для пользователей Android 10 и более ранних версий — <b>включить режим полета</b> при запуске приложения. Помните, что после перезагрузки устройства беспроводная отладка <i>может отключиться</i> и ее нужно будет снова включить.</string>
+
+    <string name="error_pairing_client_title">Не удается начать сопряжение клиента</string>
+    <string name="error_pairing_client_summary">Наиболее вероятным сценарием этой ошибки является неправильно введенный порт или код сопряжения. За портом всегда должно следовать двоеточие. Например, 50123. Код сопряжения шестизначный, это номер, который сам по себе.</string>
+
+    <string name="error_inaccessible_title">Недоступно или не найдено</string>
+    <string name="error_inaccessible_summary">Скорее всего, вы написали недопустимую команду. Помните, что LADB эквивалентен уже запущенной «оболочке adb» по умолчанию. См. переключатель Атоматическая оболочка ADB.</string>
+
+    <string name="error_failed_to_find_title">Не удалось найти двоичный файл сервера ADB</string>
+    <string name="error_failed_to_find_summary">Бинарный файл сервера ADB никогда не извлекался из файлов приложения. Попробуйте переустановить приложение.</string>
+
+    <string name="developer_title">Разработчик</string>
+
+    <string name="source_title">Исходный код</string>
+    <string name="source_summary">Посмотреть исходный код на GitHub</string>
+
+    <string name="contact_title">Контакт</string>
+    <string name="contact_summary">Напишите мне для помощи</string>
+
+    <string name="licenses_title">Лицензии</string>
+    <string name="licenses_summary">Посмотреть лицензии открытого исходного кода</string>
+
+</resources>
