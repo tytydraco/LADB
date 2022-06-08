@@ -3,10 +3,18 @@
 
     <string name="command_hint">Shell指令</string>
 
+    <string name="bookmarks">书签</string>
     <string name="last_command">上一个指令</string>
     <string name="help">帮助</string>
     <string name="share">分享</string>
     <string name="clear">清屏</string>
+    <string name="add">添加</string>
+    <string name="delete">删除</string>
+    <string name="edit">编辑</string>
+    <string name="cancel">取消</string>
+    <string name="done">完成</string>
+
+    <string name="delete_confirm">你真的要删除这个吗？</string>
 
     <string name="snackbar_intent_failed">分享日志失败</string>
     <string name="snackbar_file_opened">执行脚本文件</string>
@@ -17,7 +25,6 @@
     <string name="source_url">https://www.github.com/tytydraco/LADB</string>
     <string name="contact_url">mailto:tylernij@gmail.com</string>
 
-    <string name="paired_key">paired</string>
     <string name="port_hint">端口</string>
     <string name="port_text">1234</string>
 
@@ -27,29 +34,30 @@
     <string name="pair_title">配对信息</string>
     <string name="pair_message">你可以在设置-›开发者选项-›无线调试找到端口和六位配对码。将LADB和设置<b>分屏</b>来防止配对码变化</string>
 
+    <string name="bad_abi_title">不支持的设备</string>
+    <string name="bad_abi_message">你的设备是32位的且运行Android11以上系统。\n\n抱歉</string>
+
     <string name="settings">设置</string>
     <string name="troubleshooting">疑难解答</string>
     <string name="about">关于</string>
 
     <string name="reset_title">重置服务端</string>
     <string name="reset_summary">重置App到初始状态，清除配对信息和ADB服务端文件</string>
-    <string name="reset_key">重置</string>
 
     <string name="auto_shell_title">自动进入ADB Shell</string>
     <string name="auto_shell_summary">自动直接进入ADB shell</string>
-    <string name="auto_shell_key">auto_shell</string>
 
     <string name="auto_pair_title">自动配对</string>
     <string name="auto_pair_summary">尝试自动和ADB配对并等待设备连接</string>
-    <string name="auto_pair_key">auto_pair</string>
+
+    <string name="auto_wireless_title">自动开启无线调试</string>
+    <string name="auto_wireless_summary">在支持的设备上当启动APP时自动打开无限调试</string>
 
     <string name="buffer_size_title">缓冲区大小</string>
     <string name="buffer_size_summary">屏幕输出缓冲区的大小。增大这个值可以一次性显示更多输出但降低性能。(默认: 16384)</string>
-    <string name="buffer_size_key">buffer_size</string>
 
     <string name="startup_command_title">启动命令</string>
     <string name="startup_command_summary">在进入Shell后要执行的命令</string>
-    <string name="startup_command_key">startup_command</string>
 
     <string name="tutorial_title">教程</string>
     <string name="tutorial_summary">首次设定LADB的方法如下：首先快速点击版本号打开开发者选项，然后进入开发者选项打开无线调试，接着打开USB调试。 <b>这是某些设备上的必须操作。</b>重启LADB并允许其请求的权限。</string>
@@ -75,20 +83,13 @@
 
     <string name="developer_title">开发者</string>
     <string name="developer_summary">Tyler Nijmeh（简体中文汉化：琴梨梨）</string>
-    <string name="developer_key">developer</string>
 
     <string name="source_title">源代码</string>
     <string name="source_summary">在GitHub上查看源码</string>
-    <string name="source_key">source</string>
 
     <string name="contact_title">联系</string>
     <string name="contact_summary">通过邮件获取协助</string>
-    <string name="contact_key">contact</string>
 
     <string name="licenses_title">许可证</string>
     <string name="licenses_summary">查看开源许可</string>
-    <string name="licenses_key">licenses</string>
-
-    <string name="pref_file" translatable="false">preferences</string>
-    <string name="pref_key_verified" translatable="false">verified</string>
 </resources>
