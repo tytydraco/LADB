@@ -11,5 +11,5 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
             name: ladb
-            path: app/build/*
+            path: app/build/outputs/*
         
