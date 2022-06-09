@@ -145,7 +145,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.abiUnsupportedDialog(badAbiDialog)
-        viewModel.piracyCheck(this)
     }
 
     /**
