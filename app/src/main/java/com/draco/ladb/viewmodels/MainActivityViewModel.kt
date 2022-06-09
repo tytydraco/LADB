@@ -76,7 +76,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             )
         }
 
-        val verified = sharedPreferences.getBoolean(context.getString(R.string.pref_key_verified), false)
+        val verified = sharedPreferences.getBoolean(context.getString(R.string.pref_key_verified), true)
         if (!verified)
             checker?.start()
     }
