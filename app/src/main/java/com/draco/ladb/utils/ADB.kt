@@ -168,8 +168,8 @@ class ADB(private val context: Context) {
             shellProcess?.waitFor()
             _started.postValue(false)
             debug("Shell is dead, resetting")
-            Thread.sleep(1_000)
             adb(false, listOf("kill-server")).waitFor()
+            Thread.sleep(3_000)
             initServer()
         }
     }
