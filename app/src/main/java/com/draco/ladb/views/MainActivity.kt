@@ -70,14 +70,12 @@ class MainActivity : AppCompatActivity() {
 
         /* Send commands to the ADB instance */
         command.setOnKeyListener { _, keyCode, event ->
-            if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                if (event.action == KeyEvent.ACTION_DOWN) {
-                    val text = command.text.toString()
-                    lastCommand = text
-                    command.text = null
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        viewModel.adb.sendToShellProcess(text)
-                    }
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
+                val text = command.text.toString()
+                lastCommand = text
+                command.text = null
+                lifecycleScope.launch(Dispatchers.IO) {
+                    viewModel.adb.sendToShellProcess(text)
                 }
                 return@setOnKeyListener true
             }
