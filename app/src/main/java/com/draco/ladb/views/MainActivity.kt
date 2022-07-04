@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.pair_title)
             .setCancelable(false)
             .setView(R.layout.dialog_pair)
-            .setNeutralButton(R.string.more, null)
+            .setNeutralButton(R.string.help, null)
 
         badAbiDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.bad_abi_title)
@@ -222,7 +222,7 @@ class MainActivity : AppCompatActivity() {
                 binding.command.setSelection(lastCommand.length)
                 true
             }
-            R.id.help -> {
+            R.id.more -> {
                 val intent = Intent(this, HelpActivity::class.java)
                 startActivity(intent)
                 true
