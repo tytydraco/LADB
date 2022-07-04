@@ -1,9 +1,11 @@
 package com.draco.ladb.views
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.*
+import android.view.KeyEvent
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.InputMethod
 import android.view.inputmethod.InputMethodManager
 import android.widget.ScrollView
@@ -12,8 +14,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import androidx.lifecycle.*
-import androidx.preference.PreferenceManager
+import androidx.lifecycle.lifecycleScope
 import com.draco.ladb.BuildConfig
 import com.draco.ladb.R
 import com.draco.ladb.databinding.ActivityMainBinding
@@ -21,26 +22,19 @@ import com.draco.ladb.viewmodels.MainActivityViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.launch
 import java.util.concurrent.CountDownLatch
-import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
-    /* View Model */
     private val viewModel: MainActivityViewModel by viewModels()
-
-    /* View Binding */
     private lateinit var binding: ActivityMainBinding
 
-    /* Alert dialogs */
     private lateinit var pairDialog: MaterialAlertDialogBuilder
     private lateinit var badAbiDialog: MaterialAlertDialogBuilder
-
-    /* Held when pairing */
     private var pairingLatch = CountDownLatch(0)
-
     private var lastCommand = ""
-    private lateinit var sharedPrefs: SharedPreferences
 
     var bookmarkGetResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         val text = it.data?.getStringExtra(Intent.EXTRA_TEXT) ?: return@registerForActivityResult
@@ -77,62 +71,53 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setReadyForInput(ready: Boolean) {
+        binding.command.isEnabled = ready
+        binding.progress.visibility = if (ready) View.INVISIBLE else View.VISIBLE
+    }
+
     private fun setupDataListeners() {
         /* Update the output text */
-        viewModel.outputText.observe(this, Observer {
-            binding.output.text = it
+        viewModel.outputText.observe(this) { newText ->
+            binding.output.text = newText
             binding.outputScrollview.post {
                 binding.outputScrollview.fullScroll(ScrollView.FOCUS_DOWN)
                 binding.command.requestFocus()
                 val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.showSoftInput(binding.command, InputMethod.SHOW_EXPLICIT)
             }
-        })
+        }
 
         /* Restart the activity on reset */
-        viewModel.adb.closed.observe(this, Observer {
-            if (it == true) {
-                val intent = packageManager.getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)!!
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                finishAffinity()
+        viewModel.adb.closed.observe(this) { closed ->
+            if (closed == true) {
+                val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
-                exitProcess(0)
+                finishAffinity()
             }
-        })
+        }
 
         /* Prepare progress bar, pairing latch, and script executing */
-        viewModel.adb.ready.observe(this, Observer {
-            if (it != true) {
-                runOnUiThread {
-                    binding.command.isEnabled = false
-                    binding.progress.visibility = View.VISIBLE
+        viewModel.adb.ready.observe(this) { ready ->
+            if (ready == true) {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    pairingLatch.await()
+                    runOnUiThread { setReadyForInput(true) }
+                    executeScriptFromIntent()
                 }
-                return@Observer
+            } else {
+                runOnUiThread { setReadyForInput(false) }
+                return@observe
             }
-
-            lifecycleScope.launch(Dispatchers.IO) {
-                pairingLatch.await()
-
-                runOnUiThread {
-                    binding.command.isEnabled = true
-                    binding.progress.visibility = View.INVISIBLE
-                }
-
-                if (viewModel.getScriptFromIntent(intent) != null)
-                    executeFromScript()
-            }
-        })
+        }
     }
 
     private fun pairIfNecessary() {
-        if (viewModel.shouldWePair(sharedPrefs)) {
+        if (viewModel.needsToPair()) {
             pairingLatch = CountDownLatch(1)
             viewModel.adb.debug("Requesting pairing information")
             askToPair {
-                with(sharedPrefs.edit()) {
-                    putBoolean(getString(R.string.paired_key), true)
-                    apply()
-                }
+                viewModel.setPairedBefore(true)
                 pairingLatch.countDown()
             }
         }
@@ -142,8 +127,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
 
         setupUI()
         setupDataListeners()
@@ -157,9 +140,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Execute a script from the main intent
+     * Execute a script from the main intent if one was given
      */
-    private fun executeFromScript() {
+    private fun executeScriptFromIntent() {
+        if (viewModel.getScriptFromIntent(intent) == null)
+            return
+
         val code = viewModel.getScriptFromIntent(intent) ?: return
 
         /* Invalidate intent */
@@ -215,23 +201,20 @@ class MainActivity : AppCompatActivity() {
             R.id.share -> {
                 try {
                     val uri = FileProvider.getUriForFile(
-                            this,
-                            BuildConfig.APPLICATION_ID + ".provider",
-                            viewModel.adb.outputBufferFile
+                        this,
+                        BuildConfig.APPLICATION_ID + ".provider",
+                        viewModel.adb.outputBufferFile
                     )
                     val intent = Intent(Intent.ACTION_SEND)
-                    with(intent) {
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        putExtra(Intent.EXTRA_STREAM, uri)
-                        type = "file/*"
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    }
+                        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+                        .putExtra(Intent.EXTRA_STREAM, uri)
+                        .setType("file/*")
                     startActivity(intent)
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Snackbar.make(binding.output, getString(R.string.snackbar_intent_failed), Snackbar.LENGTH_SHORT)
-                            .setAction(getString(R.string.dismiss)) {}
-                            .show()
+                        .setAction(getString(R.string.dismiss)) {}
+                        .show()
                 }
                 true
             }

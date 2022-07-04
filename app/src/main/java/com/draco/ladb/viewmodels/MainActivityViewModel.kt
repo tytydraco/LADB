@@ -2,22 +2,22 @@ package com.draco.ladb.viewmodels
 
 import android.app.Activity
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.Parcelable
+import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.preference.PreferenceManager
 import com.draco.ladb.BuildConfig
 import com.draco.ladb.R
 import com.draco.ladb.utils.ADB
 import com.github.javiersantos.piracychecker.PiracyChecker
 import com.github.javiersantos.piracychecker.piracyChecker
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -28,14 +28,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     val outputText: LiveData<String> = _outputText
 
     private var checker: PiracyChecker? = null
-    private val sharedPreferences = application
-        .applicationContext
-        .getSharedPreferences(
-            application
-                .applicationContext
-                .getString(R.string.pref_file),
-            Context.MODE_PRIVATE
-        )
+    private val sharedPreferences = PreferenceManager
+        .getDefaultSharedPreferences(application.applicationContext)
 
     val adb = ADB.getInstance(getApplication<Application>().applicationContext).also {
         viewModelScope.launch(Dispatchers.IO) {
@@ -103,15 +97,22 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     /**
      * Check if the user should be prompted to pair
      */
-    fun shouldWePair(sharedPreferences: SharedPreferences): Boolean {
+    fun needsToPair(): Boolean {
         val context = getApplication<Application>().applicationContext
 
-        if (!sharedPreferences.getBoolean(context.getString(R.string.paired_key), false)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                return true
+        if (!sharedPreferences.getBoolean(context.getString(R.string.paired_key), false) &&
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)) {
+            return true
         }
 
         return false
+    }
+
+    fun setPairedBefore(value: Boolean) {
+        val context = getApplication<Application>().applicationContext
+        sharedPreferences.edit {
+            putBoolean(context.getString(R.string.paired_key), value)
+        }
     }
 
     /**
