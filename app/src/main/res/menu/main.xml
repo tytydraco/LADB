@@ -23,7 +23,7 @@
         android:icon="@drawable/ic_baseline_clear_24" />
     <item
         android:id="@+id/help"
-        android:title="@string/help"
+        android:title="@string/more"
         app:showAsAction="withText"
         android:icon="@drawable/ic_baseline_help_24" />
 </menu>

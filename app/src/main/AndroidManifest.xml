@@ -33,7 +33,7 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
-        <activity android:name=".views.HelpActivity" android:label="@string/help" />
+        <activity android:name=".views.HelpActivity" android:label="@string/more" />
         <activity android:name=".views.BookmarksActivity" android:label="@string/bookmarks" />
 
         <service android:name=".services.QSTile"

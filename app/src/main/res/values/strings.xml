@@ -5,7 +5,7 @@
 
     <string name="bookmarks">Bookmarks</string>
     <string name="last_command">Last command</string>
-    <string name="help">Help</string>
+    <string name="more">More</string>
     <string name="share">Share</string>
     <string name="clear">Clear screen</string>
     <string name="add">Add</string>
@@ -13,27 +13,26 @@
     <string name="edit">Edit</string>
     <string name="cancel">Cancel</string>
     <string name="done">Done</string>
+    <string name="okay">Okay</string>
+    <string name="dismiss">Dismiss</string>
 
     <string name="delete_confirm">Are you sure you want to delete this?</string>
 
     <string name="snackbar_intent_failed">Failed to share log</string>
     <string name="snackbar_file_opened">Executing script from file</string>
-    <string name="dismiss">Dismiss</string>
-    <string name="okay">Okay</string>
 
     <string name="developer_url">https://www.github.com/tytydraco</string>
     <string name="source_url">https://www.github.com/tytydraco/LADB</string>
-    <string name="contact_url">mailto:tylernij@gmail.com</string>
+    <string name="contact_url">mailto:tylernij+LADB@gmail.com</string>
+    <string name="tutorial_url">https://www.xda-developers.com/debloat-your-phone-run-adb-shell-commands-no-root-no-pc</string>
 
     <string name="paired_key">paired</string>
     <string name="port_hint">Port</string>
-    <string name="port_text">1234</string>
 
     <string name="code_hint">Pairing code</string>
-    <string name="code_text">123456</string>
 
     <string name="pair_title">Pairing information</string>
-    <string name="pair_message">You can find the port and the 6-digit pairing code here: Settings -> Developer Settings -> Wireless Debugging. Open LADB and Settings using <b>Split Screen</b> to prevent the code from changing.</string>
+    <string name="pair_message">Info can be found here:\n\nSettings -> Developer Settings -> Wireless Debugging\n\nYou <b>MUST</b> use split-screen mode, or else the codes will not work.</string>
 
     <string name="bad_abi_title">Unsupported device</string>
     <string name="bad_abi_message">Your device is unsupported since it is 32-bit and running on Android 11+.\n\nSorry :(</string>
@@ -42,21 +41,17 @@
     <string name="troubleshooting">Troubleshooting</string>
     <string name="about">About</string>
 
-    <string name="reset_title">Reset server</string>
+    <string name="reset_title">Factory reset</string>
     <string name="reset_summary">Restore the app to factory settings, erasing pairing information and ADB server files</string>
     <string name="reset_key">reset</string>
 
-    <string name="auto_shell_title">Auto ADB Shell</string>
-    <string name="auto_shell_summary">Automatically enter the ADB shell</string>
+    <string name="restart_title">Restart</string>
+    <string name="restart_summary">Restart the ADB server to apply changed settings</string>
+    <string name="restart_key">restart</string>
+
+    <string name="auto_shell_title">Pair &amp; shell</string>
+    <string name="auto_shell_summary">Automatically enter an ADB shell; disable to enter a regular, non-adb shell without pairing</string>
     <string name="auto_shell_key">auto_shell</string>
-
-    <string name="auto_pair_title">Auto pair</string>
-    <string name="auto_pair_summary">Attempt to automatically pair with ADB and wait for device to connect</string>
-    <string name="auto_pair_key">auto_pair</string>
-
-    <string name="auto_wireless_title">Auto-enable wireless debugging</string>
-    <string name="auto_wireless_summary">Enable wireless debugging automatically upon app start for compatible devices</string>
-    <string name="auto_wireless_key">auto_wireless</string>
 
     <string name="buffer_size_title">Buffer size</string>
     <string name="buffer_size_summary">The size of the screen output buffer. Increasing this value will show more output on the screen at once at the cost of performance. (Default: 16384)</string>
@@ -67,25 +62,23 @@
     <string name="startup_command_key">startup_command</string>
 
     <string name="tutorial_title">Tutorial</string>
-    <string name="tutorial_summary">The initial steps to setup LADB are as follows. First, enable Developer Settings by tapping on the Build Number rapidly. Next, enter Developer Settings and enable Wireless Debugging. Next, enable USB Debugging. <b>It must occur in this order for some devices</b>. Restart LADB and grant it permission when it asks.</string>
+    <string name="tutorial_summary">View the tutorial from the XDA Developers page</string>
+    <string name="tutorial_key">tutorial</string>
 
     <string name="error_waiting_title">Stuck on \"Waiting\"</string>
-    <string name="error_waiting_summary">This is the most common issue. First, make sure you follow the Tutorial steps. Then, try clearing the app data and restarting the app. If the issue is still occurring, reboot the device.</string>
+    <string name="error_waiting_summary">Either you entered the pairing information incorrectly, or your device is not being detected. First, ensure that Wireless Debugging is actually enabled. If that does not work, Try the \"Factory reset\" setting in LADB to try pairing again.</string>
 
     <string name="error_no_wireless_debugging_title">No \"Wireless Debugging\" toggle</string>
-    <string name="error_no_wireless_debugging_summary">Your device does not natively support Wireless Debugging, which is required by LADB. Alternatively, you can use a PC to enable this feature, even on unsupported features. It will last until the next reboot. Connect the device and type: adb tcpip 5555</string>
+    <string name="error_no_wireless_debugging_summary">Your device does not natively support Wireless Debugging, which is required by LADB. Alternatively, you can use a PC to enable this feature, even on unsupported devices. It will last until the next reboot. Connect the device to a PC and type: adb tcpip 5555</string>
 
     <string name="error_more_than_one_title">More than one device connected</string>
-    <string name="error_more_than_one_summary">This error is one of the most common. Often, it can be fixed by <b>rebooting the device</b>. Another possible way to fix this for Android 10 users and below is to <b>enable Airplane Mode</b> because launching the app. Remember that after rebooting the device, Wireless Debugging <i>may turn off</i> and need to be turned on again.</string>
+    <string name="error_more_than_one_summary">This error can often, it can be fixed by rebooting the device. Another possible way to fix this for Android 10 users and below is to enable Airplane Mode before launching the app. Remember that after rebooting the device, Wireless Debugging may turn off and need to be turned on again.</string>
 
     <string name="error_pairing_client_title">Unable to start pairing client</string>
     <string name="error_pairing_client_summary">The most likely scenario for this error is an incorrectly entered port or pairing code. The port should always be followed by the colon. For example, 50123. The pairing code is six digits, it is the number that is on its own.</string>
 
     <string name="error_inaccessible_title">Inaccessible or not found</string>
-    <string name="error_inaccessible_summary">You have most likely written a command that is not valid. Remember, LADB is the equivalent of having already ran \"adb shell\" by default. See the Auto ADB Shell toggle.</string>
-
-    <string name="error_failed_to_find_title">Failed to find ADB server binary</string>
-    <string name="error_failed_to_find_summary">The ADB server binary was never extracted from the application files. Try reinstalling the application.</string>
+    <string name="error_inaccessible_summary">You have most likely written a command that is not valid. Remember, LADB is the equivalent of having already ran \"adb shell\" by default. See the \"Pair &amp; shell\" toggle.</string>
 
     <string name="developer_title">Developer</string>
     <string name="developer_summary">Tyler Nijmeh</string>

@@ -4,15 +4,15 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import androidx.lifecycle.lifecycleScope
+import androidx.core.content.edit
 import androidx.preference.*
 import com.draco.ladb.R
 import com.draco.ladb.utils.ADB
+import com.draco.ladb.views.MainActivity
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlin.system.exitProcess
 
 class HelpPreferenceFragment : PreferenceFragmentCompat() {
     private lateinit var adb: ADB
@@ -26,22 +26,29 @@ class HelpPreferenceFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.help, rootKey)
     }
 
+    private fun restartApp() {
+        val intent = Intent(requireContext(), MainActivity::class.java)
+        startActivity(intent)
+        requireActivity().finishAffinity()
+        exitProcess(0)
+    }
+
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
         when (preference.key) {
             getString(R.string.reset_key) -> {
-                context?.let {
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        /* Unpair server and client */
-                        with(PreferenceManager.getDefaultSharedPreferences(it).edit()) {
-                            putBoolean(getString(R.string.paired_key), false)
-                            commit()
-                        }
-
-                        adb.reset()
-                    }
-                    activity?.finish()
+                val context = requireContext()
+                PreferenceManager.getDefaultSharedPreferences(context).edit(commit = true) {
+                    clear()
                 }
+
+                context.filesDir.deleteRecursively()
+                context.cacheDir.deleteRecursively()
+
+                restartApp()
             }
+
+            getString(R.string.restart_key) -> restartApp()
+            getString(R.string.tutorial_key) -> openURL(getString(R.string.tutorial_url))
 
             getString(R.string.developer_key) -> openURL(getString(R.string.developer_url))
             getString(R.string.source_key) -> openURL(getString(R.string.source_url))

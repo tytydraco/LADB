@@ -21,7 +21,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="@string/port_text"
+                android:inputType="number"
                 android:id="@+id/port" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -33,7 +33,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="@string/code_text"
+                android:inputType="number"
                 android:id="@+id/code" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>

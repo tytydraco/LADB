@@ -3,7 +3,6 @@ package com.draco.ladb.viewmodels
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
-import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.Parcelable
@@ -31,19 +30,19 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val sharedPreferences = PreferenceManager
         .getDefaultSharedPreferences(application.applicationContext)
 
-    val adb = ADB.getInstance(getApplication<Application>().applicationContext).also {
-        viewModelScope.launch(Dispatchers.IO) {
-            it.initializeClient()
-        }
-    }
+    val adb = ADB.getInstance(getApplication<Application>().applicationContext)
 
     init {
         startOutputThread()
     }
 
-    /**
-     * Show a dialog that tells the user that their ABI version is unsupported
-     */
+    fun startADBServer(callback: ((Boolean) -> (Unit))? = null) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val success = adb.initServer()
+            callback?.invoke(success)
+        }
+    }
+
     fun isAbiUnsupported() =
             Build.SUPPORTED_64_BIT_ABIS.isNullOrEmpty() &&
             (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)

@@ -1,6 +1,7 @@
 package com.draco.ladb.views
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
@@ -23,9 +24,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
-import java.util.concurrent.CountDownLatch
+import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainActivityViewModel by viewModels()
@@ -33,10 +33,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var pairDialog: MaterialAlertDialogBuilder
     private lateinit var badAbiDialog: MaterialAlertDialogBuilder
-    private var pairingLatch = CountDownLatch(0)
     private var lastCommand = ""
 
-    var bookmarkGetResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+    private var bookmarkGetResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         val text = it.data?.getStringExtra(Intent.EXTRA_TEXT) ?: return@registerForActivityResult
         binding.command.setText(text)
     }
@@ -46,6 +45,7 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.pair_title)
             .setCancelable(false)
             .setView(R.layout.dialog_pair)
+            .setNeutralButton(R.string.more, null)
 
         badAbiDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.bad_abi_title)
@@ -94,14 +94,14 @@ class MainActivity : AppCompatActivity() {
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
                 finishAffinity()
+                exitProcess(0)
             }
         }
 
         /* Prepare progress bar, pairing latch, and script executing */
-        viewModel.adb.ready.observe(this) { ready ->
-            if (ready == true) {
+        viewModel.adb.started.observe(this) { started ->
+            if (started == true) {
                 lifecycleScope.launch(Dispatchers.IO) {
-                    pairingLatch.await()
                     runOnUiThread { setReadyForInput(true) }
                     executeScriptFromIntent()
                 }
@@ -112,14 +112,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun pairIfNecessary() {
+    private fun pairAndStart() {
         if (viewModel.needsToPair()) {
-            pairingLatch = CountDownLatch(1)
             viewModel.adb.debug("Requesting pairing information")
-            askToPair {
-                viewModel.setPairedBefore(true)
-                pairingLatch.countDown()
+            askToPair { thisPairSuccess ->
+                if (thisPairSuccess) {
+                    viewModel.setPairedBefore(true)
+                    viewModel.startADBServer()
+                } else {
+                    /* Failed; try again! */
+                    viewModel.adb.debug("Failed to pair! Trying again...")
+                    runOnUiThread { pairAndStart() }
+                }
             }
+        } else {
+            viewModel.startADBServer()
         }
     }
 
@@ -130,7 +137,7 @@ class MainActivity : AppCompatActivity() {
 
         setupUI()
         setupDataListeners()
-        pairIfNecessary()
+        pairAndStart()
 
         if (viewModel.isAbiUnsupported()) {
             badAbiDialog.show()
@@ -161,23 +168,34 @@ class MainActivity : AppCompatActivity() {
     /**
      * Ask the user to pair
      */
-    private fun askToPair(callback: Runnable? = null) {
-        pairDialog
+    private fun askToPair(callback: ((Boolean) -> (Unit))? = null) {
+        val createdPairDialog = pairDialog
             .create()
-            .apply {
-                setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.okay)) { _, _ ->
-                    val port = findViewById<TextInputEditText>(R.id.port)!!.text.toString()
-                    val code = findViewById<TextInputEditText>(R.id.code)!!.text.toString()
 
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        viewModel.adb.debug("Requesting additional pairing information")
-                        viewModel.adb.pair(port, code)
-
-                        callback?.run()
+        createdPairDialog
+            .setOnShowListener {
+                val neutralButton = createdPairDialog.getButton(AlertDialog.BUTTON_NEUTRAL)
+                neutralButton.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.tutorial_url)))
+                    try {
+                        startActivity(intent)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        Snackbar.make(binding.output, getString(R.string.snackbar_intent_failed), Snackbar.LENGTH_SHORT).show()
                     }
                 }
             }
-            .show()
+        createdPairDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.okay)) { _, _ ->
+            val port = createdPairDialog.findViewById<TextInputEditText>(R.id.port)!!.text.toString()
+            val code = createdPairDialog.findViewById<TextInputEditText>(R.id.code)!!.text.toString()
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                viewModel.adb.debug("Trying to pair...")
+                val success = viewModel.adb.pair(port, code)
+                callback?.invoke(success)
+            }
+        }
+        createdPairDialog.show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -8,24 +8,16 @@
             android:title="@string/reset_title"
             android:summary="@string/reset_summary"
             android:key="@string/reset_key" />
+        <Preference
+            android:icon="@drawable/ic_baseline_settings_backup_restore_24"
+            android:title="@string/restart_title"
+            android:summary="@string/restart_summary"
+            android:key="@string/restart_key" />
         <SwitchPreference
             android:icon="@drawable/ic_baseline_home_repair_service_24"
             android:title="@string/auto_shell_title"
             android:summary="@string/auto_shell_summary"
             android:key="@string/auto_shell_key"
-            android:dependency="@string/auto_pair_key"
-            android:defaultValue="true"/>
-        <SwitchPreference
-            android:icon="@drawable/ic_baseline_home_repair_service_24"
-            android:title="@string/auto_pair_title"
-            android:summary="@string/auto_pair_summary"
-            android:key="@string/auto_pair_key"
-            android:defaultValue="true"/>
-        <SwitchPreference
-            android:icon="@drawable/ic_baseline_home_repair_service_24"
-            android:title="@string/auto_wireless_title"
-            android:summary="@string/auto_wireless_summary"
-            android:key="@string/auto_wireless_key"
             android:defaultValue="true"/>
         <EditTextPreference
             android:icon="@drawable/ic_baseline_home_repair_service_24"
@@ -43,9 +35,10 @@
     <PreferenceCategory
         android:title="@string/troubleshooting">
         <Preference
-            android:icon="@drawable/ic_baseline_help_24"
+            android:icon="@drawable/ic_baseline_checklist_24"
             android:title="@string/tutorial_title"
-            app:summary="@string/tutorial_summary" />
+            android:summary="@string/tutorial_summary"
+            android:key="@string/tutorial_key"/>
         <Preference
             android:icon="@drawable/ic_baseline_error_24"
             android:title="@string/error_waiting_title"
@@ -53,23 +46,19 @@
         <Preference
             android:icon="@drawable/ic_baseline_error_24"
             android:title="@string/error_no_wireless_debugging_title"
-            app:summary="@string/error_no_wireless_debugging_summary" />
+            android:summary="@string/error_no_wireless_debugging_summary" />
         <Preference
             android:icon="@drawable/ic_baseline_error_24"
             android:title="@string/error_more_than_one_title"
-            app:summary="@string/error_more_than_one_summary" />
+            android:summary="@string/error_more_than_one_summary" />
         <Preference
             android:icon="@drawable/ic_baseline_error_24"
             android:title="@string/error_pairing_client_title"
-            app:summary="@string/error_pairing_client_summary" />
+            android:summary="@string/error_pairing_client_summary" />
         <Preference
             android:icon="@drawable/ic_baseline_error_24"
             android:title="@string/error_inaccessible_title"
-            app:summary="@string/error_inaccessible_summary" />
-        <Preference
-            android:icon="@drawable/ic_baseline_error_24"
-            android:title="@string/error_failed_to_find_title"
-            app:summary="@string/error_failed_to_find_summary" />
+            android:summary="@string/error_inaccessible_summary" />
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/about">
