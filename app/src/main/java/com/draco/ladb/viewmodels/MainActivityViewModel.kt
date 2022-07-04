@@ -17,9 +17,7 @@ import com.draco.ladb.R
 import com.draco.ladb.utils.ADB
 import com.github.javiersantos.piracychecker.PiracyChecker
 import com.github.javiersantos.piracychecker.piracyChecker
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.File
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
@@ -36,9 +34,12 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         startOutputThread()
     }
 
+
     fun startADBServer(callback: ((Boolean) -> (Unit))? = null) {
         viewModelScope.launch(Dispatchers.IO) {
             val success = adb.initServer()
+            if (success)
+                startShellDeathThread()
             callback?.invoke(success)
         }
     }
@@ -83,6 +84,15 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                     _outputText.postValue(out)
                 Thread.sleep(ADB.OUTPUT_BUFFER_DELAY_MS)
             }
+        }
+    }
+
+    /**
+     * Start a death listener to restart the shell once it dies
+     */
+    private fun startShellDeathThread() {
+        viewModelScope.launch(Dispatchers.IO) {
+            adb.waitForDeathAndReset()
         }
     }
 

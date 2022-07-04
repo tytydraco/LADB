@@ -40,8 +40,7 @@ class ADB(private val context: Context) {
     private val _started = MutableLiveData(false)
     val started: LiveData<Boolean> = _started
 
-    var tryingToPair = false
-        private set
+    private var tryingToPair = false
 
     /**
      * Is the shell closed for any reason?
@@ -157,8 +156,6 @@ class ADB(private val context: Context) {
         _started.postValue(true)
         tryingToPair = false
 
-        startShellDeathThread()
-
         return true
     }
 
@@ -166,14 +163,14 @@ class ADB(private val context: Context) {
         Settings.Global.getInt(context.contentResolver, "adb_wifi_enabled", 0) == 1
 
     /**
-     * Start a death listener to restart the shell once it dies
+     * Wait restart the shell once it dies
      */
-    private fun startShellDeathThread() {
-        GlobalScope.launch(Dispatchers.IO) {
+    fun waitForDeathAndReset() {
+        while (true) {
             shellProcess?.waitFor()
             _started.postValue(false)
             debug("Shell is dead, resetting")
-            delay(1_000)
+            Thread.sleep(1_000)
             adb(false, listOf("kill-server")).waitFor()
             initServer()
         }

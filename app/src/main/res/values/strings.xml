@@ -2,6 +2,7 @@
     <string name="app_name">LADB</string>
 
     <string name="command_hint">Shell command</string>
+    <string name="command_hint_waiting">Waiting for connection…</string>
 
     <string name="bookmarks">Bookmarks</string>
     <string name="last_command">Last command</string>
@@ -18,7 +19,7 @@
 
     <string name="delete_confirm">Are you sure you want to delete this?</string>
 
-    <string name="snackbar_intent_failed">Failed to share log</string>
+    <string name="snackbar_intent_failed">Intent failed to start</string>
     <string name="snackbar_file_opened">Executing script from file</string>
 
     <string name="developer_url">https://www.github.com/tytydraco</string>

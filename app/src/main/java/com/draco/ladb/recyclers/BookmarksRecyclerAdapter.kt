@@ -1,5 +1,6 @@
 package com.draco.ladb.recyclers
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +13,7 @@ import com.draco.ladb.R
 
 class BookmarksRecyclerAdapter(val context: Context): RecyclerView.Adapter<BookmarksRecyclerAdapter.ViewHolder>() {
     private val list = sortedSetOf<String>()
-    val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+    private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     var pickHook: (String) -> Unit = {}
     var deleteHook: (String) -> Unit = {}
@@ -24,6 +25,7 @@ class BookmarksRecyclerAdapter(val context: Context): RecyclerView.Adapter<Bookm
         val edit: ImageButton = view.findViewById(R.id.edit)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun updateList(refresh: Boolean = true) {
         list.clear()
         list.addAll(prefs.getStringSet("bookmarks", setOf()) ?: emptySet())
@@ -38,18 +40,21 @@ class BookmarksRecyclerAdapter(val context: Context): RecyclerView.Adapter<Bookm
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun add(text: String) {
         list.add(text)
         notifyDataSetChanged()
         saveList()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun delete(text: String) {
         list.remove(text)
         notifyDataSetChanged()
         saveList()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun edit(text: String, newText: String) {
         list.remove(text)
         list.add(newText)

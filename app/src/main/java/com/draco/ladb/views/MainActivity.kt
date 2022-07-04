@@ -7,6 +7,7 @@ import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethod
 import android.view.inputmethod.InputMethodManager
 import android.widget.ScrollView
@@ -52,12 +53,21 @@ class MainActivity : AppCompatActivity() {
             .setMessage(R.string.bad_abi_message)
             .setPositiveButton(R.string.dismiss, null)
 
-        binding.command.setOnKeyListener { _, keyCode, event ->
-            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
+        binding.command.setOnKeyListener { _, keyCode, keyEvent ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.action == KeyEvent.ACTION_DOWN) {
                 sendCommandToADB()
                 return@setOnKeyListener true
             } else {
                 return@setOnKeyListener false
+            }
+        }
+
+        binding.command.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                sendCommandToADB()
+                return@setOnEditorActionListener true
+            } else {
+                return@setOnEditorActionListener false
             }
         }
     }
@@ -73,6 +83,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setReadyForInput(ready: Boolean) {
         binding.command.isEnabled = ready
+        binding.commandContainer.hint = if (ready) getString(R.string.command_hint) else getString(R.string.command_hint_waiting)
         binding.progress.visibility = if (ready) View.INVISIBLE else View.VISIBLE
     }
 
