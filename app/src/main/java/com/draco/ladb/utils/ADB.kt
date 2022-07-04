@@ -189,8 +189,8 @@ class ADB(private val context: Context) {
             flush()
         }
 
-        /* Continue once finished pairing (or 5s elapses) */
-        pairShell.waitFor(5, TimeUnit.SECONDS)
+        /* Continue once finished pairing (or 10s elapses) */
+        pairShell.waitFor(10, TimeUnit.SECONDS)
         pairShell.destroyForcibly()
         return pairShell.exitValue() == 0
     }
