@@ -5,27 +5,25 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.EditText
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
 import com.draco.ladb.R
+import com.draco.ladb.databinding.ActivityBookmarksBinding
 import com.draco.ladb.viewmodels.BookmarksActivityViewModel
 
 class BookmarksActivity: AppCompatActivity() {
     private val viewModel: BookmarksActivityViewModel by viewModels()
-    private lateinit var recycler: RecyclerView
+    private lateinit var binding: ActivityBookmarksBinding
     private lateinit var initialText: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_bookmarks)
-        recycler = findViewById(R.id.recycler)
+        binding = ActivityBookmarksBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         initialText = intent.getStringExtra(Intent.EXTRA_TEXT) ?: ""
 
-        viewModel.prepareRecycler(this, recycler)
+        viewModel.prepareRecycler(this, binding.recycler)
         viewModel.recyclerAdapter.pickHook = {
             val intent = Intent()
                 .putExtra(Intent.EXTRA_TEXT, it)

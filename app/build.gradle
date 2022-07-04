@@ -39,6 +39,10 @@ android {
             useLegacyPackaging = true
         }
     }
+
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {

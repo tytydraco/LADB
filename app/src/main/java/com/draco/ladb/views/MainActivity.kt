@@ -1,11 +1,11 @@
 package com.draco.ladb.views
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethod
 import android.view.inputmethod.InputMethodManager
-import android.widget.ProgressBar
 import android.widget.ScrollView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -16,11 +16,11 @@ import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
 import com.draco.ladb.BuildConfig
 import com.draco.ladb.R
+import com.draco.ladb.databinding.ActivityMainBinding
 import com.draco.ladb.viewmodels.MainActivityViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.*
 import java.util.concurrent.CountDownLatch
 import kotlin.system.exitProcess
@@ -29,11 +29,8 @@ class MainActivity : AppCompatActivity() {
     /* View Model */
     private val viewModel: MainActivityViewModel by viewModels()
 
-    /* UI components */
-    private lateinit var command: TextInputEditText
-    private lateinit var output: MaterialTextView
-    private lateinit var outputScrollView: ScrollView
-    private lateinit var progress: ProgressBar
+    /* View Binding */
+    private lateinit var binding: ActivityMainBinding
 
     /* Alert dialogs */
     private lateinit var pairDialog: MaterialAlertDialogBuilder
@@ -43,21 +40,14 @@ class MainActivity : AppCompatActivity() {
     private var pairingLatch = CountDownLatch(0)
 
     private var lastCommand = ""
+    private lateinit var sharedPrefs: SharedPreferences
 
     var bookmarkGetResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         val text = it.data?.getStringExtra(Intent.EXTRA_TEXT) ?: return@registerForActivityResult
-        command.setText(text)
+        binding.command.setText(text)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        command = findViewById(R.id.command)
-        output = findViewById(R.id.output)
-        outputScrollView = findViewById(R.id.output_scrollview)
-        progress = findViewById(R.id.progress)
-
+    private fun setupUI() {
         pairDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.pair_title)
             .setCancelable(false)
@@ -68,28 +58,34 @@ class MainActivity : AppCompatActivity() {
             .setMessage(R.string.bad_abi_message)
             .setPositiveButton(R.string.dismiss, null)
 
-        /* Send commands to the ADB instance */
-        command.setOnKeyListener { _, keyCode, event ->
+        binding.command.setOnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-                val text = command.text.toString()
-                lastCommand = text
-                command.text = null
-                lifecycleScope.launch(Dispatchers.IO) {
-                    viewModel.adb.sendToShellProcess(text)
-                }
+                sendCommandToADB()
                 return@setOnKeyListener true
+            } else {
+                return@setOnKeyListener false
             }
-            return@setOnKeyListener false
         }
+    }
 
+    private fun sendCommandToADB() {
+        val text = binding.command.text.toString()
+        lastCommand = text
+        binding.command.text = null
+        lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.adb.sendToShellProcess(text)
+        }
+    }
+
+    private fun setupDataListeners() {
         /* Update the output text */
         viewModel.outputText.observe(this, Observer {
-            output.text = it
-            outputScrollView.post {
-                outputScrollView.fullScroll(ScrollView.FOCUS_DOWN)
-                command.requestFocus()
+            binding.output.text = it
+            binding.outputScrollview.post {
+                binding.outputScrollview.fullScroll(ScrollView.FOCUS_DOWN)
+                binding.command.requestFocus()
                 val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(command, InputMethod.SHOW_EXPLICIT)
+                imm.showSoftInput(binding.command, InputMethod.SHOW_EXPLICIT)
             }
         })
 
@@ -108,8 +104,8 @@ class MainActivity : AppCompatActivity() {
         viewModel.adb.ready.observe(this, Observer {
             if (it != true) {
                 runOnUiThread {
-                    command.isEnabled = false
-                    progress.visibility = View.VISIBLE
+                    binding.command.isEnabled = false
+                    binding.progress.visibility = View.VISIBLE
                 }
                 return@Observer
             }
@@ -118,31 +114,45 @@ class MainActivity : AppCompatActivity() {
                 pairingLatch.await()
 
                 runOnUiThread {
-                    command.isEnabled = true
-                    progress.visibility = View.INVISIBLE
+                    binding.command.isEnabled = true
+                    binding.progress.visibility = View.INVISIBLE
                 }
 
                 if (viewModel.getScriptFromIntent(intent) != null)
                     executeFromScript()
             }
         })
+    }
 
-        /* Check if we need to pair with the device on Android 11 */
-        with(PreferenceManager.getDefaultSharedPreferences(this)) {
-            if (viewModel.shouldWePair(this)) {
-                pairingLatch = CountDownLatch(1)
-                viewModel.adb.debug("Requesting pairing information")
-                askToPair {
-                    with(edit()) {
-                        putBoolean(getString(R.string.paired_key), true)
-                        apply()
-                    }
-                    pairingLatch.countDown()
+    private fun pairIfNecessary() {
+        if (viewModel.shouldWePair(sharedPrefs)) {
+            pairingLatch = CountDownLatch(1)
+            viewModel.adb.debug("Requesting pairing information")
+            askToPair {
+                with(sharedPrefs.edit()) {
+                    putBoolean(getString(R.string.paired_key), true)
+                    apply()
                 }
+                pairingLatch.countDown()
             }
         }
+    }
 
-        viewModel.abiUnsupportedDialog(badAbiDialog)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
+
+        setupUI()
+        setupDataListeners()
+        pairIfNecessary()
+
+        if (viewModel.isAbiUnsupported()) {
+            badAbiDialog.show()
+        }
+
         viewModel.piracyCheck(this)
     }
 
@@ -155,7 +165,7 @@ class MainActivity : AppCompatActivity() {
         /* Invalidate intent */
         intent.type = ""
 
-        Snackbar.make(output, getString(R.string.snackbar_file_opened), Snackbar.LENGTH_SHORT)
+        Snackbar.make(binding.output, getString(R.string.snackbar_file_opened), Snackbar.LENGTH_SHORT)
             .setAction(getString(R.string.dismiss)) {}
             .show()
 
@@ -188,13 +198,13 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.bookmarks -> {
                 val intent = Intent(this, BookmarksActivity::class.java)
-                    .putExtra(Intent.EXTRA_TEXT, command.text.toString())
+                    .putExtra(Intent.EXTRA_TEXT, binding.command.text.toString())
                 bookmarkGetResult.launch(intent)
                 true
             }
             R.id.last_command -> {
-                command.setText(lastCommand)
-                command.setSelection(lastCommand.length)
+                binding.command.setText(lastCommand)
+                binding.command.setSelection(lastCommand.length)
                 true
             }
             R.id.help -> {
@@ -219,7 +229,7 @@ class MainActivity : AppCompatActivity() {
                     startActivity(intent)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Snackbar.make(output, getString(R.string.snackbar_intent_failed), Snackbar.LENGTH_SHORT)
+                    Snackbar.make(binding.output, getString(R.string.snackbar_intent_failed), Snackbar.LENGTH_SHORT)
                             .setAction(getString(R.string.dismiss)) {}
                             .show()
                 }

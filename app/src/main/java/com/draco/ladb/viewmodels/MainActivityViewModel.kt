@@ -50,12 +50,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     /**
      * Show a dialog that tells the user that their ABI version is unsupported
      */
-    fun abiUnsupportedDialog(dialog: MaterialAlertDialogBuilder) {
-        if (Build.SUPPORTED_64_BIT_ABIS.isNullOrEmpty() &&
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            dialog.show()
-        }
-    }
+    fun isAbiUnsupported() =
+            Build.SUPPORTED_64_BIT_ABIS.isNullOrEmpty() &&
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
 
     /**
      * Start the piracy checker if it is not setup yet (release builds only)
