@@ -33,7 +33,7 @@ class BookmarksRecyclerAdapter(val context: Context): RecyclerView.Adapter<Bookm
             notifyDataSetChanged()
     }
 
-    fun saveList() {
+    private fun saveList() {
         with(prefs.edit()) {
             putStringSet("bookmarks", list)
             apply()

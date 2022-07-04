@@ -11,10 +11,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
 import com.draco.ladb.BuildConfig
 import com.draco.ladb.R
-import kotlinx.coroutines.*
 import java.io.File
 import java.io.PrintStream
-import java.lang.NumberFormatException
 import java.util.concurrent.TimeUnit
 
 class ADB(private val context: Context) {
