@@ -116,8 +116,10 @@ class ADB(private val context: Context) {
             val waitProcess = adb(false, listOf("wait-for-device")).waitFor(2, TimeUnit.MINUTES)
             if (!waitProcess) {
                 debug("Could not detect any devices")
-                debug("Make sure pairing info is correct")
-                debug("Help -> Factory reset")
+                debug("Make sure pairing info is correct:")
+                debug("More -> Factory reset")
+                debug("To try again, restart the server:")
+                debug("More -> Restart")
 
                 tryingToPair = false
                 return false
