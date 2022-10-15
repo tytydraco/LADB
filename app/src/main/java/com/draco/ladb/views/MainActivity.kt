@@ -1,5 +1,6 @@
 package com.draco.ladb.views
 
+import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -46,7 +47,9 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.pair_title)
             .setCancelable(false)
             .setView(R.layout.dialog_pair)
-            .setNeutralButton(R.string.help, null)
+            .setPositiveButton(R.string.pair, null)
+            .setNegativeButton(R.string.help, null)
+            .setNeutralButton(R.string.settings, null)
 
         badAbiDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.bad_abi_title)
@@ -83,7 +86,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun setReadyForInput(ready: Boolean) {
         binding.command.isEnabled = ready
-        binding.commandContainer.hint = if (ready) getString(R.string.command_hint) else getString(R.string.command_hint_waiting)
+        binding.commandContainer.hint =
+            if (ready) getString(R.string.command_hint) else getString(R.string.command_hint_waiting)
         binding.progress.visibility = if (ready) View.INVISIBLE else View.VISIBLE
     }
 
@@ -180,33 +184,60 @@ class MainActivity : AppCompatActivity() {
      * Ask the user to pair
      */
     private fun askToPair(callback: ((Boolean) -> (Unit))? = null) {
-        val createdPairDialog = pairDialog
+        pairDialog
             .create()
+            .apply {
+                setOnShowListener {
+                    getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                        val port = findViewById<TextInputEditText>(R.id.port)!!.text.toString()
+                        val code = findViewById<TextInputEditText>(R.id.code)!!.text.toString()
+                        dismiss()
 
-        createdPairDialog
-            .setOnShowListener {
-                val neutralButton = createdPairDialog.getButton(AlertDialog.BUTTON_NEUTRAL)
-                neutralButton.setOnClickListener {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.tutorial_url)))
-                    try {
-                        startActivity(intent)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        Snackbar.make(binding.output, getString(R.string.snackbar_intent_failed), Snackbar.LENGTH_SHORT).show()
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            viewModel.adb.debug("Trying to pair...")
+                            val success = viewModel.adb.pair(port, code)
+                            callback?.invoke(success)
+                        }
+                    }
+
+                    getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                        val intent = Intent(Intent.ACTION_MAIN).setComponent(
+                            ComponentName(
+                                "com.android.settings",
+                                "com.android.settings.Settings\$DevelopmentSettingsDashboardActivity"
+                            )
+                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        try {
+                            startActivity(intent)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            Snackbar.make(
+                                binding.output,
+                                getString(R.string.snackbar_intent_failed),
+                                Snackbar.LENGTH_SHORT
+                            )
+                                .show()
+                        }
+                    }
+
+                    getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.tutorial_url)))
+                        try {
+                            startActivity(intent)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            Snackbar.make(
+                                binding.output,
+                                getString(R.string.snackbar_intent_failed),
+                                Snackbar.LENGTH_SHORT
+                            )
+                                .show()
+                        }
+
                     }
                 }
             }
-        createdPairDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.okay)) { _, _ ->
-            val port = createdPairDialog.findViewById<TextInputEditText>(R.id.port)!!.text.toString()
-            val code = createdPairDialog.findViewById<TextInputEditText>(R.id.code)!!.text.toString()
-
-            lifecycleScope.launch(Dispatchers.IO) {
-                viewModel.adb.debug("Trying to pair...")
-                val success = viewModel.adb.pair(port, code)
-                callback?.invoke(success)
-            }
-        }
-        createdPairDialog.show()
+            .show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -217,16 +248,19 @@ class MainActivity : AppCompatActivity() {
                 bookmarkGetResult.launch(intent)
                 true
             }
+
             R.id.last_command -> {
                 binding.command.setText(lastCommand)
                 binding.command.setSelection(lastCommand.length)
                 true
             }
+
             R.id.more -> {
                 val intent = Intent(this, HelpActivity::class.java)
                 startActivity(intent)
                 true
             }
+
             R.id.share -> {
                 try {
                     val uri = FileProvider.getUriForFile(
@@ -247,10 +281,12 @@ class MainActivity : AppCompatActivity() {
                 }
                 true
             }
+
             R.id.clear -> {
                 viewModel.clearOutputText()
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }

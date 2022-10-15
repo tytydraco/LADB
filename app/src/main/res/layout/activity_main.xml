@@ -2,48 +2,55 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <ProgressBar
+        android:id="@+id/progress"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:indeterminate="true"
         android:layout_marginTop="-6dp"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-        android:id="@+id/progress" />
+        android:indeterminate="true" />
 
     <ScrollView
+        android:id="@+id/output_scrollview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/command_container"
-        android:layout_margin="8dp"
-        android:id="@+id/output_scrollview">
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp">
+
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/output"
+                style="@style/TextAppearance.AppCompat.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:textSize="12sp"
                 android:textIsSelectable="true"
-                style="@style/TextAppearance.AppCompat.Body1"
-                android:id="@+id/output" />
+                android:textSize="12sp" />
         </HorizontalScrollView>
     </ScrollView>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/command_container"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_marginHorizontal="8dp"
         android:layout_marginBottom="12dp"
-        android:layout_alignParentBottom="true"
-        android:hint="@string/command_hint_waiting"
-        android:id="@+id/command_container"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        android:hint="@string/command_hint_waiting">
+
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/command"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
-            android:imeOptions="actionSend"
             android:enabled="false"
-            android:id="@+id/command" />
+            android:imeOptions="actionSend"
+            android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 </RelativeLayout>

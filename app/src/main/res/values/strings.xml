@@ -15,7 +15,7 @@
     <string name="edit">Edit</string>
     <string name="cancel">Cancel</string>
     <string name="done">Done</string>
-    <string name="okay">Okay</string>
+    <string name="pair">Pair</string>
     <string name="dismiss">Dismiss</string>
 
     <string name="delete_confirm">Are you sure you want to delete this?</string>
@@ -34,7 +34,7 @@
     <string name="code_hint">Pairing code</string>
 
     <string name="pair_title">Pairing information</string>
-    <string name="pair_message">Info can be found here:\n\nSettings -> Developer Settings -> Wireless Debugging\n\nYou <b>MUST</b> use split-screen mode, or else the codes will not work.</string>
+    <string name="pair_message">Connect the device to LADB using a pairing code from the <b>"Wireless debugging"</b> page in Settings. The codes will change if the settings dialog closes, so you <b>MUST</b> use split screen or pop-out mode.</string>
 
     <string name="bad_abi_title">Unsupported device</string>
     <string name="bad_abi_message">Your device is unsupported since it is 32-bit and running on Android 11+.\n\nSorry :(</string>
