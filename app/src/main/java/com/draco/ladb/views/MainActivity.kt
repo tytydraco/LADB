@@ -206,7 +206,9 @@ class MainActivity : AppCompatActivity() {
                                 "com.android.settings",
                                 "com.android.settings.Settings\$DevelopmentSettingsDashboardActivity"
                             )
-                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT)
+
                         try {
                             startActivity(intent)
                         } catch (e: Exception) {
