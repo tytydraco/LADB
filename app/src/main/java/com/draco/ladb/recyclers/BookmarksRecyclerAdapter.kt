@@ -11,7 +11,7 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.draco.ladb.R
 
-class BookmarksRecyclerAdapter(val context: Context): RecyclerView.Adapter<BookmarksRecyclerAdapter.ViewHolder>() {
+class BookmarksRecyclerAdapter(context: Context) : RecyclerView.Adapter<BookmarksRecyclerAdapter.ViewHolder>() {
     private val list = sortedSetOf<String>()
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
@@ -65,7 +65,7 @@ class BookmarksRecyclerAdapter(val context: Context): RecyclerView.Adapter<Bookm
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         updateList(false)
         val view = LayoutInflater.from(parent.context)
-           .inflate(R.layout.recycler_item, parent, false)
+            .inflate(R.layout.recycler_item, parent, false)
         return ViewHolder(view)
     }
 
