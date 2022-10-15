@@ -1,8 +1,7 @@
 package com.draco.ladb.views
 
-import android.content.ComponentName
+import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
@@ -14,7 +13,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ScrollView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
@@ -24,7 +22,6 @@ import com.draco.ladb.databinding.ActivityMainBinding
 import com.draco.ladb.viewmodels.MainActivityViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
@@ -33,7 +30,6 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainActivityViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var pairDialog: MaterialAlertDialogBuilder
     private lateinit var badAbiDialog: MaterialAlertDialogBuilder
     private var lastCommand = ""
 
@@ -42,15 +38,28 @@ class MainActivity : AppCompatActivity() {
         binding.command.setText(text)
     }
 
-    private fun setupUI() {
-        pairDialog = MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.pair_title)
-            .setCancelable(false)
-            .setView(R.layout.dialog_pair)
-            .setPositiveButton(R.string.pair, null)
-            .setNegativeButton(R.string.help, null)
-            .setNeutralButton(R.string.settings, null)
+    private var pairGetResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val port = result.data?.getStringExtra("port") ?: ""
+            val code = result.data?.getStringExtra("code") ?: ""
 
+            viewModel.adb.debug("Trying to pair...")
+            lifecycleScope.launch(Dispatchers.IO) {
+                val success = viewModel.adb.pair(port, code)
+
+                if (success) {
+                    viewModel.setPairedBefore(true)
+                    viewModel.startADBServer()
+                } else {
+                    /* Failed; try again! */
+                    viewModel.adb.debug("Failed to pair! Trying again...")
+                    runOnUiThread { pairAndStart() }
+                }
+            }
+        }
+    }
+
+    private fun setupUI() {
         badAbiDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.bad_abi_title)
             .setMessage(R.string.bad_abi_message)
@@ -130,16 +139,7 @@ class MainActivity : AppCompatActivity() {
     private fun pairAndStart() {
         if (viewModel.needsToPair()) {
             viewModel.adb.debug("Requesting pairing information")
-            askToPair { thisPairSuccess ->
-                if (thisPairSuccess) {
-                    viewModel.setPairedBefore(true)
-                    viewModel.startADBServer()
-                } else {
-                    /* Failed; try again! */
-                    viewModel.adb.debug("Failed to pair! Trying again...")
-                    runOnUiThread { pairAndStart() }
-                }
-            }
+            pairGetResult.launch(Intent(this, PairActivity::class.java))
         } else {
             viewModel.startADBServer()
         }
@@ -178,68 +178,6 @@ class MainActivity : AppCompatActivity() {
             .show()
 
         viewModel.adb.sendScript(code)
-    }
-
-    /**
-     * Ask the user to pair
-     */
-    private fun askToPair(callback: ((Boolean) -> (Unit))? = null) {
-        pairDialog
-            .create()
-            .apply {
-                setOnShowListener {
-                    getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                        val port = findViewById<TextInputEditText>(R.id.port)!!.text.toString()
-                        val code = findViewById<TextInputEditText>(R.id.code)!!.text.toString()
-                        dismiss()
-
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            viewModel.adb.debug("Trying to pair...")
-                            val success = viewModel.adb.pair(port, code)
-                            callback?.invoke(success)
-                        }
-                    }
-
-                    getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                        val intent = Intent(Intent.ACTION_MAIN).setComponent(
-                            ComponentName(
-                                "com.android.settings",
-                                "com.android.settings.Settings\$DevelopmentSettingsDashboardActivity"
-                            )
-                        )
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT)
-
-                        try {
-                            startActivity(intent)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            Snackbar.make(
-                                binding.output,
-                                getString(R.string.snackbar_intent_failed),
-                                Snackbar.LENGTH_SHORT
-                            )
-                                .show()
-                        }
-                    }
-
-                    getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.tutorial_url)))
-                        try {
-                            startActivity(intent)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            Snackbar.make(
-                                binding.output,
-                                getString(R.string.snackbar_intent_failed),
-                                Snackbar.LENGTH_SHORT
-                            )
-                                .show()
-                        }
-
-                    }
-                }
-            }
-            .show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

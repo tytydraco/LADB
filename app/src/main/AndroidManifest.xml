@@ -1,45 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-          android:installLocation="internalOnly">
+    android:installLocation="internalOnly">
 
-    <uses-feature android:name="android.software.leanback" android:required="false" />
-    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"
+    <uses-permission
+        android:name="android.permission.WRITE_SECURE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
 
     <application
+        android:banner="@drawable/banner"
+        android:extractNativeLibs="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.LADB"
-        android:extractNativeLibs="true"
-        android:banner="@drawable/banner">
-        <activity android:name=".views.MainActivity"
+        android:theme="@style/Theme.LADB">
+        <activity
+            android:name=".views.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="text/x-sh" />
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
-        <activity android:name=".views.HelpActivity" android:label="@string/more" />
-        <activity android:name=".views.BookmarksActivity" android:label="@string/bookmarks" />
+        <activity
+            android:name=".views.PairActivity"
+            android:label="@string/pair" />
+        <activity
+            android:name=".views.HelpActivity"
+            android:label="@string/more" />
+        <activity
+            android:name=".views.BookmarksActivity"
+            android:label="@string/bookmarks" />
 
-        <service android:name=".services.QSTile"
-            android:label="@string/app_name"
+        <service
+            android:name=".services.QSTile"
+            android:exported="true"
             android:icon="@drawable/ic_baseline_adb_24"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
-            android:exported="true">
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
