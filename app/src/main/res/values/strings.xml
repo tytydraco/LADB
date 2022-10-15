@@ -35,7 +35,7 @@
     <string name="code_hint">Pairing code</string>
 
     <string name="pair_title">Pairing information</string>
-    <string name="pair_message">Connect the device to LADB using a pairing code from the <b>"Wireless debugging"</b> page in Settings. The codes will change if the settings dialog closes, so you <b>MUST</b> use split screen or pop-out mode.</string>
+    <string name="pair_message">You must connect this device to LADB using a pairing code from the \"Wireless debugging\" page in the Developer Settings page.\n\nThe codes will change if the settings dialog closes, so you <b>MUST</b> use split screen or pop-out mode.\n\n1. Click the \"Settings\" button to open \"Developer settings\" in split-screen mode. You can also do this manually.\n\n2. Scroll down to \"Wireless debugging\" and tap it to open another page.\n\n3. Press \"Pair device with pairing code\".\n\n4. With both apps open in split-screen mode, copy the Wi-Fi pairing code and the Port (the port is the digits that come after the colon).\n\n5. Press \"Pair\" and keep both apps open until the dialog is dismissed.</string>
 
     <string name="settings">Settings</string>
     <string name="troubleshooting">Troubleshooting</string>

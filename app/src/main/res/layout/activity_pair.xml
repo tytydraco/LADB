@@ -19,10 +19,10 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/port_hint">
+            android:hint="@string/code_hint">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/port"
+                android:id="@+id/code"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="number" />
@@ -32,10 +32,10 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/code_hint">
+            android:hint="@string/port_hint">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/code"
+                android:id="@+id/port"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="number" />
@@ -48,6 +48,7 @@
 
             <Button
                 android:id="@+id/help"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
@@ -56,6 +57,7 @@
 
             <Button
                 android:id="@+id/settings"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
@@ -64,6 +66,7 @@
 
             <Button
                 android:id="@+id/pair"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"

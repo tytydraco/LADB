@@ -46,10 +46,10 @@ class MainActivity : AppCompatActivity() {
                 val success = viewModel.adb.pair(port, code)
 
                 if (success) {
-                    viewModel.setPairedBefore(true)
                     viewModel.startADBServer()
                 } else {
                     /* Failed; try again! */
+                    viewModel.setPairedBefore(false)
                     viewModel.adb.debug("Failed to pair! Trying again...")
                     runOnUiThread { pairAndStart() }
                 }
@@ -133,6 +133,7 @@ class MainActivity : AppCompatActivity() {
         if (viewModel.needsToPair()) {
             viewModel.adb.debug("Requesting pairing information")
             pairGetResult.launch(Intent(this, PairActivity::class.java))
+            viewModel.setPairedBefore(true)
         } else {
             viewModel.startADBServer()
         }
