@@ -17,7 +17,9 @@ import com.draco.ladb.R
 import com.draco.ladb.utils.ADB
 import com.github.javiersantos.piracychecker.PiracyChecker
 import com.github.javiersantos.piracychecker.piracyChecker
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.io.File
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
@@ -43,10 +45,6 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             callback?.invoke(success)
         }
     }
-
-    fun isAbiUnsupported() =
-            Build.SUPPORTED_64_BIT_ABIS.isNullOrEmpty() &&
-            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
 
     /**
      * Start the piracy checker if it is not setup yet (release builds only)
@@ -110,7 +108,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         val context = getApplication<Application>().applicationContext
 
         if (!sharedPreferences.getBoolean(context.getString(R.string.paired_key), false) &&
-            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)) {
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+        ) {
             return true
         }
 
@@ -137,6 +136,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                     it?.readText()
                 }
             }
+
             "text/plain" -> intent.getStringExtra(Intent.EXTRA_TEXT)
             else -> null
         }

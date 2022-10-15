@@ -20,7 +20,6 @@ import com.draco.ladb.BuildConfig
 import com.draco.ladb.R
 import com.draco.ladb.databinding.ActivityMainBinding
 import com.draco.ladb.viewmodels.MainActivityViewModel
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,7 +29,6 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainActivityViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var badAbiDialog: MaterialAlertDialogBuilder
     private var lastCommand = ""
 
     private var bookmarkGetResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -60,11 +58,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
-        badAbiDialog = MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.bad_abi_title)
-            .setMessage(R.string.bad_abi_message)
-            .setPositiveButton(R.string.dismiss, null)
-
         binding.command.setOnKeyListener { _, keyCode, keyEvent ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.action == KeyEvent.ACTION_DOWN) {
                 sendCommandToADB()
@@ -153,10 +146,6 @@ class MainActivity : AppCompatActivity() {
         setupUI()
         setupDataListeners()
         pairAndStart()
-
-        if (viewModel.isAbiUnsupported()) {
-            badAbiDialog.show()
-        }
 
         viewModel.piracyCheck(this)
     }

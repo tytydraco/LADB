@@ -37,9 +37,6 @@
     <string name="pair_title">Pairing information</string>
     <string name="pair_message">Connect the device to LADB using a pairing code from the <b>"Wireless debugging"</b> page in Settings. The codes will change if the settings dialog closes, so you <b>MUST</b> use split screen or pop-out mode.</string>
 
-    <string name="bad_abi_title">Unsupported device</string>
-    <string name="bad_abi_message">Your device is unsupported since it is 32-bit and running on Android 11+.\n\nSorry :(</string>
-
     <string name="settings">Settings</string>
     <string name="troubleshooting">Troubleshooting</string>
     <string name="about">About</string>
