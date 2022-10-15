@@ -43,6 +43,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'com.draco.ladb'
 }
 
 dependencies {
