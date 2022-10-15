@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.draco.ladb.R
 import com.draco.ladb.databinding.ActivityPairBinding
@@ -31,6 +32,8 @@ class PairActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityPairBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        onBackPressedDispatcher.addCallback(this) {}
 
         binding.help.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.tutorial_url)))
