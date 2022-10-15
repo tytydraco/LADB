@@ -131,7 +131,13 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
         return when (intent.type) {
             "text/x-sh" -> {
-                val uri = Uri.parse(intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM).toString())
+                val extra = if (Build.VERSION.SDK_INT >= 33) {
+                    intent.getParcelableExtra(Intent.EXTRA_STREAM, Parcelable::class.java).toString()
+                } else {
+                    intent.getParcelableExtra<Parcelable?>(Intent.EXTRA_STREAM).toString()
+                }
+                
+                val uri = Uri.parse(extra)
                 context.contentResolver.openInputStream(uri)?.bufferedReader().use {
                     it?.readText()
                 }
