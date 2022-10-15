@@ -43,9 +43,9 @@
     <string name="troubleshooting">Troubleshooting</string>
     <string name="about">About</string>
 
-    <string name="reset_title">Factory reset</string>
-    <string name="reset_summary">Restore the app to factory settings, erasing pairing information and ADB server files</string>
-    <string name="reset_key">reset</string>
+    <string name="unpair_title">Unpair</string>
+    <string name="unpair_summary">Erasing any existing pairing information.</string>
+    <string name="unpair_key">unpair</string>
 
     <string name="restart_title">Restart</string>
     <string name="restart_summary">Restart the ADB server to apply changed settings</string>

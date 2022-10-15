@@ -1,86 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <PreferenceCategory
-        android:title="@string/settings">
+    <PreferenceCategory android:title="@string/settings">
         <Preference
-            android:icon="@drawable/ic_baseline_refresh_24"
-            android:title="@string/reset_title"
-            android:summary="@string/reset_summary"
-            android:key="@string/reset_key" />
+            android:icon="@drawable/ic_baseline_portable_wifi_off_24"
+            android:key="@string/unpair_key"
+            android:summary="@string/unpair_summary"
+            android:title="@string/unpair_title" />
         <Preference
             android:icon="@drawable/ic_baseline_settings_backup_restore_24"
-            android:title="@string/restart_title"
+            android:key="@string/restart_key"
             android:summary="@string/restart_summary"
-            android:key="@string/restart_key" />
+            android:title="@string/restart_title" />
         <SwitchPreference
+            android:defaultValue="true"
             android:icon="@drawable/ic_baseline_home_repair_service_24"
-            android:title="@string/auto_shell_title"
-            android:summary="@string/auto_shell_summary"
             android:key="@string/auto_shell_key"
-            android:defaultValue="true"/>
+            android:summary="@string/auto_shell_summary"
+            android:title="@string/auto_shell_title" />
         <EditTextPreference
+            android:defaultValue="16384"
             android:icon="@drawable/ic_baseline_home_repair_service_24"
-            android:title="@string/buffer_size_title"
-            android:summary="@string/buffer_size_summary"
             android:key="@string/buffer_size_key"
-            android:defaultValue="16384"/>
+            android:summary="@string/buffer_size_summary"
+            android:title="@string/buffer_size_title" />
         <EditTextPreference
+            android:defaultValue="echo 'Success! ※\\(^o^)/※'"
             android:icon="@drawable/ic_baseline_home_repair_service_24"
-            android:title="@string/startup_command_title"
-            android:summary="@string/startup_command_summary"
             android:key="@string/startup_command_key"
-            android:defaultValue="echo 'Success! ※\\(^o^)/※'"/>
+            android:summary="@string/startup_command_summary"
+            android:title="@string/startup_command_title" />
     </PreferenceCategory>
-    <PreferenceCategory
-        android:title="@string/troubleshooting">
+    <PreferenceCategory android:title="@string/troubleshooting">
         <Preference
             android:icon="@drawable/ic_baseline_checklist_24"
-            android:title="@string/tutorial_title"
+            android:key="@string/tutorial_key"
             android:summary="@string/tutorial_summary"
-            android:key="@string/tutorial_key"/>
+            android:title="@string/tutorial_title" />
         <Preference
             android:icon="@drawable/ic_baseline_error_24"
             android:title="@string/error_waiting_title"
             app:summary="@string/error_waiting_summary" />
         <Preference
             android:icon="@drawable/ic_baseline_error_24"
-            android:title="@string/error_no_wireless_debugging_title"
-            android:summary="@string/error_no_wireless_debugging_summary" />
+            android:summary="@string/error_no_wireless_debugging_summary"
+            android:title="@string/error_no_wireless_debugging_title" />
         <Preference
             android:icon="@drawable/ic_baseline_error_24"
-            android:title="@string/error_more_than_one_title"
-            android:summary="@string/error_more_than_one_summary" />
+            android:summary="@string/error_more_than_one_summary"
+            android:title="@string/error_more_than_one_title" />
         <Preference
             android:icon="@drawable/ic_baseline_error_24"
-            android:title="@string/error_pairing_client_title"
-            android:summary="@string/error_pairing_client_summary" />
+            android:summary="@string/error_pairing_client_summary"
+            android:title="@string/error_pairing_client_title" />
         <Preference
             android:icon="@drawable/ic_baseline_error_24"
-            android:title="@string/error_inaccessible_title"
-            android:summary="@string/error_inaccessible_summary" />
+            android:summary="@string/error_inaccessible_summary"
+            android:title="@string/error_inaccessible_title" />
     </PreferenceCategory>
-    <PreferenceCategory
-        android:title="@string/about">
+    <PreferenceCategory android:title="@string/about">
         <Preference
             android:icon="@drawable/ic_baseline_person_24"
-            android:title="@string/developer_title"
+            android:key="@string/developer_key"
             android:summary="@string/developer_summary"
-            android:key="@string/developer_key" />
+            android:title="@string/developer_title" />
         <Preference
             android:icon="@drawable/ic_baseline_code_24"
-            android:title="@string/source_title"
+            android:key="@string/source_key"
             android:summary="@string/source_summary"
-            android:key="@string/source_key" />
+            android:title="@string/source_title" />
         <Preference
             android:icon="@drawable/ic_baseline_email_24"
-            android:title="@string/contact_title"
+            android:key="@string/contact_key"
             android:summary="@string/contact_summary"
-            android:key="@string/contact_key" />
+            android:title="@string/contact_title" />
         <Preference
             android:icon="@drawable/ic_baseline_insert_drive_file_24"
-            android:title="@string/licenses_title"
+            android:key="@string/licenses_key"
             android:summary="@string/licenses_summary"
-            android:key="@string/licenses_key" />
+            android:title="@string/licenses_title" />
     </PreferenceCategory>
 </PreferenceScreen>

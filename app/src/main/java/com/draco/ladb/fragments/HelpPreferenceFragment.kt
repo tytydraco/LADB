@@ -35,15 +35,11 @@ class HelpPreferenceFragment : PreferenceFragmentCompat() {
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
         when (preference.key) {
-            getString(R.string.reset_key) -> {
+            getString(R.string.unpair_key) -> {
                 val context = requireContext()
                 PreferenceManager.getDefaultSharedPreferences(context).edit(commit = true) {
-                    clear()
+                    putBoolean(context.getString(R.string.paired_key), false)
                 }
-
-                context.filesDir.deleteRecursively()
-                context.cacheDir.deleteRecursively()
-
                 restartApp()
             }
 
