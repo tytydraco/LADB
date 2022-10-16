@@ -21,7 +21,8 @@ class ADB(private val context: Context) {
         const val OUTPUT_BUFFER_DELAY_MS = 100L
 
         @SuppressLint("StaticFieldLeak")
-        @Volatile private var instance: ADB? = null
+        @Volatile
+        private var instance: ADB? = null
         fun getInstance(context: Context): ADB = instance ?: synchronized(this) {
             instance ?: ADB(context).also { instance = it }
         }
@@ -149,7 +150,8 @@ class ADB(private val context: Context) {
         else
             sendToShellProcess("echo 'Entered non-adb shell'")
 
-        val startupCommand = sharedPrefs.getString(context.getString(R.string.startup_command_key), "echo 'Success! ※\\(^o^)/※'")!!
+        val startupCommand =
+            sharedPrefs.getString(context.getString(R.string.startup_command_key), "echo 'Success! ※\\(^o^)/※'")!!
         if (startupCommand.isNotEmpty())
             sendToShellProcess(startupCommand)
 
@@ -193,7 +195,7 @@ class ADB(private val context: Context) {
 
         /* Continue once finished pairing (or 10s elapses) */
         pairShell.waitFor(10, TimeUnit.SECONDS)
-        pairShell.destroyForcibly()
+        pairShell.destroyForcibly().waitFor()
         return pairShell.exitValue() == 0
     }
 
