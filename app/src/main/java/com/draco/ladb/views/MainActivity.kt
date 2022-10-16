@@ -1,6 +1,5 @@
 package com.draco.ladb.views
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
@@ -37,23 +36,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var pairGetResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val port = result.data?.getStringExtra("port") ?: ""
-            val code = result.data?.getStringExtra("code") ?: ""
+        val port = result.data?.getStringExtra("port") ?: ""
+        val code = result.data?.getStringExtra("code") ?: ""
 
-            viewModel.adb.debug("Trying to pair...")
-            lifecycleScope.launch(Dispatchers.IO) {
-                val success = viewModel.adb.pair(port, code)
+        viewModel.adb.debug("Trying to pair...")
+        lifecycleScope.launch(Dispatchers.IO) {
+            val success = viewModel.adb.pair(port, code)
 
-                if (success) {
-                    viewModel.startADBServer()
-                } else {
-                    /* Failed; try again! */
-                    viewModel.setPairedBefore(false)
-                    viewModel.adb.debug("Failed to pair! Trying again...")
-                    runOnUiThread { pairAndStart() }
-                }
+            if (success) {
+                viewModel.setPairedBefore(true)
+                viewModel.startADBServer()
+            } else {
+                /* Failed; try again! */
+                viewModel.setPairedBefore(false)
+                viewModel.adb.debug("Failed to pair! Trying again...")
+                runOnUiThread { pairAndStart() }
             }
+
+            viewModel.isPairing.postValue(false)
         }
     }
 
@@ -132,8 +132,8 @@ class MainActivity : AppCompatActivity() {
     private fun pairAndStart() {
         if (viewModel.needsToPair()) {
             viewModel.adb.debug("Requesting pairing information")
+            viewModel.isPairing.value = true
             pairGetResult.launch(Intent(this, PairActivity::class.java))
-            viewModel.setPairedBefore(true)
         } else {
             viewModel.startADBServer()
         }
@@ -146,7 +146,8 @@ class MainActivity : AppCompatActivity() {
 
         setupUI()
         setupDataListeners()
-        pairAndStart()
+        if (viewModel.isPairing.value != true)
+            pairAndStart()
 
         viewModel.piracyCheck(this)
     }

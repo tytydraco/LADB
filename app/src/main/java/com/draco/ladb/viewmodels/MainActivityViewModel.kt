@@ -26,6 +26,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val _outputText = MutableLiveData<String>()
     val outputText: LiveData<String> = _outputText
 
+    val isPairing = MutableLiveData<Boolean>()
+
     private var checker: PiracyChecker? = null
     private val sharedPreferences = PreferenceManager
         .getDefaultSharedPreferences(application.applicationContext)
@@ -136,7 +138,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 } else {
                     intent.getParcelableExtra<Parcelable?>(Intent.EXTRA_STREAM).toString()
                 }
-                
+
                 val uri = Uri.parse(extra)
                 context.contentResolver.openInputStream(uri)?.bufferedReader().use {
                     it?.readText()
