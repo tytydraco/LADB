@@ -114,6 +114,7 @@ class ADB(private val context: Context) {
             adb(false, listOf("start-server")).waitFor()
             debug("Waiting for device to connect...")
             debug("This may take up to 2 minutes")
+            debug("If broken, try toggling Wi-Fi or reboot")
             val waitProcess = adb(false, listOf("wait-for-device")).waitFor(2, TimeUnit.MINUTES)
             if (!waitProcess) {
                 debug("Could not detect any devices")
