@@ -29,4 +29,10 @@ and rebooting.
 While this project is GPLv3 licensed, I would like to add a parameter: please do not publish unofficial (user) LADB
 builds to the Google Play Store.
 
+# Support
+
 Still confused? Email me at tylernij+LADB@gmail.com.
+
+# Privacy Policy
+
+LADB does not send any device data outside of the app. Your data is not collected or processed.
