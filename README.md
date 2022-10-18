@@ -33,6 +33,8 @@ builds to the Google Play Store.
 
 Still confused? Email me at tylernij+LADB@gmail.com.
 
+We also have a Telegram server here: https://t.me/ladb_support.
+
 # Privacy Policy
 
 LADB does not send any device data outside of the app. Your data is not collected or processed.
