@@ -54,7 +54,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
      * @param activity Activity to use when showing the error
      */
     fun piracyCheck(activity: Activity) {
-        if (checker != null || BuildConfig.DEBUG)
+        if (checker != null || !BuildConfig.ANTI_PIRACY)
             return
 
         val context = getApplication<Application>().applicationContext

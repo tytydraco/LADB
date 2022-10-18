@@ -4,6 +4,7 @@ plugins {
     id 'com.google.android.gms.oss-licenses-plugin'
 }
 
+
 android {
     compileSdk 33
 
@@ -24,6 +25,12 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            buildConfigField 'Boolean', 'ANTI_PIRACY', RELEASE_ANTIPIRACY
+        }
+
+        debug {
+            buildConfigField 'Boolean', 'ANTI_PIRACY', DEBUG_ANTIPIRACY
         }
     }
     compileOptions {
