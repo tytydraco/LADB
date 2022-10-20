@@ -14,6 +14,10 @@ Use split-screen more or a pop-out window with LADB and Settings at the same tim
 invalidate the pairing information if the dialog gets dismissed. Add a Wireless Debugging connection, and copy the
 pairing code and port into LADB. Keep both windows open until the Settings dialog dismisses itself.
 
+Here is a nice tutorial from XDA on how to do it: [link](https://www.xda-developers.com/debloat-your-phone-run-adb-shell-commands-no-root-no-pc/).
+
+Here is a video tutorial: [link](https://www.youtube.com/shorts/v7hT6rMYqh4).
+
 # Issues
 
 LADB is sadly incompatible with Shizuku at the current moment. That means that if you have Shiuzuku installed, LADB will
