@@ -21,7 +21,6 @@
     <string name="delete_confirm">Are you sure you want to delete this?</string>
 
     <string name="snackbar_intent_failed">Intent failed to start</string>
-    <string name="snackbar_bad_input">Port and pairing code must be filled</string>
     <string name="snackbar_file_opened">Executing script from file</string>
 
     <string name="developer_url">https://www.github.com/tytydraco</string>
