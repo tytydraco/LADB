@@ -117,15 +117,7 @@ class MainActivity : AppCompatActivity() {
 
         /* Prepare progress bar, pairing latch, and script executing */
         viewModel.adb.started.observe(this) { started ->
-            if (started == true) {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    runOnUiThread { setReadyForInput(true) }
-                    executeScriptFromIntent()
-                }
-            } else {
-                runOnUiThread { setReadyForInput(false) }
-                return@observe
-            }
+            setReadyForInput(started == true)
         }
     }
 
@@ -150,25 +142,6 @@ class MainActivity : AppCompatActivity() {
             pairAndStart()
 
         viewModel.piracyCheck(this)
-    }
-
-    /**
-     * Execute a script from the main intent if one was given
-     */
-    private fun executeScriptFromIntent() {
-        if (viewModel.getScriptFromIntent(intent) == null)
-            return
-
-        val code = viewModel.getScriptFromIntent(intent) ?: return
-
-        /* Invalidate intent */
-        intent.type = ""
-
-        Snackbar.make(binding.output, getString(R.string.snackbar_file_opened), Snackbar.LENGTH_SHORT)
-            .setAction(getString(R.string.dismiss)) {}
-            .show()
-
-        viewModel.adb.sendScript(code)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
