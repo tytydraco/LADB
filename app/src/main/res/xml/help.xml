@@ -45,18 +45,6 @@
             android:icon="@drawable/ic_baseline_error_24"
             android:summary="@string/error_no_wireless_debugging_summary"
             android:title="@string/error_no_wireless_debugging_title" />
-        <Preference
-            android:icon="@drawable/ic_baseline_error_24"
-            android:summary="@string/error_more_than_one_summary"
-            android:title="@string/error_more_than_one_title" />
-        <Preference
-            android:icon="@drawable/ic_baseline_error_24"
-            android:summary="@string/error_pairing_client_summary"
-            android:title="@string/error_pairing_client_title" />
-        <Preference
-            android:icon="@drawable/ic_baseline_error_24"
-            android:summary="@string/error_inaccessible_summary"
-            android:title="@string/error_inaccessible_title" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/about">
         <Preference

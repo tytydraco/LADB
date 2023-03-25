@@ -25,7 +25,7 @@
 
     <string name="developer_url">https://www.github.com/tytydraco</string>
     <string name="source_url">https://www.github.com/tytydraco/LADB</string>
-    <string name="contact_url">mailto:tylernij+LADB@gmail.com</string>
+    <string name="contact_url">mailto:tnnijmeh@gmail.com</string>
     <string name="tutorial_url">https://www.xda-developers.com/debloat-your-phone-run-adb-shell-commands-no-root-no-pc</string>
 
     <string name="paired_key">paired</string>
@@ -69,15 +69,6 @@
 
     <string name="error_no_wireless_debugging_title">No \"Wireless Debugging\" toggle</string>
     <string name="error_no_wireless_debugging_summary">Your device does not natively support Wireless Debugging, which is required by LADB. Alternatively, you can use a PC to enable this feature, even on unsupported devices. It will last until the next reboot. Connect the device to a PC and type: adb tcpip 5555</string>
-
-    <string name="error_more_than_one_title">More than one device connected</string>
-    <string name="error_more_than_one_summary">This error can often, it can be fixed by rebooting the device. Another possible way to fix this for Android 10 users and below is to enable Airplane Mode before launching the app. Remember that after rebooting the device, Wireless Debugging may turn off and need to be turned on again.</string>
-
-    <string name="error_pairing_client_title">Unable to start pairing client</string>
-    <string name="error_pairing_client_summary">The most likely scenario for this error is an incorrectly entered port or pairing code. The port should always be followed by the colon. For example, 50123. The pairing code is six digits, it is the number that is on its own.</string>
-
-    <string name="error_inaccessible_title">Inaccessible or not found</string>
-    <string name="error_inaccessible_summary">You have most likely written a command that is not valid. Remember, LADB is the equivalent of having already ran \"adb shell\" by default. See the \"Pair &amp; shell\" toggle.</string>
 
     <string name="developer_title">Developer</string>
     <string name="developer_summary">Tyler Nijmeh</string>

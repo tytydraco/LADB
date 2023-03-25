@@ -1,6 +1,5 @@
 package com.draco.ladb.views
 
-import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -49,7 +48,6 @@ class MainActivity : AppCompatActivity() {
             .setView(R.layout.dialog_pair)
             .setPositiveButton(R.string.pair, null)
             .setNegativeButton(R.string.help, null)
-            .setNeutralButton(R.string.settings, null)
 
         binding.command.setOnKeyListener { _, keyCode, keyEvent ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.action == KeyEvent.ACTION_DOWN) {
@@ -162,28 +160,6 @@ class MainActivity : AppCompatActivity() {
                             viewModel.adb.debug("Trying to pair...")
                             val success = viewModel.adb.pair(port, code)
                             callback?.invoke(success)
-                        }
-                    }
-
-                    getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                        val intent = Intent(Intent.ACTION_MAIN).setComponent(
-                            ComponentName(
-                                "com.android.settings",
-                                "com.android.settings.Settings\$DevelopmentSettingsDashboardActivity"
-                            )
-                        )
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT)
-
-                        try {
-                            startActivity(intent)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            Snackbar.make(
-                                binding.output,
-                                getString(R.string.snackbar_intent_failed),
-                                Snackbar.LENGTH_SHORT
-                            )
-                                .show()
                         }
                     }
 
