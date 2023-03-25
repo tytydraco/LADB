@@ -67,6 +67,6 @@ dependencies {
 
     implementation 'com.github.javiersantos:PiracyChecker:1.2.8'
 
-    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'com.google.android.material:material:1.7.0'
     implementation 'com.google.android.gms:play-services-oss-licenses:17.0.0'
 }
