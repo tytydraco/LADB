@@ -30,7 +30,10 @@ class ADB(private val context: Context) {
 
     private val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
 
-    private val adbPath = "${context.applicationInfo.nativeLibraryDir}/libadb.so"
+    private val adbPath = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+        "${context.applicationInfo.nativeLibraryDir}/libadb12.so"
+    else
+        "${context.applicationInfo.nativeLibraryDir}/libadb.so"
     private val scriptPath = "${context.getExternalFilesDir(null)}/script.sh"
 
     /**
