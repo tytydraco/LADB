@@ -140,8 +140,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 }
 
                 val uri = Uri.parse(extra)
-                context.contentResolver.openInputStream(uri)?.bufferedReader().use {
-                    it?.readText()
+                context.contentResolver.openInputStream(uri)?.use {
+                    it.bufferedReader().use { buffered ->
+                        buffered.readText()
+                    }
                 }
             }
 
