@@ -250,22 +250,6 @@ class ADB(private val context: Context) {
     }
 
     /**
-     * Execute a script
-     */
-    fun sendScript(code: String) {
-        /* Store script locally */
-        val internalScript = File(scriptPath).apply {
-            bufferedWriter().use {
-                it.write(code)
-            }
-            deleteOnExit()
-        }
-
-        /* Execute the script here */
-        sendToShellProcess("sh ${internalScript.absolutePath}")
-    }
-
-    /**
      * Send commands directly to the shell process
      */
     fun sendToShellProcess(msg: String) {
