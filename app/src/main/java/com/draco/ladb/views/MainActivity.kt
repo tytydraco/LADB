@@ -16,7 +16,9 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import com.draco.ladb.BuildConfig
 import com.draco.ladb.R
 import com.draco.ladb.databinding.ActivityMainBinding
@@ -48,6 +50,7 @@ class MainActivity : AppCompatActivity() {
             .setView(R.layout.dialog_pair)
             .setPositiveButton(R.string.pair, null)
             .setNegativeButton(R.string.help, null)
+            .setNeutralButton(R.string.skip, null)
 
         binding.command.setOnKeyListener { _, keyCode, keyEvent ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.action == KeyEvent.ACTION_DOWN) {
@@ -176,7 +179,14 @@ class MainActivity : AppCompatActivity() {
                             )
                                 .show()
                         }
+                    }
 
+                    getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                        PreferenceManager.getDefaultSharedPreferences(context).edit(true) {
+                            putBoolean(getString(R.string.auto_shell_key), false)
+                        }
+                        dismiss()
+                        callback?.invoke(true)
                     }
                 }
             }
