@@ -109,44 +109,14 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     fun needsToPair(): Boolean {
         val context = getApplication<Application>().applicationContext
 
-        if (!sharedPreferences.getBoolean(context.getString(R.string.paired_key), false) &&
-            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-        ) {
-            return true
-        }
-
-        return false
+        return !sharedPreferences.getBoolean(context.getString(R.string.paired_key), false) &&
+                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
     }
 
     fun setPairedBefore(value: Boolean) {
         val context = getApplication<Application>().applicationContext
         sharedPreferences.edit {
             putBoolean(context.getString(R.string.paired_key), value)
-        }
-    }
-
-    /**
-     * Return the contents of the script from the intent
-     */
-    fun getScriptFromIntent(intent: Intent): String? {
-        val context = getApplication<Application>().applicationContext
-
-        return when (intent.type) {
-            "text/x-sh" -> {
-                val extra = if (Build.VERSION.SDK_INT >= 33) {
-                    intent.getParcelableExtra(Intent.EXTRA_STREAM, Parcelable::class.java).toString()
-                } else {
-                    intent.getParcelableExtra<Parcelable?>(Intent.EXTRA_STREAM).toString()
-                }
-
-                val uri = Uri.parse(extra)
-                context.contentResolver.openInputStream(uri)?.bufferedReader().use {
-                    it?.readText()
-                }
-            }
-
-            "text/plain" -> intent.getStringExtra(Intent.EXTRA_TEXT)
-            else -> null
         }
     }
 

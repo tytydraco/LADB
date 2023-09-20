@@ -41,4 +41,4 @@ We also have a Telegram server here: https://t.me/ladb_support.
 
 # Privacy Policy
 
-LADB does not send any device data outside of the app. Your data is not collected or processed.
+LADB does not send any device data outside the app. Your data is not collected or processed.

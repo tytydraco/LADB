@@ -32,17 +32,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="text/x-sh" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
         </activity>
-        <activity
-            android:name=".views.PairActivity"
-            android:label="@string/pair" />
         <activity
             android:name=".views.HelpActivity"
             android:label="@string/more" />

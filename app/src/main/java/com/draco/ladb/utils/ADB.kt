@@ -89,23 +89,21 @@ class ADB(private val context: Context) {
             /* Only do wireless debugging steps on compatible versions */
             if (secureSettingsGranted) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !isWirelessDebuggingEnabled()) {
-                    debug("Enabling wireless debugging...")
                     Settings.Global.putInt(
                         context.contentResolver,
                         "adb_wifi_enabled",
                         1
                     )
 
-                    Thread.sleep(3_000)
+                    Thread.sleep(2_000)
                 } else if (!isUSBDebuggingEnabled()) {
-                    debug("Enabling USB debugging...")
                     Settings.Global.putInt(
                         context.contentResolver,
                         Settings.Global.ADB_ENABLED,
                         1
                     )
 
-                    Thread.sleep(3_000)
+                    Thread.sleep(2_000)
                 }
             }
 
@@ -128,23 +126,19 @@ class ADB(private val context: Context) {
                 }
             }
 
-            debug("Starting ADB server...")
             adb(false, listOf("start-server")).waitFor()
             debug("Waiting for device to connect...")
-            debug("This may take up to 2 minutes")
-            val waitProcess = adb(false, listOf("wait-for-device")).waitFor(2, TimeUnit.MINUTES)
+            debug("This may take a minute")
+            val waitProcess = adb(false, listOf("wait-for-device")).waitFor(1, TimeUnit.MINUTES)
             if (!waitProcess) {
-                debug("Could not detect any devices")
-                debug("Fix 1) Toggle Wi-Fi or reboot")
-                debug("Fix 2) Re-enter pairing information (More -> Factory Reset)")
-                debug("To try again, restart the server (More -> Restart)")
+                debug("Your device didn't connect to LADB")
+                debug("If a reboot doesn't work, please contact support")
 
                 tryingToPair = false
                 return false
             }
         }
 
-        debug("Shelling into device")
         shellProcess = if (autoShell) {
             val argList = if (Build.SUPPORTED_ABIS[0] == "arm64-v8a")
                 listOf("-t", "1", "shell")
@@ -216,6 +210,11 @@ class ADB(private val context: Context) {
         /* Continue once finished pairing (or 10s elapses) */
         pairShell.waitFor(10, TimeUnit.SECONDS)
         pairShell.destroyForcibly().waitFor()
+
+        val killShell = adb(false, listOf("kill-server"))
+        killShell.waitFor(3, TimeUnit.SECONDS)
+        killShell.destroyForcibly()
+
         return pairShell.exitValue() == 0
     }
 
@@ -248,22 +247,6 @@ class ADB(private val context: Context) {
             }
 
         return processBuilder.start()!!
-    }
-
-    /**
-     * Execute a script
-     */
-    fun sendScript(code: String) {
-        /* Store script locally */
-        val internalScript = File(scriptPath).apply {
-            bufferedWriter().use {
-                it.write(code)
-            }
-            deleteOnExit()
-        }
-
-        /* Execute the script here */
-        sendToShellProcess("sh ${internalScript.absolutePath}")
     }
 
     /**
