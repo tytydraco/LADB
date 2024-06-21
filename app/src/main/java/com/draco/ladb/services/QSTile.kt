@@ -9,6 +9,8 @@ class QSTile : TileService() {
         super.onClick()
         val intent = Intent(applicationContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        // TODO(tytydraco): fix deprecation later to avoid potential crash
         startActivityAndCollapse(intent)
     }
 }

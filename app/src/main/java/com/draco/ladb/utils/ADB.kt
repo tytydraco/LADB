@@ -31,7 +31,6 @@ class ADB(private val context: Context) {
     private val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     private val adbPath = "${context.applicationInfo.nativeLibraryDir}/libadb.so"
-    private val scriptPath = "${context.getExternalFilesDir(null)}/script.sh"
 
     /**
      * Is the shell ready to handle commands?
@@ -215,7 +214,8 @@ class ADB(private val context: Context) {
         killShell.waitFor(3, TimeUnit.SECONDS)
         killShell.destroyForcibly()
 
-        return pairShell.exitValue() == 0
+        // FIXME(tytydraco): Return true on pair because some devices might mistakenly return false here.
+        return true
     }
 
     /**
