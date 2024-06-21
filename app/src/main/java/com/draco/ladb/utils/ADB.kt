@@ -126,9 +126,15 @@ class ADB(private val context: Context) {
             }
 
             adb(false, listOf("start-server")).waitFor()
+
+            debug("Attempting to connect to localhost...")
+            debug("This may take a minute")
+            adb(false, listOf("connect", "localhost")).waitFor(1, TimeUnit.MINUTES)
+
             debug("Waiting for device to connect...")
             debug("This may take a minute")
             val waitProcess = adb(false, listOf("wait-for-device")).waitFor(1, TimeUnit.MINUTES)
+
             if (!waitProcess) {
                 debug("Your device didn't connect to LADB")
                 debug("If a reboot doesn't work, please contact support")
