@@ -145,12 +145,7 @@ class ADB(private val context: Context) {
         }
 
         shellProcess = if (autoShell) {
-            val argList = if (Build.SUPPORTED_ABIS[0] == "arm64-v8a")
-                listOf("-t", "1", "shell")
-            else
-                listOf("shell")
-
-            adb(true, argList)
+            adb(true, listOf("shell"))
         } else {
             shell(true, listOf("sh", "-l"))
         }
