@@ -214,8 +214,7 @@ class ADB(private val context: Context) {
         killShell.waitFor(3, TimeUnit.SECONDS)
         killShell.destroyForcibly()
 
-        // FIXME(tytydraco): Return true on pair because some devices might mistakenly return false here.
-        return true
+        return pairShell.exitValue() == 0
     }
 
     /**
