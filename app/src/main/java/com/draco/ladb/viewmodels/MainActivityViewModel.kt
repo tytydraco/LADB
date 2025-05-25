@@ -34,7 +34,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     val adb = ADB.getInstance(getApplication<Application>().applicationContext)
     val dnsDiscover =
-        DnsDiscover.getInstance(application.applicationContext.getSystemService(Context.NSD_SERVICE) as NsdManager)
+        DnsDiscover.getInstance(
+            application.applicationContext,
+            application.applicationContext.getSystemService(Context.NSD_SERVICE) as NsdManager
+        )
 
     init {
         startOutputThread()
