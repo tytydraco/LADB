@@ -8,7 +8,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethod
 import android.view.inputmethod.InputMethodManager
 import android.widget.ScrollView
 import androidx.activity.result.contract.ActivityResultContracts
@@ -95,7 +94,7 @@ class MainActivity : AppCompatActivity() {
                 binding.outputScrollview.fullScroll(ScrollView.FOCUS_DOWN)
                 binding.command.requestFocus()
                 val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(binding.command, InputMethod.SHOW_EXPLICIT)
+                imm.showSoftInput(binding.command, InputMethodManager.SHOW_FORCED)
             }
         }
 
