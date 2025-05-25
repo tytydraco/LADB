@@ -2,10 +2,9 @@ package com.draco.ladb.viewmodels
 
 import android.app.Activity
 import android.app.Application
-import android.content.Intent
-import android.net.Uri
+import android.content.Context
+import android.net.nsd.NsdManager
 import android.os.Build
-import android.os.Parcelable
 import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -15,6 +14,7 @@ import androidx.preference.PreferenceManager
 import com.draco.ladb.BuildConfig
 import com.draco.ladb.R
 import com.draco.ladb.utils.ADB
+import com.draco.ladb.utils.DnsDiscover
 import com.github.javiersantos.piracychecker.PiracyChecker
 import com.github.javiersantos.piracychecker.piracyChecker
 import kotlinx.coroutines.Dispatchers
@@ -33,9 +33,12 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         .getDefaultSharedPreferences(application.applicationContext)
 
     val adb = ADB.getInstance(getApplication<Application>().applicationContext)
+    val dnsDiscover =
+        DnsDiscover.getInstance(application.applicationContext.getSystemService(Context.NSD_SERVICE) as NsdManager)
 
     init {
         startOutputThread()
+        dnsDiscover.scanAdbPorts()
     }
 
 
