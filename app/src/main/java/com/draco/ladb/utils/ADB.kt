@@ -89,21 +89,23 @@ class ADB(private val context: Context) {
             /* Only do wireless debugging steps on compatible versions */
             if (secureSettingsGranted) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !isWirelessDebuggingEnabled()) {
+                    debug("Turning on wireless debugging...")
                     Settings.Global.putInt(
                         context.contentResolver,
                         "adb_wifi_enabled",
                         1
                     )
 
-                    Thread.sleep(2_000)
+                    Thread.sleep(5_000)
                 } else if (!isUSBDebuggingEnabled()) {
+                    debug("Turning on USB debugging...")
                     Settings.Global.putInt(
                         context.contentResolver,
                         Settings.Global.ADB_ENABLED,
                         1
                     )
 
-                    Thread.sleep(2_000)
+                    Thread.sleep(5_000)
                 }
             }
 
