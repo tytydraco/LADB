@@ -144,7 +144,7 @@ class ADB(private val context: Context) {
         }
 
         shellProcess = if (autoShell) {
-            adb(true, "shell")
+            adb(true, listOf("shell"))
         } else {
             shell(true, listOf("sh", "-l"))
         }
