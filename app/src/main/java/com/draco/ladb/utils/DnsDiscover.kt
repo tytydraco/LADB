@@ -8,6 +8,8 @@ import android.net.nsd.NsdServiceInfo
 import android.util.Log
 import java.net.Inet4Address
 import java.net.NetworkInterface
+import java.text.SimpleDateFormat
+import java.util.*
 
 private const val TAG = "DNS"
 
@@ -16,6 +18,8 @@ class DnsDiscover private constructor(
     private val nsdManager: NsdManager
 ) {
     private var started = false
+    private var bestExpirationTime: Long? = null
+    private var bestServiceName: String? = null
 
     companion object {
         private var instance: DnsDiscover? = null
@@ -69,6 +73,77 @@ class DnsDiscover private constructor(
         return null
     }
 
+    private fun updateIfNewest(serviceInfo: NsdServiceInfo) {
+        val port = serviceInfo.port
+        val expirationTime = parseExpirationTime(serviceInfo.toString())
+        val serviceName = serviceInfo.serviceName
+
+        Log.d("EXPTIME", expirationTime.toString())
+
+        fun getHighestNumberedString(strings: List<String>): String {
+            return strings.maxByOrNull {
+                """\((\d+)\)""".toRegex().find(it)?.groupValues?.get(1)?.toIntOrNull() ?: -1
+            } ?: strings.first() // Fallback to first if all are unnumbered
+        }
+
+        fun update() {
+            adbPort = port
+            bestExpirationTime = expirationTime
+            bestServiceName = serviceName
+            Log.d(TAG, "Updated best match: $adbPort, $bestServiceName, $bestExpirationTime")
+        }
+
+        // If nothing set yet, be the first.
+        if (adbPort == null) {
+            Log.d(TAG, "ADB port not yet set, updating best match...")
+            update()
+            return
+        }
+
+        // If something already set, but we have new expiration time data...
+        if (expirationTime != null) {
+            // And if best expiration time is not set yet, update.
+            if (bestExpirationTime == null) {
+                Log.d(TAG, "Expiration time not yet set, updating best match...")
+                update()
+                return
+            }
+
+            // And if expiration time data is better than the best, update.
+            if (expirationTime > bestExpirationTime!!) {
+                Log.d(TAG, "Expiration time is better, updating best match...")
+                update()
+                return
+            } else {
+                // If worse, don't set.
+                return
+            }
+        }
+
+        // If something already set, but we have new service name data, try to see if
+        // the service name is newer.
+        // Ex. ADB, ADB (2), ADB (3)
+        if (serviceName == getHighestNumberedString(listOf(bestServiceName ?: "", serviceName))) {
+            Log.d(TAG, "Service name is newer, updating best match...")
+            update()
+            return
+        }
+    }
+
+    private fun parseExpirationTime(rawString: String): Long? {
+        val regex = """expirationTime: (\S+)""".toRegex()
+        val expirationTimeStr = regex.find(rawString)?.groupValues?.get(1)
+
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+
+        return try {
+            dateFormat.parse(expirationTimeStr ?: "")?.time
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     val discoveryListener = object : NsdManager.DiscoveryListener {
         override fun onDiscoveryStarted(regType: String) {
             Log.d(TAG, "Service discovery started")
@@ -96,7 +171,12 @@ class DnsDiscover private constructor(
                         return
                     }
 
-                    adbPort = serviceInfo.port
+                    if (serviceInfo.port == 0) {
+                        Log.d(TAG, "Port is zero, skipping...")
+                        return
+                    }
+
+                    updateIfNewest(serviceInfo)
                 }
             }
 

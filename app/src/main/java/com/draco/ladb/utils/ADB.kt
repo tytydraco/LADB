@@ -178,6 +178,34 @@ class ADB(private val context: Context) {
         Settings.Global.getInt(context.contentResolver, Settings.Global.ADB_ENABLED, 0) == 1
 
     /**
+     * Cycles wireless debugging to get a new port to scan.
+     */
+    fun cycleWirelessDebugging() {
+        val secureSettingsGranted =
+            context.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) == PackageManager.PERMISSION_GRANTED
+
+        if (secureSettingsGranted) {
+            debug("Cycling wireless debugging, please wait...")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !isWirelessDebuggingEnabled()) {
+                Settings.Global.putInt(
+                    context.contentResolver,
+                    "adb_wifi_enabled",
+                    0
+                )
+                Thread.sleep(5_000)
+
+                debug("Turning on wireless debugging...")
+                Settings.Global.putInt(
+                    context.contentResolver,
+                    "adb_wifi_enabled",
+                    1
+                )
+                Thread.sleep(5_000)
+            }
+        }
+    }
+
+    /**
      * Wait restart the shell once it dies
      */
     fun waitForDeathAndReset() {
@@ -186,6 +214,9 @@ class ADB(private val context: Context) {
             _started.postValue(false)
             debug("Shell is dead, resetting")
             adb(false, listOf("kill-server")).waitFor()
+
+            cycleWirelessDebugging()
+
             Thread.sleep(3_000)
             initServer()
         }
