@@ -186,7 +186,7 @@ class ADB(private val context: Context) {
 
         if (secureSettingsGranted) {
             debug("Cycling wireless debugging, please wait...")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !isWirelessDebuggingEnabled()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 Settings.Global.putInt(
                     context.contentResolver,
                     "adb_wifi_enabled",
