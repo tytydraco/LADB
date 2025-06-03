@@ -157,9 +157,9 @@ class DnsDiscover private constructor(
     }
 
     /**
-     * When a service is discovered, resolve it.
+     * When a service is resolved, handle it.
      */
-    private fun resolveService(serviceInfo: NsdServiceInfo) {
+    private fun handleResolvedService(serviceInfo: NsdServiceInfo) {
         Log.d(TAG, "Resolve successful: $serviceInfo")
         Log.d(TAG, "Port: ${serviceInfo.port}")
 
@@ -180,14 +180,30 @@ class DnsDiscover private constructor(
         updateIfNewest(serviceInfo)
     }
 
-    val resolveListener = object : NsdManager.ResolveListener {
-        override fun onResolveFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {
-            Log.e(TAG, "Resolve failed: $errorCode")
+    /**
+     * When service gets discovered, attempt to resolve it.
+     */
+    private fun resolveService(service: NsdServiceInfo) {
+        // Create new listener.
+        val resolveListener = object : NsdManager.ResolveListener {
+            override fun onResolveFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {
+                Log.e(TAG, "Resolve failed: $errorCode")
+
+                when (errorCode) {
+                    NsdManager.FAILURE_ALREADY_ACTIVE -> {
+                        // Re-run the resolve until it resolves.
+                        resolveService(serviceInfo)
+                    }
+                }
+            }
+
+            override fun onServiceResolved(serviceInfo: NsdServiceInfo) {
+                handleResolvedService(serviceInfo)
+            }
         }
 
-        override fun onServiceResolved(serviceInfo: NsdServiceInfo) {
-            resolveService(serviceInfo)
-        }
+        // Resolve service with listener.
+        nsdManager.resolveService(service, resolveListener)
     }
 
     val discoveryListener = object : NsdManager.DiscoveryListener {
@@ -199,7 +215,7 @@ class DnsDiscover private constructor(
             Log.d(TAG, "Service discovery: $service")
             Log.d(TAG, "Port: ${service.port}")
 
-            nsdManager.resolveService(service, resolveListener)
+            resolveService(service)
         }
 
         override fun onServiceLost(service: NsdServiceInfo) {
