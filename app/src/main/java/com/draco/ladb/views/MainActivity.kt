@@ -17,6 +17,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.content.edit
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.draco.ladb.BuildConfig
@@ -44,6 +47,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
+        /* Fix stupid Google edge-to-edge bullshit */
+        ViewCompat.setOnApplyWindowInsetsListener(binding.statusBarBackground) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
+
+            v.updateLayoutParams {
+                height = insets.top
+            }
+
+            WindowInsetsCompat.CONSUMED
+        }
+        supportActionBar!!.elevation = 0f
+
         pairDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.pair_title)
             .setCancelable(false)
