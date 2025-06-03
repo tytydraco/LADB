@@ -6,6 +6,7 @@ import android.net.NetworkCapabilities
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
 import android.util.Log
+import com.draco.ladb.utils.DnsDiscover.Companion.adbPort
 import java.net.Inet4Address
 import java.net.NetworkInterface
 import java.text.SimpleDateFormat
@@ -30,6 +31,9 @@ class DnsDiscover private constructor(
         }
     }
 
+    /**
+     * Start the scan for the best ADB port to connect to. Only needs to be started once.
+     */
     fun scanAdbPorts() {
         if (started) {
             Log.w(TAG, "Already started")
@@ -43,7 +47,9 @@ class DnsDiscover private constructor(
         )
     }
 
-
+    /**
+     * Returns the device's local IP address, or null if an error occurred.
+     */
     fun getLocalIpAddress(): String? {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return null
@@ -73,12 +79,15 @@ class DnsDiscover private constructor(
         return null
     }
 
+    /**
+     * Determines if the service is the most recent to broadcast, and if so, sets it as the [adbPort].
+     */
     private fun updateIfNewest(serviceInfo: NsdServiceInfo) {
         val port = serviceInfo.port
         val expirationTime = parseExpirationTime(serviceInfo.toString())
         val serviceName = serviceInfo.serviceName
 
-        Log.d("EXPTIME", expirationTime.toString())
+        Log.d("EXPTIME", "$expirationTime")
 
         fun getHighestNumberedString(strings: List<String>): String {
             return strings.maxByOrNull {
@@ -130,6 +139,9 @@ class DnsDiscover private constructor(
         }
     }
 
+    /**
+     * If expiration time is included in the txtRecord, extract it and convert it to epoch time.
+     */
     private fun parseExpirationTime(rawString: String): Long? {
         val regex = """expirationTime: (\S+)""".toRegex()
         val expirationTimeStr = regex.find(rawString)?.groupValues?.get(1)
@@ -144,6 +156,40 @@ class DnsDiscover private constructor(
         }
     }
 
+    /**
+     * When a service is discovered, resolve it.
+     */
+    private fun resolveService(serviceInfo: NsdServiceInfo) {
+        Log.d(TAG, "Resolve successful: $serviceInfo")
+        Log.d(TAG, "Port: ${serviceInfo.port}")
+
+        val ipAddress = getLocalIpAddress()
+        Log.d("IP ADDRESS", ipAddress ?: "N/A")
+
+        val discoveredAddress = serviceInfo.host.hostAddress
+        if (ipAddress != null && discoveredAddress != ipAddress) {
+            Log.d(TAG, "IP does not match device")
+            return
+        }
+
+        if (serviceInfo.port == 0) {
+            Log.d(TAG, "Port is zero, skipping...")
+            return
+        }
+
+        updateIfNewest(serviceInfo)
+    }
+
+    val resolveListener = object : NsdManager.ResolveListener {
+        override fun onResolveFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {
+            Log.e(TAG, "Resolve failed: $errorCode")
+        }
+
+        override fun onServiceResolved(serviceInfo: NsdServiceInfo) {
+            resolveService(serviceInfo)
+        }
+    }
+
     val discoveryListener = object : NsdManager.DiscoveryListener {
         override fun onDiscoveryStarted(regType: String) {
             Log.d(TAG, "Service discovery started")
@@ -152,33 +198,6 @@ class DnsDiscover private constructor(
         override fun onServiceFound(service: NsdServiceInfo) {
             Log.d(TAG, "Service discovery: $service")
             Log.d(TAG, "Port: ${service.port}")
-
-            val resolveListener = object : NsdManager.ResolveListener {
-                override fun onResolveFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {
-                    Log.e(TAG, "Resolve failed: $errorCode")
-                }
-
-                override fun onServiceResolved(serviceInfo: NsdServiceInfo) {
-                    Log.d(TAG, "Resolve successful: $serviceInfo")
-                    Log.d(TAG, "Port: ${serviceInfo.port}")
-
-                    val ipAddress = getLocalIpAddress()
-                    Log.d("IP ADDRESS", ipAddress ?: "N/A")
-
-                    val discoveredAddress = serviceInfo.host.hostAddress
-                    if (discoveredAddress != ipAddress) {
-                        Log.d(TAG, "IP does not match device")
-                        return
-                    }
-
-                    if (serviceInfo.port == 0) {
-                        Log.d(TAG, "Port is zero, skipping...")
-                        return
-                    }
-
-                    updateIfNewest(serviceInfo)
-                }
-            }
 
             nsdManager.resolveService(service, resolveListener)
         }
