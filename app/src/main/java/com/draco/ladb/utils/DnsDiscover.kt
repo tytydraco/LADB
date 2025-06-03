@@ -11,7 +11,7 @@ import java.net.Inet4Address
 import java.net.NetworkInterface
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicBoolean
 
 private const val TAG = "DNS"
 
@@ -23,10 +23,12 @@ class DnsDiscover private constructor(
     private var bestExpirationTime: Long? = null
     private var bestServiceName: String? = null
 
+    private var pendingServices: MutableList<NsdServiceInfo> = Collections.synchronizedList(ArrayList())
+
     companion object {
         private var instance: DnsDiscover? = null
         var adbPort: Int? = null
-        var pendingResolves = AtomicInteger(0)
+        var pendingResolves = AtomicBoolean(false)
 
         fun getInstance(context: Context, nsdManager: NsdManager): DnsDiscover {
             return instance ?: DnsDiscover(context, nsdManager).also { instance = it }
@@ -202,7 +204,15 @@ class DnsDiscover private constructor(
             override fun onServiceResolved(serviceInfo: NsdServiceInfo) {
                 handleResolvedService(serviceInfo)
 
-                pendingResolves.addAndGet(-1)
+                // Remove service after it's been resolved.
+                pendingServices.removeAll { it -> it.serviceName == serviceInfo.serviceName }
+
+                // If we're all done, let anyone waiting know.
+                if (pendingServices.isEmpty()) {
+                    pendingResolves.set(false)
+                }
+
+                Log.d(TAG, "Service resolved, pending: ${pendingServices.size}")
             }
         }
 
@@ -219,7 +229,9 @@ class DnsDiscover private constructor(
             Log.d(TAG, "Service discovery: $service")
             Log.d(TAG, "Port: ${service.port}")
 
-            pendingResolves.addAndGet(1)
+            pendingServices.add(service)
+            pendingResolves.set(true)
+            Log.d(TAG, "Service found, pending: ${pendingServices.size}")
 
             resolveService(service)
         }

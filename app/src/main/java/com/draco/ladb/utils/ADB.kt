@@ -14,6 +14,7 @@ import com.draco.ladb.R
 import java.io.File
 import java.io.PrintStream
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class ADB(private val context: Context) {
     companion object {
@@ -132,17 +133,26 @@ class ADB(private val context: Context) {
             debug("Waiting for device to connect...")
             debug("This may take a minute")
 
+            val futureTimeLimit = System.currentTimeMillis() + 10.seconds.inWholeMilliseconds
             while (true) {
                 val pendingResolves = DnsDiscover.pendingResolves.get()
 
-                // Wait for zero pending resolves.
-                if (pendingResolves == 0) break
+                // Wait for pending DNS resolves to finish...
+                if (!pendingResolves) {
+                    debug("DNS resolver done...")
+                    break
+                }
 
-                debug("Resolves left: $pendingResolves")
+                // Or if 10 seconds pass...
+                if (System.currentTimeMillis() >= futureTimeLimit) {
+                    debug("DNS resolver took too long! Skipping...")
+                    break
+                }
+
+                debug("Waiting for DNS resolver...")
 
                 Thread.sleep(1_000)
             }
-
 
             val adbPort = DnsDiscover.adbPort
             val waitProcess = adb(false, listOf("connect", "localhost:$adbPort")).waitFor(1, TimeUnit.MINUTES)
