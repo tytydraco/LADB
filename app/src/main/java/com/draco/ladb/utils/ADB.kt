@@ -252,7 +252,7 @@ class ADB(private val context: Context) {
         while (true) {
             shellProcess?.waitFor()
             _started.postValue(false)
-            debug("Shell is dead, resetting")
+            debug("Shell is dead, resetting...")
             adb(false, listOf("kill-server")).waitFor()
 
             Thread.sleep(3_000)
