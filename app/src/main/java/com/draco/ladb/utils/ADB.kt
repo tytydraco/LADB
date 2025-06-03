@@ -132,6 +132,18 @@ class ADB(private val context: Context) {
             debug("Waiting for device to connect...")
             debug("This may take a minute")
 
+            while (true) {
+                val pendingResolves = DnsDiscover.pendingResolves.get()
+
+                // Wait for zero pending resolves.
+                if (pendingResolves == 0) break
+
+                debug("Resolves left: $pendingResolves")
+
+                Thread.sleep(1_000)
+            }
+
+
             val adbPort = DnsDiscover.adbPort
             val waitProcess = adb(false, listOf("connect", "localhost:$adbPort")).waitFor(1, TimeUnit.MINUTES)
             if (!waitProcess) {
@@ -185,8 +197,9 @@ class ADB(private val context: Context) {
             context.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) == PackageManager.PERMISSION_GRANTED
 
         if (secureSettingsGranted) {
-            debug("Cycling wireless debugging, please wait...")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                debug("Cycling wireless debugging, please wait...")
+                debug("Turning off wireless debugging...")
                 Settings.Global.putInt(
                     context.contentResolver,
                     "adb_wifi_enabled",

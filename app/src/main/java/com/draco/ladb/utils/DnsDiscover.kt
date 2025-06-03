@@ -11,6 +11,7 @@ import java.net.Inet4Address
 import java.net.NetworkInterface
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 
 private const val TAG = "DNS"
 
@@ -25,6 +26,7 @@ class DnsDiscover private constructor(
     companion object {
         private var instance: DnsDiscover? = null
         var adbPort: Int? = null
+        var pendingResolves = AtomicInteger(0)
 
         fun getInstance(context: Context, nsdManager: NsdManager): DnsDiscover {
             return instance ?: DnsDiscover(context, nsdManager).also { instance = it }
@@ -199,6 +201,8 @@ class DnsDiscover private constructor(
 
             override fun onServiceResolved(serviceInfo: NsdServiceInfo) {
                 handleResolvedService(serviceInfo)
+
+                pendingResolves.addAndGet(-1)
             }
         }
 
@@ -214,6 +218,8 @@ class DnsDiscover private constructor(
         override fun onServiceFound(service: NsdServiceInfo) {
             Log.d(TAG, "Service discovery: $service")
             Log.d(TAG, "Port: ${service.port}")
+
+            pendingResolves.addAndGet(1)
 
             resolveService(service)
         }
