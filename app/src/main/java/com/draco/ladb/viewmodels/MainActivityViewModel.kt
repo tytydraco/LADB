@@ -47,6 +47,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun startADBServer(callback: ((Boolean) -> (Unit))? = null) {
         viewModelScope.launch(Dispatchers.IO) {
+            // Don't start if it's already started.
+            if (adb.started.value == true) return@launch
+
             val success = adb.initServer()
             if (success)
                 startShellDeathThread()
