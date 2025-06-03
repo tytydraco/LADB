@@ -133,23 +133,26 @@ class ADB(private val context: Context) {
             debug("Waiting for device to connect...")
             debug("This may take a minute")
 
-            val futureTimeLimit = System.currentTimeMillis() + 10.seconds.inWholeMilliseconds
+            val nowTime = System.currentTimeMillis()
+            val maxTimeoutTime = nowTime + 10.seconds.inWholeMilliseconds
+            val minDnsScanTime = (DnsDiscover.aliveTime ?: nowTime) + 3.seconds.inWholeMilliseconds
             while (true) {
+                val nowTime = System.currentTimeMillis()
                 val pendingResolves = DnsDiscover.pendingResolves.get()
 
-                // Wait for pending DNS resolves to finish...
-                if (!pendingResolves) {
+                // Wait for pending DNS resolves to finish and the minimum scan time to elapse...
+                if (nowTime >= minDnsScanTime && !pendingResolves) {
                     debug("DNS resolver done...")
                     break
                 }
 
                 // Or if 10 seconds pass...
-                if (System.currentTimeMillis() >= futureTimeLimit) {
+                if (nowTime >= maxTimeoutTime) {
                     debug("DNS resolver took too long! Skipping...")
                     break
                 }
 
-                debug("Waiting for DNS resolver...")
+                debug("Awaiting DNS resolver...")
 
                 Thread.sleep(1_000)
             }

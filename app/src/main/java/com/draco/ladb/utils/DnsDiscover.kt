@@ -29,6 +29,7 @@ class DnsDiscover private constructor(
         private var instance: DnsDiscover? = null
         var adbPort: Int? = null
         var pendingResolves = AtomicBoolean(false)
+        var aliveTime: Long? = null
 
         fun getInstance(context: Context, nsdManager: NsdManager): DnsDiscover {
             return instance ?: DnsDiscover(context, nsdManager).also { instance = it }
@@ -44,6 +45,7 @@ class DnsDiscover private constructor(
             return
         }
         started = true
+        aliveTime = System.currentTimeMillis()
         nsdManager.discoverServices(
             "_adb-tls-connect._tcp",
             NsdManager.PROTOCOL_DNS_SD,
