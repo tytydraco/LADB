@@ -218,9 +218,9 @@ class ADB(private val context: Context) {
 
         if (secureSettingsGranted) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                debug("Cycling wireless debugging, please wait...")
                 // Only turn it off if it's already on.
                 if (isWirelessDebuggingEnabled()) {
-                    debug("Cycling wireless debugging, please wait...")
                     debug("Turning off wireless debugging...")
                     Settings.Global.putInt(
                         context.contentResolver,
@@ -250,8 +250,6 @@ class ADB(private val context: Context) {
             _started.postValue(false)
             debug("Shell is dead, resetting")
             adb(false, listOf("kill-server")).waitFor()
-
-            cycleWirelessDebugging()
 
             Thread.sleep(3_000)
             initServer()
