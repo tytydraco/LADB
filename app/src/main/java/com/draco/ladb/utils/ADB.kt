@@ -104,21 +104,25 @@ class ADB(private val context: Context) {
             }
 
             /* Check again... */
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !isWirelessDebuggingEnabled()) {
-                debug("Wireless debugging is not enabled!")
-                debug("Settings -> Developer options -> Wireless debugging")
-                debug("Waiting for wireless debugging...")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (!isWirelessDebuggingEnabled()) {
+                    debug("Wireless debugging is not enabled!")
+                    debug("Settings -> Developer options -> Wireless debugging")
+                    debug("Waiting for wireless debugging...")
 
-                while (!isWirelessDebuggingEnabled()) {
-                    Thread.sleep(1_000)
+                    while (!isWirelessDebuggingEnabled()) {
+                        Thread.sleep(1_000)
+                    }
                 }
-            } else if (!isUSBDebuggingEnabled()) {
-                debug("USB debugging is not enabled!")
-                debug("Settings -> Developer options -> USB debugging")
-                debug("Waiting for USB debugging...")
+            } else {
+                if (!isUSBDebuggingEnabled()) {
+                    debug("USB debugging is not enabled!")
+                    debug("Settings -> Developer options -> USB debugging")
+                    debug("Waiting for USB debugging...")
 
-                while (!isUSBDebuggingEnabled()) {
-                    Thread.sleep(1_000)
+                    while (!isUSBDebuggingEnabled()) {
+                        Thread.sleep(1_000)
+                    }
                 }
             }
 
