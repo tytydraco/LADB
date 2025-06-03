@@ -193,7 +193,7 @@ class DnsDiscover private constructor(
         // Create new listener.
         val resolveListener = object : NsdManager.ResolveListener {
             override fun onResolveFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {
-                Log.e(TAG, "Resolve failed: $errorCode")
+                Log.e(TAG, "Resolve failed: $errorCode: $serviceInfo")
 
                 when (errorCode) {
                     NsdManager.FAILURE_ALREADY_ACTIVE -> {
