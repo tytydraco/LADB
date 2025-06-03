@@ -39,7 +39,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             application.applicationContext.getSystemService(Context.NSD_SERVICE) as NsdManager
         )
 
-    private var viewModelHasStartedADB = false
+    private val _viewModelHasStartedADB = MutableLiveData(false)
+    val viewModelHasStartedADB: LiveData<Boolean> = _viewModelHasStartedADB
 
     init {
         startOutputThread()
@@ -49,13 +50,13 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun startADBServer(callback: ((Boolean) -> (Unit))? = null) {
         // Don't start if it's already started.
-        if (viewModelHasStartedADB) return
+        if (_viewModelHasStartedADB.value == true || adb.running.value == true) return
 
         viewModelScope.launch(Dispatchers.IO) {
             val success = adb.initServer()
             if (success) {
                 startShellDeathThread()
-                viewModelHasStartedADB = true
+                _viewModelHasStartedADB.postValue(true)
             }
             callback?.invoke(success)
         }

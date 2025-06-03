@@ -250,6 +250,9 @@ class ADB(private val context: Context) {
      */
     fun waitForDeathAndReset() {
         while (true) {
+            /* Do not falsely claim the shell is dead if we haven't even initialized it yet */
+            if (tryingToPair) continue
+
             shellProcess?.waitFor()
             _running.postValue(false)
             debug("Shell is dead, resetting...")

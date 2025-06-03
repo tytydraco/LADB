@@ -139,8 +139,12 @@ class MainActivity : AppCompatActivity() {
 
         setupUI()
         setupDataListeners()
-        if (viewModel.isPairing.value != true)
-            pairAndStart()
+
+        /* Ensure we are not running this a second time around */
+        if (viewModel.viewModelHasStartedADB.value != true) {
+            if (viewModel.isPairing.value != true)
+                pairAndStart()
+        }
 
         viewModel.piracyCheck(this)
     }
