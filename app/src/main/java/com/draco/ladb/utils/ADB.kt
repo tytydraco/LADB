@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
@@ -334,6 +335,7 @@ class ADB(private val context: Context) {
      */
     fun debug(msg: String) {
         synchronized(outputBufferFile) {
+            Log.d("DEBUG", msg)
             if (outputBufferFile.exists())
                 outputBufferFile.appendText("* $msg" + System.lineSeparator())
         }
