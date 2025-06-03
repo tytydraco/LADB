@@ -127,10 +127,6 @@ class ADB(private val context: Context) {
                 }
             }
 
-            adb(false, listOf("start-server")).waitFor()
-            debug("Waiting for device to connect...")
-            debug("This may take a minute")
-
             val nowTime = System.currentTimeMillis()
             val maxTimeoutTime = nowTime + 10.seconds.inWholeMilliseconds
             val minDnsScanTime = (DnsDiscover.aliveTime ?: nowTime) + 3.seconds.inWholeMilliseconds
@@ -160,6 +156,9 @@ class ADB(private val context: Context) {
                 debug("Best ADB port discovered: $adbPort")
             else
                 debug("No ADB port discovered, fallback...")
+
+            debug("Starting ADB server...")
+            adb(false, listOf("start-server")).waitFor()
 
             val waitProcess = if (adbPort != null)
                 adb(false, listOf("connect", "localhost:$adbPort")).waitFor(1, TimeUnit.MINUTES)
