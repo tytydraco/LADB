@@ -39,6 +39,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             application.applicationContext.getSystemService(Context.NSD_SERVICE) as NsdManager
         )
 
+    private var viewModelHasStartedADB = false
+
     init {
         startOutputThread()
         dnsDiscover.scanAdbPorts()
@@ -48,11 +50,13 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     fun startADBServer(callback: ((Boolean) -> (Unit))? = null) {
         viewModelScope.launch(Dispatchers.IO) {
             // Don't start if it's already started.
-            if (adb.started.value == true) return@launch
+            if (viewModelHasStartedADB) return@launch
 
             val success = adb.initServer()
-            if (success)
+            if (success) {
                 startShellDeathThread()
+                viewModelHasStartedADB = true
+            }
             callback?.invoke(success)
         }
     }

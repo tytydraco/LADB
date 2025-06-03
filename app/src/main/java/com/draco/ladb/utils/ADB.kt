@@ -38,8 +38,8 @@ class ADB(private val context: Context) {
     /**
      * Is the shell ready to handle commands?
      */
-    private val _started = MutableLiveData(false)
-    val started: LiveData<Boolean> = _started
+    private val _running = MutableLiveData(false)
+    val running: LiveData<Boolean> = _running
 
     private var tryingToPair = false
 
@@ -77,7 +77,7 @@ class ADB(private val context: Context) {
      * Start the ADB server
      */
     fun initServer(): Boolean {
-        if (_started.value == true || tryingToPair)
+        if (_running.value == true || tryingToPair)
             return true
 
         tryingToPair = true
@@ -201,7 +201,7 @@ class ADB(private val context: Context) {
         if (startupCommand.isNotEmpty())
             sendToShellProcess(startupCommand)
 
-        _started.postValue(true)
+        _running.postValue(true)
         tryingToPair = false
 
         return true
@@ -251,7 +251,7 @@ class ADB(private val context: Context) {
     fun waitForDeathAndReset() {
         while (true) {
             shellProcess?.waitFor()
-            _started.postValue(false)
+            _running.postValue(false)
             debug("Shell is dead, resetting...")
             adb(false, listOf("kill-server")).waitFor()
 

@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         /* Prepare progress bar, pairing latch, and script executing */
-        viewModel.adb.started.observe(this) { started ->
+        viewModel.adb.running.observe(this) { started ->
             setReadyForInput(started == true)
         }
     }
