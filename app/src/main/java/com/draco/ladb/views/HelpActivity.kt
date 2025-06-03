@@ -1,12 +1,14 @@
 package com.draco.ladb.views
 
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.draco.ladb.R
 import com.draco.ladb.fragments.HelpPreferenceFragment
 
 class HelpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_help)
 

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fitsSystemWindows="true">
 
     <ProgressBar
         android:id="@+id/progress"
@@ -9,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="-6dp"
-        android:indeterminate="true" />
+        android:indeterminate="true"/>
 
     <ScrollView
         android:id="@+id/output_scrollview"
@@ -31,7 +32,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:textIsSelectable="true"
-                android:textSize="12sp" />
+                android:textSize="12sp"/>
         </HorizontalScrollView>
     </ScrollView>
 
@@ -51,6 +52,6 @@
             android:layout_height="wrap_content"
             android:enabled="false"
             android:imeOptions="actionSend"
-            android:inputType="text" />
+            android:inputType="text"/>
     </com.google.android.material.textfield.TextInputLayout>
 </RelativeLayout>
