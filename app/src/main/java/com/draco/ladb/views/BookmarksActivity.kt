@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -27,11 +28,19 @@ class BookmarksActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         /* Fix stupid Google edge-to-edge bullshit */
-        ViewCompat.setOnApplyWindowInsetsListener(binding.statusBarBackground) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
+        ViewCompat.setOnApplyWindowInsetsListener(binding.content) { v, windowInsets ->
+            val systemBarsInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val statusBarInsets = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
+            windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
 
-            v.updateLayoutParams {
-                height = insets.top
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = systemBarsInsets.left
+                bottomMargin = systemBarsInsets.bottom
+                rightMargin = systemBarsInsets.right
+                topMargin = systemBarsInsets.top
+            }
+            binding.statusBarBackground.updateLayoutParams {
+                height = statusBarInsets.top
             }
 
             WindowInsetsCompat.CONSUMED

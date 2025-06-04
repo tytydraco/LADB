@@ -3,10 +3,7 @@ package com.draco.ladb.views
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.KeyEvent
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.ScrollView
@@ -49,11 +46,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupUI() {
         /* Fix stupid Google edge-to-edge bullshit */
-        ViewCompat.setOnApplyWindowInsetsListener(binding.statusBarBackground) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
+        ViewCompat.setOnApplyWindowInsetsListener(binding.content) { v, windowInsets ->
+            val systemBarsInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val statusBarInsets = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
+            windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
 
-            v.updateLayoutParams {
-                height = insets.top
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = systemBarsInsets.left
+                bottomMargin = systemBarsInsets.bottom
+                rightMargin = systemBarsInsets.right
+                topMargin = systemBarsInsets.top
+            }
+            binding.statusBarBackground.updateLayoutParams {
+                height = statusBarInsets.top
             }
 
             WindowInsetsCompat.CONSUMED

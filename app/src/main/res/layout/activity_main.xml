@@ -10,7 +10,8 @@
           android:elevation="4dp"
           android:outlineProvider="none"/>
 
-    <RelativeLayout android:layout_width="match_parent"
+    <RelativeLayout android:id="@+id/content"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:fitsSystemWindows="true">
         <ProgressBar
