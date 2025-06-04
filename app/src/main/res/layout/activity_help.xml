@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/container"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:fitsSystemWindows="true"
-              android:orientation="vertical"/>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+    <View android:id="@+id/status_bar_background"
+          android:layout_width="match_parent"
+          android:layout_height="5dp"
+          android:background="?android:statusBarColor"
+          android:elevation="4dp"
+          android:outlineProvider="none"/>
+
+    <LinearLayout android:id="@+id/container"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:fitsSystemWindows="true"
+                  android:orientation="vertical"/>
+</RelativeLayout>

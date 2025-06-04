@@ -7,6 +7,10 @@ import android.view.MenuItem
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import com.draco.ladb.R
 import com.draco.ladb.databinding.ActivityBookmarksBinding
 import com.draco.ladb.viewmodels.BookmarksActivityViewModel
@@ -21,6 +25,20 @@ class BookmarksActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityBookmarksBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        /* Fix stupid Google edge-to-edge bullshit */
+        ViewCompat.setOnApplyWindowInsetsListener(binding.statusBarBackground) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
+
+            v.updateLayoutParams {
+                height = insets.top
+            }
+
+            WindowInsetsCompat.CONSUMED
+        }
+        supportActionBar!!.elevation = 0f
+        WindowCompat.getInsetsController(window, window.decorView)
+            .isAppearanceLightStatusBars = false
 
         initialText = intent.getStringExtra(Intent.EXTRA_TEXT) ?: ""
 
