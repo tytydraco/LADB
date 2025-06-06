@@ -251,6 +251,9 @@ class ADB(private val context: Context) {
 
     /**
      * Cycles wireless debugging to get a new port to scan.
+     *
+     * For whatever reason, Wireless Debugging needs to be
+     * cycled twice to broadcast a valid port.
      */
     fun cycleWirelessDebugging() {
         val secureSettingsGranted =
@@ -267,7 +270,7 @@ class ADB(private val context: Context) {
                         "adb_wifi_enabled",
                         0
                     )
-                    Thread.sleep(5_000)
+                    Thread.sleep(3_000)
                 }
 
                 debug("Turning on wireless debugging...")
@@ -276,7 +279,23 @@ class ADB(private val context: Context) {
                     "adb_wifi_enabled",
                     1
                 )
-                Thread.sleep(5_000)
+                Thread.sleep(3_000)
+
+                debug("Turning off wireless debugging...")
+                Settings.Global.putInt(
+                    context.contentResolver,
+                    "adb_wifi_enabled",
+                    0
+                )
+                Thread.sleep(3_000)
+
+                debug("Turning on wireless debugging...")
+                Settings.Global.putInt(
+                    context.contentResolver,
+                    "adb_wifi_enabled",
+                    1
+                )
+                Thread.sleep(3_000)
             }
         }
     }
