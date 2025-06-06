@@ -12,6 +12,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
 import com.draco.ladb.BuildConfig
 import com.draco.ladb.R
+import java.io.BufferedReader
 import java.io.File
 import java.io.PrintStream
 import java.util.concurrent.TimeUnit
@@ -71,6 +72,38 @@ class ADB(private val context: Context) {
         } catch (_: NumberFormatException) {
             MAX_OUTPUT_BUFFER_SIZE
         }
+    }
+
+    /**
+     * Get a list of connected devices.
+     */
+    fun getDevices(): List<String> {
+        val devicesProcess = adb(false, listOf("devices"))
+        devicesProcess.waitFor()
+
+        /* Get result of the command. */
+        val linesRaw = BufferedReader(devicesProcess.inputStream.reader()).readLines()
+
+        /* Remove "List of devices attached" line if it exists (it should). */
+        val deviceLines = linesRaw.filterNot { it ->
+            it.contains("List of devices attached")
+        }
+
+        /* Just get first part with device name/IP and port. */
+        var deviceNames = deviceLines.map { it ->
+            it.split("\t").first()
+        }
+
+        /* Remove any empty lines. */
+        deviceNames = deviceNames.filterNot { it ->
+            it.isEmpty()
+        }
+
+        for (name in deviceNames) {
+            Log.d("LINES", "<<<$name>>>")
+        }
+
+        return deviceNames
     }
 
     /**
@@ -158,12 +191,15 @@ class ADB(private val context: Context) {
                 debug("No ADB port discovered, fallback...")
 
             debug("Starting ADB server...")
-            adb(false, listOf("start-server")).waitFor()
+            adb(false, listOf("start-server")).waitFor(1, TimeUnit.MINUTES)
 
             val waitProcess = if (adbPort != null)
                 adb(false, listOf("connect", "localhost:$adbPort")).waitFor(1, TimeUnit.MINUTES)
             else
                 adb(false, listOf("wait-for-device")).waitFor(1, TimeUnit.MINUTES)
+
+            Log.d("LINES", "GET DEVICES")
+            getDevices()
 
             if (!waitProcess) {
                 debug("Your device didn't connect to LADB")
