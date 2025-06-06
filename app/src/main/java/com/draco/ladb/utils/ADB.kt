@@ -198,9 +198,6 @@ class ADB(private val context: Context) {
             else
                 adb(false, listOf("wait-for-device")).waitFor(1, TimeUnit.MINUTES)
 
-            Log.d("LINES", "GET DEVICES")
-            getDevices()
-
             if (!waitProcess) {
                 debug("Your device didn't connect to LADB")
                 debug("If a reboot doesn't work, please contact support")
@@ -210,11 +207,47 @@ class ADB(private val context: Context) {
             }
         }
 
+        val deviceList = getDevices()
+        Log.d("DEVICES", "Devices: $deviceList")
+
         shellProcess = if (autoShell) {
-            val argList = if (Build.SUPPORTED_ABIS[0] == "arm64-v8a")
-                listOf("-t", "1", "shell")
-            else
-                listOf("shell")
+            var argList = listOf("shell")
+
+            /* Uh oh, multiple possible devices... */
+            if (deviceList.size > 1) {
+                Log.w("DEVICES", "Multiple devices detected...")
+                val localDevices = deviceList.filter { it ->
+                    it.contains("localhost")
+                }
+
+                /* Choose the first local device (hopefully the only). */
+                if (localDevices.isNotEmpty()) {
+                    val serialId = localDevices.first()
+                    Log.w("DEVICES", "Choosing first local device: $serialId")
+                    argList = listOf("-s", serialId, "shell")
+                } else {
+                    /*
+                     * If no local devices to use, try to filter out
+                     * any emulator devices and choose the first remaining result.
+                     */
+
+                    val nonEmulators = deviceList.filterNot { it ->
+                        it.contains("emulator")
+                    }
+
+                    /* Choose the first non emulator device (hopefully the only). */
+                    if (nonEmulators.isNotEmpty()) {
+                        val serialId = nonEmulators.first()
+                        Log.w("DEVICES", "Choosing first non-emulator device: $serialId")
+                        argList = listOf("-s", serialId, "shell")
+                    } else {
+                        /* Otherwise, we're screwed, just choose the first device. */
+                        val serialId = deviceList.first()
+                        Log.w("DEVICES", "Choosing first unrecognized device: $serialId")
+                        argList = listOf("-s", serialId, "shell")
+                    }
+                }
+            }
 
             adb(true, argList)
         } else {
