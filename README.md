@@ -26,7 +26,7 @@ and rebooting.
 
 # License
 
-We're using a slightly modified license based on GPLv3 with the request to please not publish unofficial (user) LADB builds to the Google Play Store.
+The license is mostly permissive other than it does not allow unofficial builds to be released to the Google Play Store.
 
 # Support
 
