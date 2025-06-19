@@ -1,8 +1,11 @@
 package com.draco.ladb.views
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -12,6 +15,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.edit
 import androidx.core.view.ViewCompat
@@ -30,6 +35,8 @@ import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
+import androidx.core.net.toUri
+import java.io.BufferedReader
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainActivityViewModel by viewModels()
@@ -43,6 +50,45 @@ class MainActivity : AppCompatActivity() {
         val text = it.data?.getStringExtra(Intent.EXTRA_TEXT) ?: return@registerForActivityResult
         binding.command.setText(text)
     }
+
+    /*override fun onResume() {
+        super.onResume()
+        if (!Settings.canDrawOverlays(baseContext)) {
+            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                ("package:" + baseContext.packageName).toUri())
+            baseContext.startActivity(intent)
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.NEARBY_WIFI_DEVICES)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this, arrayOf(Manifest.permission.NEARBY_WIFI_DEVICES), 1001)
+        }
+
+        if (ContextCompat.checkSelfPermission(
+                baseContext,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                13
+            )
+        }
+
+        if (ContextCompat.checkSelfPermission(
+                baseContext,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                14
+            )
+        }
+    }*/
 
     private fun setupUI() {
         /* Fix stupid Google edge-to-edge bullshit */
@@ -165,6 +211,32 @@ class MainActivity : AppCompatActivity() {
         setupUI()
         setupDataListeners()
 
+        // Observe needsDebugPort and prompt user if needed
+        viewModel.needsDebugPort.observe(this) { needsPort ->
+            if (needsPort == true) {
+                val debugPortInput = com.google.android.material.textfield.TextInputEditText(this)
+                debugPortInput.inputType = android.text.InputType.TYPE_CLASS_NUMBER
+                val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Enter Debug Port")
+                    .setMessage("Enter the debug port (not the pairing port) shown in your device's Wireless Debugging screen.")
+                    .setView(debugPortInput)
+                    .setPositiveButton("OK") { _, _ ->
+                        val debugPort = debugPortInput.text.toString()
+                        if (debugPort.isNotEmpty()) {
+                            viewModel.adb.setManualDebugPort(debugPort)
+                            viewModel.resumeADBServerWithPort(debugPort)
+                        } else {
+                            viewModel.adb.debug("No debug port entered. Cannot continue.")
+                        }
+                    }
+                    .setNegativeButton("Cancel") { _, _ ->
+                        viewModel.adb.debug("User cancelled debug port entry.")
+                    }
+                    .create()
+                dialog.show()
+            }
+        }
+
         /* Ensure we are not running this a second time around */
         if (viewModel.viewModelHasStartedADB.value != true) {
             if (viewModel.isPairing.value != true)
@@ -191,6 +263,10 @@ class MainActivity : AppCompatActivity() {
                             viewModel.adb.debug("Trying to pair...")
                             val success = viewModel.adb.pair(port, code)
                             callback?.invoke(success)
+                            if (success)
+                                viewModel.adb.debug("Pairing successful.")
+                            else
+                                viewModel.adb.debug("Pairing failed. Please check your pairing code and port.")
                         }
                     }
 

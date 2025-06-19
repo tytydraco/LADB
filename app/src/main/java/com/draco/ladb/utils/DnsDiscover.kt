@@ -46,11 +46,27 @@ class DnsDiscover private constructor(
         }
         started = true
         aliveTime = System.currentTimeMillis()
-        nsdManager.discoverServices(
-            "_adb-tls-connect._tcp",
-            NsdManager.PROTOCOL_DNS_SD,
-            discoveryListener
+
+        val serviceTypes = listOf(
+            "_adb-tls-pairing._tcp.",
+            "_adb-tls-connect._tcp."
         )
+
+        serviceTypes.forEach { type ->
+            val listener = object : NsdManager.DiscoveryListener {
+                override fun onDiscoveryStarted(serviceType: String) {
+                    Log.d("DnsDiscover", "Discovery started for $serviceType")
+                }
+
+                override fun onServiceFound(serviceInfo: NsdServiceInfo) {}
+                override fun onServiceLost(serviceInfo: NsdServiceInfo) {}
+                override fun onDiscoveryStopped(serviceType: String) {}
+                override fun onStartDiscoveryFailed(serviceType: String, errorCode: Int) {}
+                override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) {}
+            }
+
+            nsdManager.discoverServices(type, NsdManager.PROTOCOL_DNS_SD, listener)
+        }
     }
 
     /**
