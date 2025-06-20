@@ -60,6 +60,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                     startShellDeathThread()
                     adb.appendToOutput("Start ADB Success!")
                     _viewModelHasStartedADB.postValue(true)
+                    _needsDebugPort.postValue(false)
                 }
                 is ADB.InitResult.NeedsPort -> {
                     adb.appendToOutput("Needs debug port manually.")
@@ -72,22 +73,19 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    fun resumeADBServerWithPort(port: String, callback: ((Boolean) -> (Unit))? = null) {
+    fun resumeADBServerWithPort(port: String) {
         viewModelScope.launch(Dispatchers.IO) {
             when (adb.resumeInitServerWithPort(port)) {
                 is ADB.InitResult.Success -> {
                     startShellDeathThread()
                     _viewModelHasStartedADB.postValue(true)
                     _needsDebugPort.postValue(false)
-                    callback?.invoke(true)
                 }
                 is ADB.InitResult.Failure -> {
                     _needsDebugPort.postValue(false)
-                    callback?.invoke(false)
                 }
                 else -> {
                     _needsDebugPort.postValue(false)
-                    callback?.invoke(false)
                 }
             }
         }

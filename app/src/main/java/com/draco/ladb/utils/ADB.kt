@@ -23,6 +23,7 @@ class ADB(private val context: Context) {
     companion object {
         const val MAX_OUTPUT_BUFFER_SIZE = 1024 * 16
         const val OUTPUT_BUFFER_DELAY_MS = 100L
+        const val LAST_CONNECTED_PORT_KEY = "ladb_last_connected_port"
 
         @SuppressLint("StaticFieldLeak")
         @Volatile
@@ -65,7 +66,6 @@ class ADB(private val context: Context) {
 
     private var manualDebugPort: String? = null
     private var lastConnectedPort: String? = null
-    private val LAST_CONNECTED_PORT_KEY = "ladb_last_connected_port"
 
     init {
         // Load last connected port from shared preferences

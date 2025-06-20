@@ -53,19 +53,7 @@ class DnsDiscover private constructor(
         )
 
         serviceTypes.forEach { type ->
-            val listener = object : NsdManager.DiscoveryListener {
-                override fun onDiscoveryStarted(serviceType: String) {
-                    Log.d("DnsDiscover", "Discovery started for $serviceType")
-                }
-
-                override fun onServiceFound(serviceInfo: NsdServiceInfo) {}
-                override fun onServiceLost(serviceInfo: NsdServiceInfo) {}
-                override fun onDiscoveryStopped(serviceType: String) {}
-                override fun onStartDiscoveryFailed(serviceType: String, errorCode: Int) {}
-                override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) {}
-            }
-
-            nsdManager.discoverServices(type, NsdManager.PROTOCOL_DNS_SD, listener)
+            nsdManager.discoverServices(type, NsdManager.PROTOCOL_DNS_SD, discoveryListener())
         }
     }
 
@@ -238,7 +226,7 @@ class DnsDiscover private constructor(
         nsdManager.resolveService(service, resolveListener)
     }
 
-    val discoveryListener = object : NsdManager.DiscoveryListener {
+    fun discoveryListener() = object : NsdManager.DiscoveryListener {
         override fun onDiscoveryStarted(regType: String) {
             Log.d(TAG, "Service discovery started")
         }
