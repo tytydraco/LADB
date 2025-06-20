@@ -30,6 +30,8 @@ import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
+import androidx.core.net.toUri
+
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainActivityViewModel by viewModels()
@@ -165,6 +167,32 @@ class MainActivity : AppCompatActivity() {
         setupUI()
         setupDataListeners()
 
+        // Observe needsDebugPort and prompt user if needed
+        viewModel.needsDebugPort.observe(this) { needsPort ->
+            if (needsPort == true) {
+                val debugPortInput = TextInputEditText(this)
+                debugPortInput.inputType = android.text.InputType.TYPE_CLASS_NUMBER
+                val dialog = AlertDialog.Builder(this)
+                    .setTitle("Enter Debug Port")
+                    .setMessage("Enter the debug port (not the pairing port) shown in your device's Wireless Debugging screen.")
+                    .setView(debugPortInput)
+                    .setPositiveButton("OK") { _, _ ->
+                        val debugPort = debugPortInput.text.toString()
+                        if (debugPort.isNotEmpty()) {
+                            viewModel.adb.setManualDebugPort(debugPort)
+                            viewModel.resumeADBServerWithPort(debugPort)
+                        } else {
+                            viewModel.adb.debug("No debug port entered. Cannot continue.")
+                        }
+                    }
+                    .setNegativeButton("Cancel") { _, _ ->
+                        viewModel.adb.debug("User cancelled debug port entry.")
+                    }
+                    .create()
+                dialog.show()
+            }
+        }
+
         /* Ensure we are not running this a second time around */
         if (viewModel.viewModelHasStartedADB.value != true) {
             if (viewModel.isPairing.value != true)
@@ -191,11 +219,16 @@ class MainActivity : AppCompatActivity() {
                             viewModel.adb.debug("Trying to pair...")
                             val success = viewModel.adb.pair(port, code)
                             callback?.invoke(success)
+                            if (success)
+                                viewModel.adb.debug("Pairing successful.")
+                            else
+                                viewModel.adb.debug("Pairing failed. Please check your pairing code and port.")
                         }
                     }
 
                     getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.tutorial_url)))
+                        val intent = Intent(Intent.ACTION_VIEW,
+                            getString(R.string.tutorial_url).toUri())
                         try {
                             startActivity(intent)
                         } catch (e: Exception) {

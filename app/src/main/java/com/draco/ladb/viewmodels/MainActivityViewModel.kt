@@ -42,23 +42,52 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val _viewModelHasStartedADB = MutableLiveData(false)
     val viewModelHasStartedADB: LiveData<Boolean> = _viewModelHasStartedADB
 
+    private val _needsDebugPort = MutableLiveData<Boolean>()
+    val needsDebugPort: LiveData<Boolean> = _needsDebugPort
+
     init {
         startOutputThread()
         dnsDiscover.scanAdbPorts()
     }
 
-
-    fun startADBServer(callback: ((Boolean) -> (Unit))? = null) {
+    fun startADBServer() {
         // Don't start if it's already started.
         if (_viewModelHasStartedADB.value == true || adb.running.value == true) return
 
         viewModelScope.launch(Dispatchers.IO) {
-            val success = adb.initServer()
-            if (success) {
-                startShellDeathThread()
-                _viewModelHasStartedADB.postValue(true)
+            when (adb.initServer()) {
+                is ADB.InitResult.Success -> {
+                    startShellDeathThread()
+                    adb.appendToOutput("Start ADB Success!")
+                    _viewModelHasStartedADB.postValue(true)
+                    _needsDebugPort.postValue(false)
+                }
+                is ADB.InitResult.NeedsPort -> {
+                    adb.appendToOutput("Needs debug port manually.")
+                    _needsDebugPort.postValue(true)
+                }
+                is ADB.InitResult.Failure -> {
+                    adb.appendToOutput("Failed to Start ADB!")
+                }
             }
-            callback?.invoke(success)
+        }
+    }
+
+    fun resumeADBServerWithPort(port: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            when (adb.resumeInitServerWithPort(port)) {
+                is ADB.InitResult.Success -> {
+                    startShellDeathThread()
+                    _viewModelHasStartedADB.postValue(true)
+                    _needsDebugPort.postValue(false)
+                }
+                is ADB.InitResult.Failure -> {
+                    _needsDebugPort.postValue(false)
+                }
+                else -> {
+                    _needsDebugPort.postValue(false)
+                }
+            }
         }
     }
 
