@@ -123,6 +123,7 @@ class ADB(private val context: Context) {
         if (autoShell) {
             /* Only do wireless debugging steps on compatible versions */
             if (secureSettingsGranted) {
+                disableMobileDataAlwaysOn()
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     cycleWirelessDebugging()
                 } else if (!isUSBDebuggingEnabled()) {
@@ -201,6 +202,11 @@ class ADB(private val context: Context) {
             if (!waitProcess) {
                 debug("Your device didn't connect to LADB")
                 debug("If a reboot doesn't work, please contact support")
+
+                if (isMobileDataAlwaysOnEnabled()) {
+                    debug("Please disable 'Mobile data always on' in Developer Settings!")
+                    Thread.sleep(5_000)
+                }
 
                 tryingToPair = false
                 return false
@@ -281,6 +287,31 @@ class ADB(private val context: Context) {
 
     private fun isUSBDebuggingEnabled() =
         Settings.Global.getInt(context.contentResolver, Settings.Global.ADB_ENABLED, 0) == 1
+
+    private fun isMobileDataAlwaysOnEnabled() =
+        Settings.Global.getInt(context.contentResolver, "mobile_data_always_on", 0) == 1
+
+    /**
+     * Settings.Global.MOBILE_DATA_ALWAYS_ON creates a bug
+     * with the DNS resolver.
+     */
+    fun disableMobileDataAlwaysOn() {
+        val secureSettingsGranted =
+            context.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) == PackageManager.PERMISSION_GRANTED
+
+        if (secureSettingsGranted) {
+            // Only turn it off if it's already on.
+            if (isMobileDataAlwaysOnEnabled()) {
+                debug("Disabling 'Mobile data always on'...")
+                Settings.Global.putInt(
+                    context.contentResolver,
+                    "mobile_data_always_on",
+                    0
+                )
+                Thread.sleep(3_000)
+            }
+        }
+    }
 
     /**
      * Cycles wireless debugging to get a new port to scan.
