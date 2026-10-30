@@ -240,6 +240,11 @@ class DnsDiscover private constructor(
 
         override fun onServiceLost(service: NsdServiceInfo) {
             Log.e(TAG, "Service lost: $service")
+            if (service.serviceName == bestServiceName) {
+                adbPort = null
+                bestExpirationTime = null
+                bestServiceName = null
+            }
         }
 
         override fun onDiscoveryStopped(serviceType: String) {

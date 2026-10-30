@@ -138,29 +138,6 @@ class ADB(private val context: Context) {
                 }
             }
 
-            /* Check again... */
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                if (!isWirelessDebuggingEnabled()) {
-                    debug("Wireless debugging is not enabled!")
-                    debug("Settings -> Developer options -> Wireless debugging")
-                    debug("Waiting for wireless debugging...")
-
-                    while (!isWirelessDebuggingEnabled()) {
-                        Thread.sleep(1_000)
-                    }
-                }
-            } else {
-                if (!isUSBDebuggingEnabled()) {
-                    debug("USB debugging is not enabled!")
-                    debug("Settings -> Developer options -> USB debugging")
-                    debug("Waiting for USB debugging...")
-
-                    while (!isUSBDebuggingEnabled()) {
-                        Thread.sleep(1_000)
-                    }
-                }
-            }
-
             val nowTime = System.currentTimeMillis()
             val maxTimeoutTime = nowTime + 10.seconds.inWholeMilliseconds
             val minDnsScanTime = (DnsDiscover.aliveTime ?: nowTime) + 3.seconds.inWholeMilliseconds
@@ -183,6 +160,29 @@ class ADB(private val context: Context) {
                 debug("Awaiting DNS resolver...")
 
                 Thread.sleep(1_000)
+            }
+
+            /* Check again... */
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (!isWirelessDebuggingEnabled()) {
+                    debug("Wireless debugging is not enabled!")
+                    debug("Settings -> Developer options -> Wireless debugging")
+                    debug("Waiting for wireless debugging...")
+
+                    while (!isWirelessDebuggingEnabled()) {
+                        Thread.sleep(1_000)
+                    }
+                }
+            } else {
+                if (!isUSBDebuggingEnabled()) {
+                    debug("USB debugging is not enabled!")
+                    debug("Settings -> Developer options -> USB debugging")
+                    debug("Waiting for USB debugging...")
+
+                    while (!isUSBDebuggingEnabled()) {
+                        Thread.sleep(1_000)
+                    }
+                }
             }
 
             val adbPort = DnsDiscover.adbPort
@@ -283,7 +283,7 @@ class ADB(private val context: Context) {
     }
 
     private fun isWirelessDebuggingEnabled() =
-        Settings.Global.getInt(context.contentResolver, "adb_wifi_enabled", 0) == 1
+        DnsDiscover.adbPort != null && !DnsDiscover.pendingResolves.get()
 
     private fun isUSBDebuggingEnabled() =
         Settings.Global.getInt(context.contentResolver, Settings.Global.ADB_ENABLED, 0) == 1
@@ -325,9 +325,27 @@ class ADB(private val context: Context) {
 
         if (secureSettingsGranted) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                debug("Cycling wireless debugging, please wait...")
-                // Only turn it off if it's already on.
-                if (isWirelessDebuggingEnabled()) {
+                try {
+                    debug("Cycling wireless debugging, please wait...")
+                    // Only turn it off if it's already on.
+                    if (isWirelessDebuggingEnabled()) {
+                        debug("Turning off wireless debugging...")
+                        Settings.Global.putInt(
+                            context.contentResolver,
+                            "adb_wifi_enabled",
+                            0
+                        )
+                        Thread.sleep(3_000)
+                    }
+
+                    debug("Turning on wireless debugging...")
+                    Settings.Global.putInt(
+                        context.contentResolver,
+                        "adb_wifi_enabled",
+                        1
+                    )
+                    Thread.sleep(3_000)
+
                     debug("Turning off wireless debugging...")
                     Settings.Global.putInt(
                         context.contentResolver,
@@ -335,31 +353,17 @@ class ADB(private val context: Context) {
                         0
                     )
                     Thread.sleep(3_000)
+
+                    debug("Turning on wireless debugging...")
+                    Settings.Global.putInt(
+                        context.contentResolver,
+                        "adb_wifi_enabled",
+                        1
+                    )
+                    Thread.sleep(3_000)
+                } catch (_: SecurityException) {
+                    debug("Could not cycle wireless debugging, continuing...")
                 }
-
-                debug("Turning on wireless debugging...")
-                Settings.Global.putInt(
-                    context.contentResolver,
-                    "adb_wifi_enabled",
-                    1
-                )
-                Thread.sleep(3_000)
-
-                debug("Turning off wireless debugging...")
-                Settings.Global.putInt(
-                    context.contentResolver,
-                    "adb_wifi_enabled",
-                    0
-                )
-                Thread.sleep(3_000)
-
-                debug("Turning on wireless debugging...")
-                Settings.Global.putInt(
-                    context.contentResolver,
-                    "adb_wifi_enabled",
-                    1
-                )
-                Thread.sleep(3_000)
             }
         }
     }
